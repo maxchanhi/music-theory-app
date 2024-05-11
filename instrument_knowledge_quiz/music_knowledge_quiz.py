@@ -2,10 +2,10 @@
 
 def knowledgemain():
     import streamlit as st
-    from topics import pick_topic
-    from data import fun_emoji_list
+    from instrument_knowledge_quiz.topics import pick_topic
+    from instrument_knowledge_quiz.data import fun_emoji_list
     from streamlit_extras.let_it_rain import rain
-    from AIfeedback import provide_feedback
+    from instrument_knowledge_quiz.AIfeedback import provide_feedback
     import random
 
     ss = st.session_state
@@ -46,7 +46,7 @@ def knowledgemain():
         ss["choosen_topic"] = pick_topic(test_topic)
         choosen_topic = ss["choosen_topic"]
         if test_topic == "Ornaments":
-            ss["get_url"] = ss["choosen_topic"]["pic_url"]
+            ss["get_url"] = "instrument_knowledge_quiz/"+ss["choosen_topic"]["pic_url"]
         else:
             ss["get_url"] = None
     if ss["choosen_topic"]:
