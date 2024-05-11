@@ -14,5 +14,5 @@ page_names_to_funcs = {
     "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,
     "Pitch Identification": pitch_main,"Interval": interval_main,
     "Identifying Key in a Melody": melody_key_main,"Chord Progression": chord_progression_main,
-    "Instrumental Knowledge": knowledge_main,
+    "Instrumental Knowledge": knowledgemain,
 }
