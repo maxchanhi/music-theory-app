@@ -1,4 +1,4 @@
-from question import reed,transposing,clef,voice_types,piano_knowledge,orniments,instrumental_technique
+from instrument_knowledge_quiz.question import reed,transposing,clef,voice_types,piano_knowledge,orniments,instrumental_technique
 def pick_topic(pick = str):
     topic = {'Reed':reed(),'Transposing':transposing(),
              "Clef":clef(),"Voice types":voice_types(),
