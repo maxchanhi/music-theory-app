@@ -1,5 +1,5 @@
 import random
-from data import instrument_clef,instrument_reeds,piano,orniment_url,playing_technique, impossiable_technique,instrumental_families
+from instrument_knowledge_quiz.data import instrument_clef,instrument_reeds,piano,orniment_url,playing_technique, impossiable_technique,instrumental_families
 def generate_options(correct,ava_options=list):
     options = [correct]
     while len(options) < 4:
