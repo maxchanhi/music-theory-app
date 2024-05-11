@@ -1,5 +1,5 @@
 from rhythm_generation.grouping_quiz.main import grouping_quiz_main
-from orchestration.music_knowledge_quiz import knowledge_main
+from instrument_knowledge_quiz import knowledgemain
 from compound_simple_time.main import compound_simple_main
 from interval.interval_quiz import interval_main
 from melody_key.find_key_main import melody_key_main
