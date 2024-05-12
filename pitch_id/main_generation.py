@@ -25,7 +25,7 @@ def score_generation(chosen_clef,chosen_accidental):
     note = f"{output_note+accidentals_lilypond[output_accidental]},".lower()
 
   lilypond_score = f"""
-  \\version "2.24.3"  % ensure this matches your LilyPond version
+  \\version "2.22.0"  
   \\header {{
     tagline = ""  % removes the default LilyPond tagline
   }}
