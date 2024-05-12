@@ -53,16 +53,16 @@ def score_generation(chosen_clef,chosen_accidental):
   with open('pitch_id/score.ly', 'w') as f:
       f.write(lilypond_score)
 
-  subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=pitch_id/cropped_score', 'pitch_id/score.ly'],
+  subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=pitch_id/score', 'pitch_id/score.ly'],
                    check=True)
-  """
+  
   with Image.open('pitch_id/score.png') as img:
       # Calculate the crop rectangle
       width, height = img.size
       crop_height = height // 10 
-      crop_rectangle = (120, 0, 350, crop_height)
+      crop_rectangle = (0, 0, 350, height)
       
       # add code to crop 1/10 from the top
       cropped_img = img.crop(crop_rectangle)
-      cropped_img.save(f'pitch_id/cropped_score.png')"""
+      cropped_img.save(f'pitch_id/cropped_score.png')
   return clef, output_note, output_accidental
