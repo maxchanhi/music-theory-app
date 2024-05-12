@@ -30,7 +30,7 @@ def chord_progression_main():
 
     def button_pressed():
         ss["button_pressed_chord"] = True
-        st.rerun()
+        
 
     # st.set_page_config(page_title="Harmonise melody")
 
