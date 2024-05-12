@@ -8,7 +8,7 @@ def grouping_quiz_main():
     
     ss=st.session_state
     if "question_data_g" not in ss:
-        ss.question_data_g=main_option()
+        ss.question_data_g=None
         ss["check_ans"]=False
 
     question_data=ss.question_data_g
