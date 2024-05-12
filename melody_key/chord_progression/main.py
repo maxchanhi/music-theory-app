@@ -44,7 +44,7 @@ def chord_progression_main():
 
     if new_score and ss["button_pressed_chord"]:
         ss["question_data"] = new_question(choosen_range)
-        st.experimental_rerun()
+        st.rerun()
 
     if "question_data" not in ss:
         ss["question_data"] = new_question(choosen_range)
