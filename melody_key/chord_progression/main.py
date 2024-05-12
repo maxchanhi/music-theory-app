@@ -58,7 +58,7 @@ def chord_progression_main():
     if st.button("Submit", on_click=button_pressed, disabled=ss["button_pressed_chord"]):
         options = ss["question_data"]["options"]
         correct_index = ss["question_data"]["correct_index"]
-        if options.index(user_ans) == correct_index:
+        if display_opts.index(user_ans) == correct_index:
             emoji = random.choice(fun_emoji_list)
             st.success(f"Correct!{emoji}")
             rain(emoji=emoji, animation_length=1)
