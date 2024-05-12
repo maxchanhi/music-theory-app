@@ -66,7 +66,7 @@ def main():
     try:    
         page_names_to_funcs[page_selected]()
     except:
-        st.warning("Sorry, this page is under construction")
+        st.warning("🚧Sorry, this page is under construction🚧")
 
 if __name__ == "__main__":
     main()
