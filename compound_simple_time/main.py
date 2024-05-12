@@ -34,7 +34,7 @@ def compound_simple_main():
     for idx, option in enumerate(question_data['options']):
         container = st.container()
         col1, col2 = container.columns([6, 1])
-        col1.image(f"compound_simple_time/static/cropped_score_wr_option_{idx}.png")
+        col1.image(f"compound_simple_time/temp/cropped_score_wr_option_{idx}.png")
             
         if f"disabled_{idx}" not in st.session_state:
             st.session_state[f"disabled_{idx}"] = False
