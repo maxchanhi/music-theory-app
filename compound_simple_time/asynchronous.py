@@ -1,7 +1,18 @@
 import asyncio
 from PIL import Image
 import os
-from compound_simple_time.score_gen import format_melody
+
+
+def format_melody(melody):
+  formatted = []
+  for note in melody:
+      # Remove unwanted characters
+      note = note.replace("'", "").replace(',', '').strip()#.replace('"', '')
+      formatted.append(note)
+  # Join the list into a string and return
+  return ' '.join(formatted)
+
+
 async def lilypond_generation(melody, name, uppertime, lowertime):
     lilypond_score = f"""
 \\version "2.22.0"  
