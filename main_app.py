@@ -63,8 +63,10 @@ def main():
         st.rerun()
     if page_selected  != "—":
         back_home()
-        
-    page_names_to_funcs[page_selected]()
+    try:    
+        page_names_to_funcs[page_selected]()
+    except:
+        st.warning("Sorry, this page is under construction")
 
 if __name__ == "__main__":
     main()
