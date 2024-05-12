@@ -20,7 +20,7 @@ def chord_progression_main():
         lilypond_generation(score_melody, "question", key_signature, accom_part)
         correct_index, options = question_generation(correct_option)
         dis_options = display_options(options)
-        print("fn question", correct_index, options, dis_options, key_signature)
+        ss["button_pressed_chord"] = False
         return {
             "correct_index": correct_index,
             "options": options,
