@@ -18,8 +18,8 @@ def chord_progression_main():
         accom_part=chord_accompany(key_signature,correct_option)
         lilypond_generation(score_melody, "question",key_signature,accom_part)
         correct_index,options=question_generation(correct_option)
-        options= display_options(options)
-        return correct_index,options,key_signature
+        dis_options= display_options(options)
+        return correct_index,options,dis_options,key_signature
     
     def button_pressed():
         ss["button_pressed_chord"]=True
@@ -40,10 +40,10 @@ def chord_progression_main():
     if "question_data" not in ss:
         ss["question_data"]=new_question(choosen_range)
 
-    correct_index,options,key_signature=ss["question_data"]
+    correct_index,options,dis_options,key_signature=ss["question_data"]
     print("question_data",ss["question_data"])
     st.image("melody_key/chord_progression/static/cropped_score_question.png", use_column_width=True)
-    user_ans = st.radio(f"Select the correct harmonic pattern in {key_signature}:",options)
+    user_ans = st.radio(f"Select the correct harmonic pattern in {key_signature}:",dis_options)
 
     if st.button("Submit",on_click=button_pressed,disabled=ss["button_pressed_chord"]):
         if options.index(user_ans) == correct_index:
