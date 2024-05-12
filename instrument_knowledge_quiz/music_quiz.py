@@ -25,6 +25,7 @@ def knowledgemain():
     def password_entered():
         if st.secrets['Password'] == ss['userpd']:
             ss["pw_visible"] = False
+            st.rerun()
         else:
             st.write("You can only preview!")
     if ss["pw_visible"]:
