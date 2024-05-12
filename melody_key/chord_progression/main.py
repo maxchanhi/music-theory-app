@@ -11,10 +11,10 @@ def chord_progression_main():
         
     def new_question(choosen_range="Major"):
         choosen_key=key_generation(choosen_range)
-        ss["question_data"] = main_generation(choosen_key)
-        score_melody = ss["question_data"]["melody"]
-        correct_option = ss["question_data"]["chord"]
-        key_signature = ss["question_data"]["key"]
+        question_data = main_generation(choosen_key)
+        score_melody = question_data["melody"]
+        correct_option = question_data["chord"]
+        key_signature = question_data["key"]
         accom_part=chord_accompany(key_signature,correct_option)
         lilypond_generation(score_melody, "question",key_signature,accom_part)
         correct_index,options=question_generation(correct_option)
@@ -41,10 +41,10 @@ def chord_progression_main():
     if "question_data" not in ss:
         ss["question_data"]=new_question(choosen_range)
 
-    correct_index,options,dis_options,key_signature=ss["question_data"]
     print("question_data",ss["question_data"])
     st.image("melody_key/chord_progression/static/cropped_score_question.png", use_column_width=True)
-    user_ans = st.radio(f"Select the correct harmonic pattern in {key_signature}:",dis_options)
+    user_ans = st.radio(f"Select the correct harmonic pattern in {
+        ss["question_data"]["key_signature"]}:",ss["question_data"]["dis_options"])
 
     if st.button("Submit",on_click=button_pressed,disabled=ss["button_pressed_chord"]):
         if options.index(user_ans) == correct_index:
@@ -55,6 +55,6 @@ def chord_progression_main():
             audio_generation()
             st.audio("melody_key/chord_progression/static/question.mp3")
         else:
-            st.warning(f"Incorrect! The answer is {correct_index}")
+            st.warning(f"Incorrect! The answer is {ss["question_data"]["correct_index"]}")
 if __name__ == "__main__":
     chord_progression_main()
