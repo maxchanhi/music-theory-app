@@ -2,7 +2,7 @@ from openai import OpenAI
 import os
 import streamlit as st
 api_key= st.secrets["OpenAI_key"]
-client = OpenAI(key=api_key)
+client = OpenAI(api_key=api_key)
 
 
 def provide_feedback(student_result,token=64):
