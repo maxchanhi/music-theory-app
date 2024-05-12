@@ -1,5 +1,5 @@
 from compound_simple_time.notation import  setting_generation,correct_tran_time_sign,equal_list,key_list,value_list
-from compound_simple_time.score_gen import remove_duplication
+from compound_simple_time.asynchronous import remove_duplication
 import random
 
 def rhythm_generation(all_rhythm_list,number_of_beat, 
