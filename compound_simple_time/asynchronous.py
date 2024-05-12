@@ -12,7 +12,19 @@ def format_melody(melody):
   # Join the list into a string and return
   return ' '.join(formatted)
 
+def remove_duplication(data=list()):
+    unique_data = {}
 
+    for time_sig, melodies in data:
+        # Convert the list of melodies to a tuple to make it hashable
+        melodies_tuple = tuple(melodies)
+        # Use the time signature and melodies tuple as the key to ensure uniqueness
+        unique_data[(time_sig, melodies_tuple)] = (time_sig, melodies)
+
+    # Extract unique values from the dictionary
+    unique_list = list(unique_data.values())
+    return unique_list
+  
 async def lilypond_generation(melody, name, uppertime, lowertime):
     lilypond_score = f"""
 \\version "2.22.0"  
