@@ -19,6 +19,7 @@ def chord_progression_main():
         lilypond_generation(score_melody, "question",key_signature,accom_part)
         correct_index,options=question_generation(correct_option)
         dis_options= display_options(options)
+        print("fn question",correct_index,options,dis_options,key_signature)
         return correct_index,options,dis_options,key_signature
     
     def button_pressed():
@@ -54,6 +55,6 @@ def chord_progression_main():
             audio_generation()
             st.audio("melody_key/chord_progression/static/question.mp3")
         else:
-            st.warning(f"Incorrect! The answer is {options[correct_index]}")
+            st.warning(f"Incorrect! The answer is {correct_index}")
 if __name__ == "__main__":
     chord_progression_main()
