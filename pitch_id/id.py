@@ -16,8 +16,10 @@ def pitch_main():
         st.session_state.current_answer = None
     if 'pressed_id' not in st.session_state:
         st.session_state.pressed_id = True
-    st.image("pitch_id/cropped_score.png", caption='Identify the note in the image') 
-
+    try:
+        st.image("pitch_id/cropped_score.png", caption='Identify the note in the image') 
+    except:
+        st.warning("Get a new question")
     col1, col2 = st.columns(2)
     with col1:
         # The select box for the note letters
