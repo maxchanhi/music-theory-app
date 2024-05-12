@@ -50,20 +50,19 @@ def lilypond_generation(melody, name,
         f.write(lilypond_score)
 
     # Generate PNG image and MIDI file
-    subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=compound_simple_time/score', 'compound_simple_time/score.ly'],
+    subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300',
+                    '--output=compound_simple_time/temp/score', 'compound_simple_time/score.ly'],
                    check=True)
 
-    with Image.open('compound_simple_time/score.png') as img:
+    with Image.open('compound_simple_time/temp/score.png') as img:
         width, height = img.size
         crop_height = height
         crop_rectangle = (0, 75, width, crop_height / 10)
         cropped_img = img.crop(crop_rectangle)
+        cropped_img.save(f'compound_simple_time/temp/cropped_score_{name}.png')
+    return f'compound_simple_time/temp/cropped_score_{name}.png'
 
-        os.makedirs('static', exist_ok=True)
-        cropped_img.save(f'compound_simple_time/static/cropped_score_{name}.png')
-    return f'compound_simple_time/static/cropped_score_{name}.png'
-
-def split_contect(data=[(6, 8), ['\\tuplet 2/3 {a8 g8}', 'b4.', 'e8 b8 g8', 'a8 e4']]):
+def split_contect(data):
     uppertime = data[0][0]
     lowertime = data[0][1]
     melody = data[1]
