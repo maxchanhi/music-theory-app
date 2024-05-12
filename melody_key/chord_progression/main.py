@@ -56,6 +56,7 @@ def chord_progression_main():
             audio_generation()
             st.audio("melody_key/chord_progression/static/question.mp3")
         else:
-            st.warning(f"Incorrect! The answer is {ss["question_data"]["correct_index"]}")
+            dis_idx=ss["question_data"]["correct_index"]
+            st.warning(f"Incorrect! The answer is {dis_idx}")
 if __name__ == "__main__":
     chord_progression_main()
