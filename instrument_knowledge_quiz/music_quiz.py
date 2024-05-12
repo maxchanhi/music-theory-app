@@ -23,7 +23,7 @@ def knowledgemain():
     st.title('Instrumental Knowledge Quiz')
 
     def password_entered():
-        if st.secrets['Password'] == ss['userpd']:
+        if ss['userpd'] in st.secrets['Password'] :
             ss["pw_visible"] = False
             st.rerun()
         else:
