@@ -59,7 +59,7 @@ def lilypond_generation(melody, name, key,accompany):
     for bar in melody:
         score_meldoy.extend(bar)
     lilypond_score = f"""
-\\version "2.24.1"  
+\\version "2.22.0"  
 \\header {{
   tagline = "" \\language "english"
 }}
@@ -105,7 +105,7 @@ def lilypond_generation(melody, name, key,accompany):
     with Image.open('melody_key/chord_progression/static/score.png') as img:
         width, height = img.size
         crop_height = height
-        crop_rectangle = (0, 75, width, crop_height / 5.5)
+        crop_rectangle = (0, 75, width,height) #crop_height / 5.5
         cropped_img = img.crop(crop_rectangle)
 
         cropped_img.save(f'melody_key/chord_progression/static/cropped_score_{name}.png')
