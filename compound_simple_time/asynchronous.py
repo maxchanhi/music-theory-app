@@ -64,7 +64,7 @@ async def lilypond_generation(melody, name, uppertime, lowertime):
     await proc.wait()
     with Image.open(f'compound_simple_time/temp/score_{name}.png') as img:
         width, height = img.size
-        crop_rectangle = (0, 75, width, height)#crop_height / 10
+        crop_rectangle = (0, 0, width, height)#crop_height / 10
         cropped_img = img.crop(crop_rectangle)
 
         cropped_img.save(f'compound_simple_time/temp/cropped_score_{name}.png')
