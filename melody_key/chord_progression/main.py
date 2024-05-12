@@ -43,7 +43,9 @@ def chord_progression_main():
     
     print("question_data",ss["question_data"])
     st.image("melody_key/chord_progression/static/cropped_score_question.png", use_column_width=True)
-    user_ans = st.radio(f"Select the correct harmonic pattern in {ss['question_data']['key_signature']}:", ss["question_data"]["dis_options"])
+    display_key=ss['question_data']['key_signature']
+    display_opts=ss["question_data"]["dis_options"]
+    user_ans = st.radio(f"Select the correct harmonic pattern in {display_key}:",display_opts )
     
     if st.button("Submit",on_click=button_pressed,disabled=ss["button_pressed_chord"]):
         if options.index(user_ans) == correct_index:
