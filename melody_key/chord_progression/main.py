@@ -6,6 +6,8 @@ def chord_progression_main():
     from melody_key.chord_progression.progression import main_generation,key_generation
     from streamlit_extras.let_it_rain import rain
     ss=st.session_state
+    if "button_pressed_chord" not in ss:
+        ss["button_pressed_chord"]=False
     def new_question(choosen_range="Major"):
         choosen_key=key_generation(choosen_range)
         ss["question_data"] = main_generation(choosen_key)
@@ -16,11 +18,11 @@ def chord_progression_main():
         lilypond_generation(score_melody, "question",key_signature,accom_part)
         correct_index,options=question_generation(correct_option)
         options= display_options(options)
-        ss["button_pressed_chord"]=False
+        
         return correct_index,options,key_signature
     def button_pressed():
         ss["button_pressed_chord"]=True
-        return ss["button_pressed_chord"]
+
     #st.set_page_config(page_title="Harmonise melody")
 
     st.title("Identify the Correct Harmonic Pattern")
