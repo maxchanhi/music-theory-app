@@ -4,7 +4,7 @@ import os
 from compound_simple_time.score_gen import format_melody
 async def lilypond_generation(melody, name, uppertime, lowertime):
     lilypond_score = f"""
-\\version "2.24.1"  
+\\version "2.22.0"  
 \\header {{
   tagline = "" \\language "english"
 }}
@@ -36,17 +36,17 @@ async def lilypond_generation(melody, name, uppertime, lowertime):
     # Generate PNG image and MIDI file
     proc = await asyncio.create_subprocess_exec(
         'lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300',
-       f'--output=compound_simple_time/static/score_{name}', f'compound_simple_time/temp/score_{name}.ly'
+       f'--output=compound_simple_time/temp/score_{name}', f'compound_simple_time/temp/score_{name}.ly'
     )
     await proc.wait()
-    with Image.open(f'compound_simple_time/static/score_{name}.png') as img:
+    with Image.open(f'compound_simple_time/temp/score_{name}.png') as img:
         width, height = img.size
         crop_height = height
         crop_rectangle = (0, 75, width, crop_height / 10)
         cropped_img = img.crop(crop_rectangle)
 
-        cropped_img.save(f'compound_simple_time/static/cropped_score_{name}.png')
-    return f'compound_simple_time/static/cropped_score_{name}.png'
+        cropped_img.save(f'compound_simple_time/temp/cropped_score_{name}.png')
+    return f'compound_simple_time/temp/cropped_score_{name}.png'
 
 async def score_generation(question_data):
     tasks = []
