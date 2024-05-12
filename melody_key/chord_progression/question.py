@@ -105,7 +105,7 @@ def lilypond_generation(melody, name, key,accompany):
     with Image.open('melody_key/chord_progression/static/score.png') as img:
         width, height = img.size
         crop_height = height
-        crop_rectangle = (0, 75, width,height) #crop_height / 5.5
+        crop_rectangle = (0, 0, width,height) #crop_height / 5.5
         cropped_img = img.crop(crop_rectangle)
 
         cropped_img.save(f'melody_key/chord_progression/static/cropped_score_{name}.png')
