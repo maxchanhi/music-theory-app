@@ -4,7 +4,7 @@ import random
 catagory = ["Correct notation", "Dotted rest in simple time",
             "Syncopated rest",
             "Breaking a rest",
-            "Beaming issue","Unclear down beat","Hemiola"]
+            "Beaming issue","Unclear down beat","Hemiola grouping"]
 
 urls = ["Correct_rest", "Dotted_rhythm",
         "Syncopated_rest",
