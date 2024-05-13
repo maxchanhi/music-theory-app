@@ -4,12 +4,12 @@ import random
 catagory = ["Correct notation", "Dotted rest in simple time",
             "Syncopated rest",
             "Breaking a rest",
-            "Beaming issue","Confused Syncopation"]
+            "Beaming issue","Unclear down beat","Hemiola"]
 
 urls = ["Correct_rest", "Dotted_rhythm",
         "Syncopated_rest",
         "Breaking_a_rest",
-        "beaming","confused_syncopation"]
+        "beaming","confused_syncopation","hemiola"]
 
 options = list(zip(catagory, urls))
 def get_catagory():
