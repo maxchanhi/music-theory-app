@@ -52,12 +52,12 @@ piano={"Ped.":"Press the right pedal/ sustain pedal.",
        "mano sinistra(m.s.)":"Play with left hand",
        "mano destra(m.d.)":"Play with right hand"}
 
-orniment_url={"acci_1.png":"Acciaccatura","acci_2.png":"Acciaccatura",
-              "appo_1.png":"Appoggiatura","appo_1.png":"Appoggiatura",
-              "ARPEGGIATION_1.png":"Appeggiation","ARPEGGIATION_2.png":"Appeggiation",
-              "mordent_1.png":"Mordent","mordent_2.png":"Mordent",
-              "trill_1.png":"Trill","trill_2.png":"Trill",
-              "turn_1.png":"Turn","turn_2.png":"Turn","turn_3.png":"Turn"}
+orniment_url={"acci_1.jpg":"Acciaccatura","acci_2.jpg":"Acciaccatura",
+              "appo_1.jpg":"Appoggiatura","appo_1.jpg":"Appoggiatura",
+              "ARPEGGIATION_1.jpg":"Appeggiation","ARPEGGIATION_2.jpg":"Appeggiation",
+              "mordent_1.jpg":"Mordent","mordent_2.jpg":"Mordent",
+              "trill_1.jpg":"Trill","trill_2.jpg":"Trill",
+              "turn_1.jpg":"Turn","turn_2.jpg":"Turn","turn_3.jpg":"Turn"}
 ### playing techniques
 playing_technique = {
     "strings": ["arco", "pizzicato", "legato", "staccato", "marcato", "accent", "con sordino"],
