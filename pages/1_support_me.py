@@ -4,7 +4,7 @@ from streamlit_extras.buy_me_a_coffee import button
 
 import random
 if st.button("Home"):
-            support_url = "/"  # Replace with your actual support URL
+            support_url = "/main_app"   # Replace with your actual support URL
             st.markdown(f'<meta http-equiv="refresh" content="0; url={support_url}">', unsafe_allow_html=True)
 st.title(f"Buy me a coffee{random.choice(fun_emoji_list)}")
 st.write("Making this app is not easy. Your support is appreciated. It does not have to be financially. Your feedback is also crucial. Email and Paypal email: chakhangc@yahoo.com.hk")
