@@ -46,7 +46,7 @@ def pitch_main():
             fun_emoji = random.choice(fun_emoji_list)
             rain(emoji = fun_emoji,animation_length="1")
         else:
-            st.error(f"The answer should be {st.session_state.current_answer}")
+            st.error(f"The answer should be {st.session_state.current_answer_id}")
        
 if __name__ == "__main__":
     pitch_main()
