@@ -30,6 +30,7 @@ def compound_simple_main():
         st.session_state.question_data_com = main_generate()
         asyncio.run(score_generation(st.session_state.question_data_com))
         st.session_state.submit_pressed_com = False
+        st.rerun()
     st.image("compound_simple_time/temp/cropped_score_question_melody.png", caption='Question')
 
     for idx, option in enumerate(question_data['options']):
