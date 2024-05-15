@@ -1,7 +1,7 @@
 import streamlit as st
 
 if st.button("Home"):
-    support_url = "/" 
+    support_url = ".app" 
     st.markdown(f'<meta http-equiv="refresh" content="0; url={support_url}">', unsafe_allow_html=True)
 st.title("About me😄")
 st.write("I began my musical journey playing the flute and pursued both my Bachelor's and Master's degrees at Hong Kong Baptist University. During my undergraduate studies, I took up the bassoon as my second instrument, flute was my major instrument, that is quite important. After graduating from HKBU, I pursued a Master of Composition degree at the Royal Birmingham Conservatoire. I also taught myself Python so I can hop on the AI hype train. I am now back in Hong Kong, developing an app while start learning the clarinet.")
