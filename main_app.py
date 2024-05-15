@@ -1,9 +1,12 @@
 import streamlit as st
 from urls import *
+from melody_key.chord_progression.notation import fun_emoji_list
+import random
 #from urls import page_names_to_funcs
 def intro():
-    st.title("Music Theory App")
-    st.write("Welcome to the Music Theory App!")
+    em= random.choice(fun_emoji_list)
+    st.title(f"{em}Music Theory App{em}")
+    st.write(f"Welcome to my Music Theory App! You can practice your ABRSM grade 5 theory! {random.choice(fun_emoji_list)}")
     st.session_state.demo_name = "—"
 
     # Rhythm-related container
@@ -47,6 +50,18 @@ def intro():
         if st.button("Instrumental Knowledge"):
             st.session_state.demo_name = "Instrumental Knowledge"
             st.rerun()
+    with st.expander("Learn more",expanded=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Support me"):
+                support_url = "/support_me"  # Replace with your actual support URL
+                st.markdown(f'<meta http-equiv="refresh" content="0; url={support_url}">', unsafe_allow_html=True)
+        with col2:
+            if st.button("About me"):
+                support_url = "/about_me"  # Replace with your actual support URL
+                st.markdown(f'<meta http-equiv="refresh" content="0; url={support_url}">', unsafe_allow_html=True)
+  
+    
 def back_home():
     if st.button("Home"):
         st.session_state.demo_name = "—"
@@ -63,8 +78,8 @@ def main():
         st.rerun()
     if page_selected  != "—":
         back_home()
-       
+        
     page_names_to_funcs[page_selected]()
-    
+
 if __name__ == "__main__":
     main()
