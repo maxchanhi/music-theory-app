@@ -13,7 +13,7 @@ def pitch_main():
         st.stop()
 
     if 'current_answer' not in st.session_state:
-        st.session_state.current_answer = None
+        st.session_state.current_answer_id = None
     if 'pressed_id' not in st.session_state:
         st.session_state.pressed_id = True
     try:
@@ -28,7 +28,7 @@ def pitch_main():
         if new_quest and st.session_state.pressed_id:
             st.session_state.pressed_id = False
             clef, note,acc = score_generation(chosen_clefs,chosen_accidental)
-            st.session_state.current_answer = f"{note} {acc}"
+            st.session_state.current_answer_id = f"{note} {acc}"
             st.rerun()
         
     with col2:
@@ -39,9 +39,9 @@ def pitch_main():
 
     if check_ans :
         user_ans = f"{selected_note} {selected_accidental}"
-        print(st.session_state.current_answer,user_ans)
+        print(st.session_state.current_answer_id,user_ans)
         st.session_state.pressed_id = True
-        if user_ans.lower() == st.session_state.current_answer.lower():
+        if user_ans.lower() == st.session_state.current_answer_id.lower():
             st.success("Correct")
             fun_emoji = random.choice(fun_emoji_list)
             rain(emoji = fun_emoji,animation_length="1")
