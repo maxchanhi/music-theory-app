@@ -8,6 +8,7 @@ def compound_simple_main():
         st.session_state[f"disabled_{idx}"] = True
     from compound_simple_time.melody import main_generate
     from compound_simple_time.notation import fun_emoji_list
+    from urls import disclaimer
     import asyncio,random
     from compound_simple_time.asynchronous import score_generation
     import streamlit as st
@@ -63,6 +64,6 @@ def compound_simple_main():
         else:
             st.error(f"Wrong answer! The correct answer is Option {correct_idx + 1}")
 
-
+    disclaimer()
 if __name__ == "__main__":
     compound_simple_main()
