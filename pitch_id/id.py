@@ -37,7 +37,7 @@ def pitch_main():
         check_ans = st.button("Check Answer", disabled=st.session_state.pressed_id)
     
 
-    if check_ans and user_ans:
+    if check_ans :
         user_ans = f"{selected_note} {selected_accidental}"
         print(st.session_state.current_answer,user_ans)
         st.session_state.pressed_id = True
