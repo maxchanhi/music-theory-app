@@ -50,6 +50,7 @@ def intro():
         if st.button("Instrumental Knowledge"):
             st.session_state.demo_name = "Instrumental Knowledge"
             st.rerun()
+    
     with st.expander("Learn more",expanded=True):
         col1, col2 = st.columns(2)
         with col1:
