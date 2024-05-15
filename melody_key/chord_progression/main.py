@@ -5,7 +5,7 @@ def chord_progression_main():
     from melody_key.chord_progression.question import lilypond_generation, question_generation, display_options, chord_accompany, audio_generation
     from melody_key.chord_progression.progression import main_generation, key_generation
     from streamlit_extras.let_it_rain import rain
-
+    from urls import disclaimer
     ss = st.session_state
     if "button_pressed_chord" not in ss:
         ss["button_pressed_chord"] = False
@@ -68,6 +68,7 @@ def chord_progression_main():
         else:
             dis_idx = display_opts[ ss["question_data"]["correct_index"]]
             st.warning(f"Incorrect! The answer is {dis_idx}")
+    disclaimer()
 
 if __name__ == "__main__":
     chord_progression_main()
