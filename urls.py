@@ -1,4 +1,4 @@
-from rhythm_generation.grouping_quiz.main import grouping_quiz_main
+from grouping_quiz.main import grouping_quiz_main
 from orchestration.music_knowledge_quiz import knowledge_main
 from compound_simple_time.main import compound_simple_main
 from interval.interval_quiz import interval_main
