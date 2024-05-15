@@ -5,6 +5,7 @@ def melody_key_main():
     from melody_key.score_generation import lilypond_generation
     from melody_key.motif import generate_options,main_generation
     from streamlit_extras.let_it_rain import rain
+    from urls import disclaimer
     #st.set_page_config(page_title="Identify Key in Melody")
 
     st.title("Identify the Key in Melody")
@@ -76,6 +77,7 @@ def melody_key_main():
                 fun_emoji = random.choice(fun_emoji_list)
                 rain(emoji = fun_emoji,animation_length="1")
             elif user_answer != ans_key:
-                st.warning(f"Incorrect. The correct answer is {st.session_state['ans_key']}.") 
+                st.warning(f"Incorrect. The correct answer is {st.session_state['ans_key']}.")
+    disclaimer()
 if __name__ == "__main__":
     melody_key_main()
