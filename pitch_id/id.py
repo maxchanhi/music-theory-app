@@ -12,7 +12,7 @@ def pitch_main():
         st.warning("Please select at least one clef")
         st.stop()
 
-    if 'current_answer' not in st.session_state:
+    if 'current_answer_id' not in st.session_state:
         st.session_state.current_answer_id = None
     if 'pressed_id' not in st.session_state:
         st.session_state.pressed_id = True
@@ -37,7 +37,7 @@ def pitch_main():
         check_ans = st.button("Check Answer", disabled=st.session_state.pressed_id)
     
 
-    if check_ans :
+    if check_ans and st.session_state.current_answer_id:
         user_ans = f"{selected_note} {selected_accidental}"
         print(st.session_state.current_answer_id,user_ans)
         st.session_state.pressed_id = True
