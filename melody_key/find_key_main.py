@@ -43,11 +43,11 @@ def melody_key_main():
         st.stop()
     if 'user_answer_mk' not in st.session_state:
         st.session_state['user_answer_mk'] = ''
-    if 'ans_key' not in st.session_state:
+    if 'ans_key_mk' not in st.session_state:
         st.session_state['ans_key_mk'] = ''
-    if 'options' not in st.session_state:
+    if 'options_mk' not in st.session_state:
         st.session_state['options_mk'] = ''
-    if "pressed" not in st.session_state:
+    if "pressed_mk" not in st.session_state:
         st.session_state["pressed_mk"] = True
 
     new_score = st.button("Generate Score")
