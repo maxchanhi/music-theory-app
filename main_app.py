@@ -1,6 +1,5 @@
 import streamlit as st
 from urls import *
-from melody_key.chord_progression.notation import fun_emoji_list
 import random
 #from urls import page_names_to_funcs
 def intro():
