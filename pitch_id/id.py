@@ -36,7 +36,8 @@ def pitch_main():
         # The select box for the accidentals
         selected_accidental = st.selectbox('Select the accidental:', accidentals)
         check_ans = st.button("Check Answer", disabled=st.session_state.pressed_id)
-    
+    if 'current_answer_id' not in st.session_state:
+        st.session_state.current_answer_id = None
 
     if check_ans and st.session_state.current_answer_id:
         user_ans = f"{selected_note} {selected_accidental}"
