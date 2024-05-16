@@ -5,7 +5,7 @@ from interval.interval_quiz import interval_main
 from melody_key.find_key_main import melody_key_main
 from pitch_id.id import pitch_main
 from melody_key.chord_progression.main import chord_progression_main
-from main_app import intro,main
+
 import streamlit as st
 
 fun_emoji_list = [
