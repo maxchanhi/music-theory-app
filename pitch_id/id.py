@@ -28,7 +28,9 @@ def pitch_main():
         if new_quest and st.session_state.pressed_id:
             st.session_state.pressed_id = False
             clef, note,acc = score_generation(chosen_clefs,chosen_accidental)
-            st.session_state.current_answer_id = f"{note} {acc}"
+            current_note=f"{note} {acc}"
+            st.session_state.current_answer_id = current_note
+            
             print("current_answer",st.session_state.current_answer_id)
             st.rerun()
         
