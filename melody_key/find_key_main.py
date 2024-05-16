@@ -58,9 +58,10 @@ def melody_key_main():
         melody = main_generation(st.session_state['ans_key_mk'])
         lilypond_generation(melody,"testing",4,4)
         print("options", st.session_state['options_mk'] )
+        st.rerun()
     if st.session_state['options_mk']:
         st.write("What key is the score in?")
-        st.image("melody_key/static/cropped_score_testing.png", use_column_width=True)
+        st.image("melody_key/static/score.png", use_column_width=True)
         st.audio("melody_key/static/testing.mp3", format="audio/mpeg")
         user_answer = st.radio("Select the key:", st.session_state['options_mk'],index=None )
         st.session_state['user_answer_mk'] = user_answer
