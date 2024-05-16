@@ -8,7 +8,13 @@ from melody_key.chord_progression.main import chord_progression_main
 from main_app import intro,main
 import streamlit as st
 
-    
+fun_emoji_list = [
+    "😂",  "🎉",   "🚀",  "🐱", 
+    "🐶",  "🦄",  
+    "🎶",  "😱","👼🏻","💃🏻","🐰","🐒","🐣","🦀","💥","✨","🥳",
+    "🍦",  "🌟",  "👻",  
+    "🎈",   "🎮",  "💩"
+]
 page_names_to_funcs = {
     "—": intro,
     "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,
