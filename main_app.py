@@ -1,5 +1,5 @@
 import streamlit as st
-from urls import *
+from urls import fun_emoji_list, page_names_to_funcs
 import random
 #from urls import page_names_to_funcs
 def intro():
