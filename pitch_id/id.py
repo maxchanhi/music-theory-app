@@ -29,6 +29,7 @@ def pitch_main():
             st.session_state.pressed_id = False
             clef, note,acc = score_generation(chosen_clefs,chosen_accidental)
             st.session_state.current_answer_id = f"{note} {acc}"
+            print("current_answer",st.session_state.current_answer_id)
             st.rerun()
         
     with col2:
