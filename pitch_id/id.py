@@ -42,8 +42,9 @@ def pitch_main():
     if check_ans and st.session_state.current_answer_id:
         user_ans = f"{selected_note} {selected_accidental}"
         print(st.session_state.current_answer_id,user_ans)
+        current_ans=st.session_state.current_answer_id
         st.session_state.pressed_id = True
-        if user_ans.lower() == st.session_state.current_answer_id.lower():
+        if user_ans.lower() == current_ans.lower():
             st.success("Correct")
             fun_emoji = random.choice(fun_emoji_list)
             rain(emoji = fun_emoji,animation_length="1")
