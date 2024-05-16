@@ -31,7 +31,7 @@ def pitch_main():
             current_note=f"{note} {acc}"
             st.session_state.current_answer_id = current_note
             
-            print("current_answer",st.session_state.current_answer_id)
+            print("current_answer",current_note)
             st.rerun()
         
     with col2:
