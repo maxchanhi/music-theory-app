@@ -15,13 +15,7 @@ fun_emoji_list = [
     "🍦",  "🌟",  "👻",  
     "🎈",   "🎮",  "💩"
 ]
-page_names_to_funcs = {
-    "—": intro,
-    "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,
-    "Pitch Identification": pitch_main,"Interval": interval_main,
-    "Identifying Key in a Melody": melody_key_main,"Chord Progression": chord_progression_main,
-    "Instrumental Knowledge": knowledgemain,
-}
+
 import streamlit as st
 
 import random
@@ -90,8 +84,13 @@ def back_home():
     if st.button("Home"):
         st.session_state.demo_name = "—"
         st.rerun()
-
-def main():
+page_names_to_funcs = {
+    "—": intro,
+    "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,
+    "Pitch Identification": pitch_main,"Interval": interval_main,
+    "Identifying Key in a Melody": melody_key_main,"Chord Progression": chord_progression_main,
+    "Instrumental Knowledge": knowledgemain,
+}def main():
     st.set_page_config(page_title="Music Theory App")
     if 'demo_name' not in st.session_state:
         st.session_state.demo_name = "—"
