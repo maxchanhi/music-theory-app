@@ -57,7 +57,7 @@ def melody_key_main():
         st.session_state['options_mk'] = generate_options(st.session_state['ans_key_mk'], selected_keys)
         melody = main_generation(st.session_state['ans_key_mk'])
         lilypond_generation(melody,"testing",4,4)
-        print("options", st.session_state['options'] )
+        print("options", st.session_state['options_mk'] )
     if st.session_state['options_mk']:
         st.write("What key is the score in?")
         st.image("melody_key/static/cropped_score_testing.png", use_column_width=True)
