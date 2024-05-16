@@ -70,7 +70,7 @@ def interval_main():
     
     if st.session_state['picture'] :
         image_path = "interval/static/images/cropped_score_ans.png"
-        st.image(image_path, use_column_width=False)
+        st.image(image_path, use_column_width="auto")
     else:
         st.warning("⬆️Press for a New Question")
     
