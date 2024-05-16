@@ -37,7 +37,7 @@ def plain_melody(melody):
 def lilypond_generation(melody, name, uppertime, lowertime):
     melody = plain_melody(melody)
     lilypond_score = f"""
-\\version "2.24.1"  
+\\version "2.22.0"  
 \\header {{
   tagline = "" \\language "english"
 }}
@@ -71,25 +71,18 @@ def lilypond_generation(melody, name, uppertime, lowertime):
 }}
 """
 
-    with open('melody_key/score.ly', 'w') as f:
+    with open('melody_key/static/score.ly', 'w') as f:
         f.write(lilypond_score)
 
     # Generate PNG image and MIDI file
-    subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=melody_key/score', 'melody_key/score.ly'],
+    subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=melody_key/static/score', 'melody_key/static/score.ly'],
                    check=True)
 
     # Generate MP3 file
-    subprocess.run(['fluidsynth', '-ni', 'melody_key/GeneralUser/Yamaha-Grand-Lite-SF-v1.1.sf2', 'melody_key/score.midi', '-F', f'melody_key/static/{name}.mp3', '-r', '44100'],
+    subprocess.run(['fluidsynth', '-ni', 'melody_key/GeneralUser/Yamaha-Grand-Lite-SF-v1.1.sf2', 'melody_key/static/score.midi', '-F', f'melody_key/static/{name}.mp3', '-r', '44100'],
                check=True)
 
-    with Image.open('melody_key/score.png') as img:
-        width, height = img.size
-        crop_height = height
-        crop_rectangle = (0, 75, width, crop_height / 10)
-        cropped_img = img.crop(crop_rectangle)
-
-        cropped_img.save(f'melody_key/static/cropped_score_{name}.png')
-    return f'melody_key/static/cropped_score_{name}.png'
+    return f'melody_key/static/score.png'
 
 def lilypond_homophonic(melody,harmony, name, uppertime, lowertime):
     lilypond_score = f"""
