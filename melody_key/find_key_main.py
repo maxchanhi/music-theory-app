@@ -68,11 +68,11 @@ def melody_key_main():
             st.session_state['user_answer_mk'] = user_answer
 
             ans_key = st.session_state['ans_key_mk']
+            print("user_answer", st.session_state['user_answer_mk'], "ans_key", ans_key)
         except:
             st.warning("Press Generate Score")
     check = st.button("Check Answer",disabled=st.session_state["pressed_mk"])
 
-    print("user_answer", st.session_state['user_answer_mk'], "ans_key", ans_key)
     if check:
         st.session_state["pressed_mk"] = True
         if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
