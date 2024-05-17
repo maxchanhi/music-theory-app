@@ -73,7 +73,7 @@ def melody_key_main():
             st.warning("Press Generate Score")
     check = st.button("Check Answer",disabled=st.session_state["pressed_mk"])
 
-    if check:
+    if check and  st.session_state['user_answer_mk'] is not None:
         st.session_state["pressed_mk"] = True
         if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
             st.success("Correct!")
