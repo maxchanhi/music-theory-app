@@ -61,23 +61,26 @@ def melody_key_main():
         st.rerun()
     if st.session_state['options_mk']:
         st.write("What key is the score in?")
-        st.image("melody_key/static/score.png", use_column_width=True)
-        st.audio("melody_key/static/testing.mp3", format="audio/mpeg")
-        user_answer = st.radio("Select the key:", st.session_state['options_mk'],index=None )
-        st.session_state['user_answer_mk'] = user_answer
+        try:
+            st.image("melody_key/static/score.png", use_column_width=True)
+            st.audio("melody_key/static/testing.mp3", format="audio/mpeg")
+            user_answer = st.radio("Select the key:", st.session_state['options_mk'],index=None )
+            st.session_state['user_answer_mk'] = user_answer
 
-        ans_key = st.session_state['ans_key_mk']
-        check = st.button("Check Answer",disabled=st.session_state["pressed_mk"])
+            ans_key = st.session_state['ans_key_mk']
+        except:
+            st.warning("Press Generate Score")
+    check = st.button("Check Answer",disabled=st.session_state["pressed_mk"])
 
-        print("user_answer", st.session_state['user_answer_mk'], "ans_key", ans_key)
-        if check:
-            st.session_state["pressed_mk"] = True
-            if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
-                st.success("Correct!")
-                fun_emoji = random.choice(fun_emoji_list)
-                rain(emoji = fun_emoji,animation_length="1")
-            elif user_answer != ans_key:
-                st.warning(f"Incorrect. The correct answer is {st.session_state['ans_key_mk']}.")
+    print("user_answer", st.session_state['user_answer_mk'], "ans_key", ans_key)
+    if check:
+        st.session_state["pressed_mk"] = True
+        if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
+            st.success("Correct!")
+            fun_emoji = random.choice(fun_emoji_list)
+            rain(emoji = fun_emoji,animation_length="1")
+        elif user_answer != ans_key:
+            st.warning(f"Incorrect. The correct answer is {st.session_state['ans_key_mk']}.")
     disclaimer()
 if __name__ == "__main__":
     melody_key_main()
