@@ -71,18 +71,18 @@ def lilypond_generation(melody, name, uppertime, lowertime):
 }}
 """
 
-    with open('melody_key/static/score.ly', 'w') as f:
+    with open('melody_key/score.ly', 'w') as f:
         f.write(lilypond_score)
 
     # Generate PNG image and MIDI file
-    subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=melody_key/static/score', 'melody_key/static/score.ly'],
+    subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=melody_key/score', 'melody_key/score.ly'],
                    check=True)
 
     # Generate MP3 file
-    subprocess.run(['fluidsynth', '-ni', 'melody_key/GeneralUser/Yamaha-Grand-Lite-SF-v1.1.sf2', 'melody_key/static/score.midi', '-F', f'melody_key/static/{name}.mp3', '-r', '44100'],
+    subprocess.run(['fluidsynth', '-ni', 'melody_key/GeneralUser/Yamaha-Grand-Lite-SF-v1.1.sf2', 'melody_key/score.midi', '-F', f'melody_key/{name}.mp3', '-r', '44100'],
                check=True)
 
-    return f'melody_key/static/score.png'
+    return f'melody_key/score.png'
 
 def lilypond_homophonic(melody,harmony, name, uppertime, lowertime):
     lilypond_score = f"""
