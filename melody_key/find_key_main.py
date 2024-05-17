@@ -62,8 +62,8 @@ def melody_key_main():
     if st.session_state['options_mk']:
         st.write("What key is the score in?")
         try:
-            st.image("melody_key/static/score.png", use_column_width=True)
-            st.audio("melody_key/static/testing.mp3", format="audio/mpeg")
+            st.image("melody_key/score.png", use_column_width=True)
+            st.audio("melody_key/testing.mp3", format="audio/mpeg")
             user_answer = st.radio("Select the key:", st.session_state['options_mk'],index=None )
             st.session_state['user_answer_mk'] = user_answer
 
