@@ -105,14 +105,13 @@ def lilypond_generation(name,accompany,clef):
     with Image.open('score.png') as img:
         width, height = img.size
         crop_height = height
-        crop_rectangle = (0, 75, width, crop_height / 5.5)
+        crop_rectangle = (0, 75, width,height)
         cropped_img = img.crop(crop_rectangle)
 
         cropped_img.save(f'cropped_score_{name}.png')
 
     return f'cropped_score_{name}.png'
-#question_data = {"clef":clef,"key_sign": key, "triad": picked_triad,
- #                    "inversion_type": inversion, "notes": adjust_notes}
+
 def main_generation(clef="grand"):
     data = simple_triad(clef)
     triad_notes = data["notes"]
