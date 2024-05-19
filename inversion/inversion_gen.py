@@ -108,9 +108,9 @@ def lilypond_generation(name,accompany,clef):
         crop_rectangle = (0, 75, width,height)
         cropped_img = img.crop(crop_rectangle)
 
-        cropped_img.save(f'cropped_score_{name}.png')
+        cropped_img.save(f'inversion/cropped_score_{name}.png')
 
-    return f'cropped_score_{name}.png'
+    return f'inversion/cropped_score_{name}.png'
 
 def main_generation(clef="grand"):
     data = simple_triad(clef)
