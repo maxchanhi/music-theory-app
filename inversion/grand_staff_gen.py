@@ -93,9 +93,9 @@ def lilypond_generation_grand_staff(name, accompany):
         crop_rectangle = (0, 75, width, height)
         cropped_img = img.crop(crop_rectangle)
 
-        cropped_img.save(f'cropped_score_{name}.png')
+        cropped_img.save(f'inversion/cropped_score_{name}.png')
 
-    return f'cropped_score_{name}.png'
+    return f'inversion/cropped_score_{name}.png'
 
 def options_generation(answer="VI b"):
     options_list=[answer]
