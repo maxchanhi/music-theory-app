@@ -15,7 +15,7 @@ def main_inversion():
     try:
         key_signature = st.session_state["question_data_iv"]["key_sign"]
         st.subheader(f"What is this chord in {key_signature}?")
-        st.image("cropped_score.png", use_column_width="auto")
+        st.image("inversion/cropped_score.png", use_column_width="auto")
     except:
         st.warning("Please generate a New Question")
 
@@ -41,6 +41,6 @@ def main_inversion():
             st.balloons()
             rain(emo,animation_length=1)
         elif user_ans != correct_ans:
-            st.warning(f"The correct answer if {correct_ans}")
+            st.warning(f"The correct answer is {correct_ans}")
         else:
             st.error("Please try again.")
