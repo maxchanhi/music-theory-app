@@ -15,7 +15,7 @@ def main_inversion():
     try:
         key_signature = st.session_state["question_data_iv"]["key_sign"]
         st.subheader(f"What is this chord in {key_signature}?")
-        st.image("score.png", use_column_width="auto")
+        st.image("cropped_score.png", use_column_width="auto")
     except:
         st.warning("Please generate a New Question")
 
