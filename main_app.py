@@ -58,6 +58,9 @@ def intro():
             if st.button("Identifying Key in a Melody"):
                 st.session_state.demo_name = "Identifying Key in a Melody"
                 st.rerun()
+            if st.button("Chord Inversion"):
+                st.session_state.demo_name = "Inversion"
+                st.rerun()
         with col2:
             if st.button("Chord Progression"):
                 st.session_state.demo_name = "Chord Progression"
