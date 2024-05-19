@@ -108,9 +108,9 @@ def main_generation(clef="grand"):
     triad_notes = data["notes"]
     clef= data["clef"]
     if clef == "bass"  or clef =="treble":
-        lilypond_generation("inversion",triad_notes,clef= data["clef"])
+        lilypond_generation(triad_notes,clef= data["clef"])
     else:
-        lilypond_generation_grand_staff("inversion", triad_notes)
+        lilypond_generation_grand_staff(triad_notes)
     print(data["inversion_type"], triad_notes)
     return data
 
