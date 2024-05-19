@@ -5,7 +5,7 @@ from interval.interval_quiz import interval_main
 from melody_key.find_key_main import melody_key_main
 from pitch_id.id import pitch_main
 from melody_key.chord_progression.main import chord_progression_main
-
+from inversion.main_iv import main_inversion
 import streamlit as st
 
 fun_emoji_list = [
@@ -89,7 +89,7 @@ page_names_to_funcs = {
     "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,
     "Pitch Identification": pitch_main,"Interval": interval_main,
     "Identifying Key in a Melody": melody_key_main,"Chord Progression": chord_progression_main,
-    "Instrumental Knowledge": knowledgemain,
+    "Inversion":main_inversion, "Instrumental Knowledge": knowledgemain, 
 }
 def main():
     st.set_page_config(page_title="Music Theory App")
