@@ -56,7 +56,7 @@ def adjust_notes_for_grand_staff(triad):
     
     return adjusted_triad
 
-def lilypond_generation_grand_staff(name, accompany):
+def lilypond_generation_grand_staff(accompany):
     tre_accompany = ' '.join(accompany[2:])
     bass_accompany = ' '.join(accompany[:2])
     lilypond_score = f"""
@@ -85,17 +85,9 @@ def lilypond_generation_grand_staff(name, accompany):
 
     # Generate PNG image and MIDI file
     subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', 
-                    '--output=score', 'score.ly'],
+                    '--output=inversion/cropped_score_inversion', 'score.ly'],
                    check=True)
-    with Image.open('score.png') as img:
-        width, height = img.size
-        crop_height = height
-        crop_rectangle = (0, 75, width, height)
-        cropped_img = img.crop(crop_rectangle)
 
-        cropped_img.save(f'inversion/cropped_score_{name}.png')
-
-    return f'inversion/cropped_score_{name}.png'
 
 def options_generation(answer="VI b"):
     options_list=[answer]
