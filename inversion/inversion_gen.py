@@ -78,7 +78,7 @@ def chord(chord_notes=["b'", "ds'", 'fs']):
     chord_str = "<" +" ".join(chord_notes) + ">1"
     return chord_str
 
-def lilypond_generation(name,accompany,clef):
+def lilypond_generation(accompany,clef):
     str_accompany = chord(accompany)
     lilypond_score = f"""
 \\version "2.22.0"  
@@ -100,17 +100,8 @@ def lilypond_generation(name,accompany,clef):
 
     # Generate PNG image and MIDI file
     subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', 
-                    '--output=score', 'score.ly'],
+                    '--output=inversion/cropped_score_inversion', 'score.ly'],
                    check=True)
-    with Image.open('score.png') as img:
-        width, height = img.size
-        crop_height = height
-        crop_rectangle = (0, 75, width,height)
-        cropped_img = img.crop(crop_rectangle)
-
-        cropped_img.save(f'inversion/cropped_score_{name}.png')
-
-    return f'inversion/cropped_score_{name}.png'
 
 def main_generation(clef="grand"):
     data = simple_triad(clef)
