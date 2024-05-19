@@ -90,7 +90,7 @@ def lilypond_generation_grand_staff(name, accompany):
     with Image.open('score.png') as img:
         width, height = img.size
         crop_height = height
-        crop_rectangle = (0, 75, width, crop_height / 5.5)
+        crop_rectangle = (0, 75, width, height)
         cropped_img = img.crop(crop_rectangle)
 
         cropped_img.save(f'cropped_score_{name}.png')
