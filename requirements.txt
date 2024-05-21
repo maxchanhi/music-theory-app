@@ -3,3 +3,8 @@ openai
 pillow
 subprocess.run
 streamlit-extras
+langchain_community
+langchain
+openai
+tiktoken
+faiss-cpu
