@@ -8,7 +8,7 @@ def knowledgemain():
     from instrument_knowledge_quiz.AIfeedback import provide_feedback
     from instrument_knowledge_quiz.preembed import login_for_feedback,rag_feedback
     import random
-
+    
     ss = st.session_state
     if "choosen_topic" not in ss:
         ss["choosen_topic"] = None
@@ -20,7 +20,7 @@ def knowledgemain():
     if "pressed_kn" not in ss:
         ss["pressed_kn"] = True
         ss["pw_visible"] = True
-        
+    login_for_feedback()    
     st.title('Instrumental Knowledge Quiz')
 
     if len(ss["student_ans"])==0:
@@ -61,12 +61,17 @@ def knowledgemain():
     if len(ss["student_ans"]) > 5:
         if st.button('You can get an AI feedback'):
             with st.spinner("Generating feedback..."):
-                if not ss["pw_visible"]:
+                if st.session_state["login"]:
                     st.write("Full feedback: ")
-                    feedback = provide_feedback(ss["student_ans"], 512)
+                    formatted_result = "\n".join([f"Question: {item[0]}\nAnswer: {item[1]}\nResult: {item[2]}" for item in ss["student_ans"]])
+                    normal_feedback= provide_feedback(ss["student_ans"], 256)
+                    feedback = rag_feedback(formatted_result)
                 else:
                     st.write("Limited feedback: ")
+                    normal_feedback= "Login to get a full feedback..."
                     feedback = provide_feedback(ss["student_ans"], 64)
+            
+            st.success(normal_feedback)
             st.success(feedback)
             ss["student_ans"] = []
 
