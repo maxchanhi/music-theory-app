@@ -6,6 +6,7 @@ def knowledgemain():
     from instrument_knowledge_quiz.data import fun_emoji_list
     from streamlit_extras.let_it_rain import rain
     from instrument_knowledge_quiz.AIfeedback import provide_feedback
+    from instrument_knowledge_quiz.preembed import login_for_feedback,rag_feedback
     import random
 
     ss = st.session_state
