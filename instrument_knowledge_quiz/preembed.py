@@ -61,8 +61,8 @@ def login_for_feedback():
         st.write("You are logged in!")
 
     if st.session_state["login"]:
-        with st.popover("Chat with AI",use_container_width=True):
-            prompt = st.chat_input("Ask me anything you want to know about music theory:")
+        with st.expander("Chat with AI", expanded=False):
+            prompt = st.text_input("Ask me anything you want to know about music theory:")
             if prompt:
                 with st.spinner("Generating..."):
                     feedback = rag_feedback(prompt)
