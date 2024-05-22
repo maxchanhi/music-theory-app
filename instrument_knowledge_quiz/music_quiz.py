@@ -23,18 +23,6 @@ def knowledgemain():
         
     st.title('Instrumental Knowledge Quiz')
 
-    def password_entered():
-        if ss['userpd'] in st.secrets['Password'] :
-            ss["pw_visible"] = False
-            st.rerun()
-        else:
-            st.write("You can only preview!")
-    if ss["pw_visible"]:
-        ss['userpd'] = st.text_input('Enter your password for full access or find Max for password:',type= "password")
-        if st.button('Submit Password'):
-            password_entered()
-    if not ss["pw_visible"]:
-        st.success("You now have full access to the feedback!")
     if len(ss["student_ans"])==0:
         st.warning("Tip: You need to answer at least 5 questions to get the AI feedback.")
     topics = ['Reed', 'Transposing', "Clef", "Voice types", "Piano", "Ornaments", "Inst. technique"]
