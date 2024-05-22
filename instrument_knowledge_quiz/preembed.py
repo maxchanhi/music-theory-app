@@ -1,7 +1,7 @@
 import time
 
 import streamlit as st
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_community.embeddings import OpenAIEmbeddings
 
 def rag_feedback(student_result):
     from langchain_community.vectorstores import FAISS
