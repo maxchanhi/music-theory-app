@@ -53,7 +53,7 @@ def login_for_feedback():
             st.error("Wrong password")
 
     if st.session_state["login"] == False:
-        with st.popover(label="Login"):
+        with st.expander(label="Login"):
             with st.form(key="login_form"):
                 st.session_state["pw"] = st.text_input("Password", key="pwinput", type="password")
                 st.form_submit_button("OK", on_click=login_button_clicked)
