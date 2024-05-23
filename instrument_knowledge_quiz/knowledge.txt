@@ -1,4 +1,4 @@
-if the user is greeting, explain this app is for practising music theory.
+if the user is greeting, explain this app is for practising ABRSM grade 5 music theory.
 
 male_voices = ["Bass","Baritone","Tenor"]
 female_voices = ["Alto","Mezzo-soprano","Soprano"]
@@ -54,7 +54,7 @@ instrument_reeds = {
         "tuba": "mouthpiece"
     }
 
-piano={"Ped.":"Press the right pedal/ sustain pedal.",
+piano_knowledge={"Ped.":"Press the right pedal/ sustain pedal.",
        "con pedale":"Press the right pedal/ sustain pedal.",
        "senza pedale":"Release the right pedal/ sustain pedal.",
        "una corda":"Press the left pedal/ una corda pedal.",
