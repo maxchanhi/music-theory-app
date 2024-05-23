@@ -8,7 +8,7 @@ def knowledgemain():
     from instrument_knowledge_quiz.AIfeedback import provide_feedback
     from instrument_knowledge_quiz.preembed import login_for_feedback,rag_feedback
     import random
-    
+    login_for_feedback() 
     ss = st.session_state
     if "choosen_topic" not in ss:
         ss["choosen_topic"] = None
@@ -20,7 +20,7 @@ def knowledgemain():
     if "pressed_kn" not in ss:
         ss["pressed_kn"] = True
         ss["pw_visible"] = True
-    login_for_feedback()    
+ 
     st.title('Instrumental Knowledge Quiz')
 
     if len(ss["student_ans"])==0:
