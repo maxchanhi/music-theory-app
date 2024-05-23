@@ -33,9 +33,9 @@ def reed():
     return question_data
 
 def transposing():
-    transposing_instruments = ["piccolo","clarinet","B-flat trumpet","horn","double bass","cor anglais"]
+    transposing_instruments = ["clarinet","B-flat trumpet","horn","cor anglais"]
     concert_pitch_instruments = ["flute","oboe","bassoon","trombone","tuba","violin","viola","cello"]
-    # Randomly select 4 instruments, 1 from 1 list, 3 from another list
+    # "piccolo","double bass",
     both_list =[transposing_instruments,concert_pitch_instruments]
     correct_list = random.choice(both_list)
     correct_ans = random.choice(correct_list)
