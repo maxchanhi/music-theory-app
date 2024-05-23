@@ -16,11 +16,11 @@ def rag_feedback(student_result):
     
     # Load the precomputed FAISS index from disk with the embeddings object
     db_faiss = FAISS.load_local(INDEX_PATH, embeddings=embeddings, allow_dangerous_deserialization=True)
-    print("Getting knowledge at database.")
-    docs_faiss = db_faiss.similarity_search(student_result, k=1)
-
+    
+    context_text = db_faiss.similarity_search(student_result, k=1)
+    print("Getting knowledge at database.",context_text)
     # Generate an answer based on given user query and retrieved context information
-    context_text = "\n\n".join([doc.page_content for doc in docs_faiss])
+    #context_text = "\n\n".join([doc.page_content for doc in docs_faiss])
 
     # Load retrieved context and user query in the prompt template
     PROMPT_TEMPLATE = """
@@ -85,7 +85,7 @@ def login_for_feedback():
 
     if st.session_state["login"] == False:
         with st.popover(label="Login"):
-            st.session_state["pw"] = st.text_input("Password", key="pwinput", type="password",on_change=login_button_clicked)
+            st.session_state["pw"] = st.text_input("Password", key="pwinput", type="password")
             st.button("OK", on_click=login_button_clicked)
     elif st.session_state["login"]:
         st.write("You are logged in!")
