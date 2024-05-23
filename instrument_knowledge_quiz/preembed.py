@@ -74,14 +74,12 @@ def rag_chat(student_result):
     return feedback
 
 def login_for_feedback():
-    pw = st.secrets["Password"]
-
     if "login" not in st.session_state:
         st.session_state["login"] = False
         st.session_state["pw"] = ""
 
     def login_button_clicked():
-        if st.session_state["pw"] in pw:
+        if st.session_state["pw"] in st.secrets["Password"]:
             st.session_state["login"] = True
         else:
             st.error("Wrong password")
