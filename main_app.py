@@ -103,7 +103,7 @@ def main():
     page_selected = st.sidebar.radio("Choose a page", page_names_to_funcs.keys(), index=list(page_names_to_funcs.keys()).index(st.session_state.demo_name))
     if page_selected != st.session_state.demo_name:
         st.session_state.demo_name = page_selected
-        st.rerun()
+        #st.rerun()
     if page_selected  != "—":
         back_home()
         
