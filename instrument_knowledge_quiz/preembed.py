@@ -87,14 +87,14 @@ def login_for_feedback():
             st.error("Wrong password")
 
     if st.session_state["login"] == False:
-        with st.popover(label="Login"):
+        with st.expander(label="Login"):
             st.session_state["pw"] = st.text_input("Password", key="pwinput", type="password",on_change=login_button_clicked)
             st.button("OK", on_click=login_button_clicked)
     elif st.session_state["login"]:
         st.write("You are logged in!")
 
     if st.session_state["login"]:
-        with st.popover("Chat with AI",use_container_width=True):
+        with st.expander("Chat with AI",use_container_width=True):
             prompt = st.chat_input("Ask me anything you want to know about music theory:")
             if prompt:
                 with st.spinner("Generating..."):
