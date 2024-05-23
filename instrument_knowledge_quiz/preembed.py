@@ -16,9 +16,9 @@ def rag_feedback(student_result):
     
     # Load the precomputed FAISS index from disk with the embeddings object
     db_faiss = FAISS.load_local(INDEX_PATH, embeddings=embeddings, allow_dangerous_deserialization=True)
-    print("Getting knowledge at database.")
-    docs_faiss = db_faiss.similarity_search(student_result, k=5)
-
+    
+    docs_faiss = db_faiss.similarity_search(student_result, k=1)
+    print("Getting knowledge at database:",docs_faiss)
     # Generate an answer based on given user query and retrieved context information
     context_text = "\n\n".join([doc.page_content for doc in docs_faiss])
 
