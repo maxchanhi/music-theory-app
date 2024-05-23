@@ -5,6 +5,7 @@ subprocess.run
 streamlit-extras
 langchain_community
 langchain
+langchain-openai
 openai
 tiktoken
 faiss-cpu
