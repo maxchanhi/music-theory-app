@@ -90,7 +90,7 @@ def login_for_feedback():
 
     if st.session_state["login"] == False:
         with st.expander(label="Login"):
-            st.session_state["pw"] = st.text_area("Password")
+            st.session_state["pw"] = st.text_area("Password",height=50)
             st.button("OK", on_click=login_button_clicked)
     elif st.session_state["login"]:
         st.write("You are logged in!")
