@@ -49,7 +49,7 @@ def transposing():
     if correct_list == transposing_instruments:
         transposing_ins = "transposing instrument"
     elif correct_list == concert_pitch_instruments:
-        transposing_ins = "in concert pitch"
+        transposing_ins = "NOT transposing instrument"
     question = f"Which one is {transposing_ins} ?"
     question_data = {
         "question": question,
