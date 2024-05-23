@@ -14,7 +14,7 @@ loader = TextLoader(DOC_PATH)
 pages = loader.load()
 
 # Split the doc into smaller chunks
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=20)
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 chunks = text_splitter.split_documents(pages)
 
 # Get OpenAI Embedding model
