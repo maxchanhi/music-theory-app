@@ -8,7 +8,7 @@ def rag_feedback(student_result):
     from langchain.prompts import ChatPromptTemplate
     from langchain_openai import ChatOpenAI
 
-    INDEX_PATH = "faiss_index"
+    INDEX_PATH = "instrument_knowledge_quiz/faiss_index"
     OPENAI_API_KEY = st.secrets["OpenAI_key"]
 
     # Create an Embeddings object
@@ -44,7 +44,7 @@ def rag_chat(student_result):
     from langchain.prompts import ChatPromptTemplate
     from langchain_openai import ChatOpenAI
 
-    INDEX_PATH = "faiss_index"
+    INDEX_PATH = "instrument_knowledge_quiz/faiss_index"
     OPENAI_API_KEY = st.secrets["OpenAI_key"]
 
     # Create an Embeddings object
@@ -83,7 +83,7 @@ def login_for_feedback():
     def login_button_clicked():
         if st.session_state["pw"] in pw:
             st.session_state["login"] = True
-        else:
+        elif st.session_state["pw"] not in pw:
             st.error("Wrong password")
 
     if st.session_state["login"] == False:
