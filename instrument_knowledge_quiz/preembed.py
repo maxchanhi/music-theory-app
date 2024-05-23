@@ -81,7 +81,6 @@ def login_for_feedback():
     def login_button_clicked():
         if st.session_state["pw"] in st.secrets["Password"]:
             st.session_state["login"] = True
-            st.rerun()
         else:
             st.error("Wrong password")
 
