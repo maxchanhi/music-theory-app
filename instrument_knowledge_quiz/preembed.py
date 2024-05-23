@@ -85,7 +85,7 @@ def login_for_feedback():
 
     if st.session_state["login"] == False:
         with st.popover(label="Login"):
-            st.session_state["pw"] = st.text_input("Password", key="pwinput", type="password")
+            st.session_state["pw"] = st.text_input("Password", type="password")
             st.button("OK", on_click=login_button_clicked)
     elif st.session_state["login"]:
         st.write("You are logged in!")
