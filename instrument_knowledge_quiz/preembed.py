@@ -83,8 +83,10 @@ def login_for_feedback():
     def login_button_clicked():
         if st.session_state["pw"] in pw:
             st.session_state["login"] = True
-        elif st.session_state["pw"] not in pw:
+        elif st.session_state["pw"] not in pw and st.session_state["pw"] is not None:
             st.error("Wrong password")
+        else:
+            st.warning("Please enter your password")
 
     if st.session_state["login"] == False:
         with st.expander(label="Login"):
