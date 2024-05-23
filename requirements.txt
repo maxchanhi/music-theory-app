@@ -4,6 +4,7 @@ pillow
 subprocess.run
 streamlit-extras
 langchain_community
+langchain-openai
 langchain
 openai
 tiktoken
