@@ -5,8 +5,9 @@ female_voices = ["Alto","Mezzo-soprano","Soprano"]
 
 voice_tpyes from low to top=male_voices+female_voices
 
-transposing_instruments = ["piccolo","clarinet","B-flat trumpet","horn","double bass","cor anglais"]
+transposing_instruments = ["clarinet","B-flat trumpet","horn","cor anglais"]
 concert_pitch_instruments = ["flute","oboe","bassoon","trombone","tuba","violin","viola","cello"]
+["piccolo","double bass"]are written an octave above/below the sounding pitch but not considered as transposing instruments.
 
 instrument_clef = {
     "flute": "treble clef",
@@ -14,17 +15,17 @@ instrument_clef = {
     "oboe": "treble clef",
     "cor anglais": "treble clef",
     "clarinet": "treble clef",
-    "bassoon": "bass clef",
+    "bassoon": "bass clef", #Bassoon uses tenor clef, but it wouldn't cover in Grade 5
 
     "violin": "treble clef",
     "viola": "alto clef",
-    "cello": "bass clef",
+    "cello": "bass clef",#Cello  also uses tenor clef, but it wouldn't cover in Grade 5
     "double bass": "bass clef",
     "harp": "treble and bass clef",
 
     "trumpet": "treble clef",
     "horn": "treble clef",
-    "trombone": "bass clef",
+    "trombone": "bass clef", #trombone also uses tenor clef, but it wouldn't cover in Grade 5
     "tuba": "bass clef",
     
     "piano": "treble and bass clef",
@@ -41,6 +42,8 @@ instrument_clef = {
     "triangle":"percussion clef (indefinite pitch)",
     "tambourine": "percussion clef (indefinite pitch)"
     }
+
+
 instrument_reeds = {
         "flute": "headjoint (non-reed)",
         "piccolo": "headjoint (non-reed)",
@@ -72,7 +75,7 @@ playing_technique = {
     "indefinite pitch ideophones":["staccato", "marcato", "accent", "with a mallet/beater","pitches"],
     "keyboard":["staccato", "marcato", "accent", "arpeggiation","with pedal"]
 }
-impossiable_technique = {"strings":["with a mallet/beater","tonguing", "beater","pedal"],
+impossiable_technique that can't be played = {"strings":["with a mallet/beater","tonguing", "beater","pedal"],
                         "woodwind":["with a mallet/beater","with pedal", "con sordino","with a mute","arco", "pizzicato","chord"],
                         "brass":["with a mallet/beater","with pedal","arco", "pizzicato","chord"],
                         "indefinite pitch membranophones":["arco","tonguing","pitches","arpeggiation"],
@@ -86,9 +89,7 @@ instrumental_families = {
     "woodwind": ["flute", "piccolo", "oboe", "cor anglais", "clarinet", "bassoon"],
     "brass": ["trumpet", "trombone", "horn", "tuba"],
     "keyboard": ["piano", "celesta"],
-    "indefinite pitch membranophones":["snare drum", "bass drum", "tambourine"],
-    "indefinite pitch ideophones":["cymbals", "triangle"],
-    "definite pitch ideophones":["xylophone", "marimba", "vibraphone", "glockenspiel"],
-    "definite pitch membranophones":["timpani"]
+    "indefinite pitch percussion":["snare drum", "bass drum", "tambourine","cymbals", "triangle"],
+    "definite pitch percussion":["xylophone", "marimba", "vibraphone", "glockenspiel","timpani"]
     }
-This streamlit app is created by Chan Chak Hang Max 
+This streamlit app and database is created by Chan Chak Hang Max 
