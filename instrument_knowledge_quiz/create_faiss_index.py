@@ -1,7 +1,7 @@
 import os
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 import streamlit as st
 DOC_PATH = "knowledge.txt"
@@ -26,4 +26,4 @@ db_faiss = FAISS.from_documents(chunks, embeddings)
 # Save the FAISS index to disk
 db_faiss.save_local(INDEX_PATH)
 
-st.write("Index saved to disk.")
+print("Index created successfull
