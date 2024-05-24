@@ -44,7 +44,7 @@ def rag_chat(student_result):
     from langchain.prompts import ChatPromptTemplate
     from langchain_openai import ChatOpenAI
 
-    INDEX_PATH = "instrument_knowledge_quiz/faiss_index"
+    INDEX_PATH = "faiss_index"
     OPENAI_API_KEY = st.secrets["OpenAI_key"]
 
     # Create an Embeddings object
