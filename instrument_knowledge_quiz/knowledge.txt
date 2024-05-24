@@ -89,4 +89,7 @@ instrumental_families = {
     "woodwind": ["flute", "piccolo", "oboe", "cor anglais", "clarinet", "bassoon"],
     "brass": ["trumpet", "trombone", "horn", "tuba"],
     "keyboard": ["piano", "celesta"],
-    "indefinite pitch per
+    "indefinite pitch percussion":["snare drum", "bass drum", "tambourine","cymbals", "triangle"],
+    "definite pitch percussion":["xylophone", "marimba", "vibraphone", "glockenspiel","timpani"]
+    }
+This streamlit app and database is created by Chan Chak Hang Max 
