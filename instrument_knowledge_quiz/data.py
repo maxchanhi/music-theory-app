@@ -10,18 +10,18 @@ instrument_clef = {
     "viola": "alto clef",
     "cello": "bass clef",
     "double bass": "bass clef",
-    "harp": "treble and bass clef",
+    "harp": "treble and bass clef/ grand staff",
 
     "trumpet": "treble clef",
     "horn": "treble clef",
     "trombone": "bass clef",
     "tuba": "bass clef",
     
-    "piano": "treble and bass clef",
-    "celesta":"treble clef",
+    "piano": "treble and bass clef/ grand staff",
+    "celesta":"treble and bass clef/ grand staff",
     "timpani": "bass clef",
     "xylophone": "treble clef",
-    "marimba": "treble and bass clef",
+    "marimba": "treble and bass clef/ grand staff",
     "vibraphone": "treble clef",
     "glockenspiel": "treble clef",
 
