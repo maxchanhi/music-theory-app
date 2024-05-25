@@ -4,17 +4,17 @@ instrument_clef = {
     "oboe": "treble clef",
     "cor anglais": "treble clef",
     "clarinet": "treble clef",
-    "bassoon": "bass clef",
+    "bassoon": "bass clef or sometimes tenor clef",
 
     "violin": "treble clef",
     "viola": "alto clef",
-    "cello": "bass clef",
+    "cello": "bass clef or sometimes tenor clef",
     "double bass": "bass clef",
     "harp": "treble and bass clef/ grand staff",
 
     "trumpet": "treble clef",
     "horn": "treble clef",
-    "trombone": "bass clef",
+    "trombone": "bass clef or sometimes tenor clef",
     "tuba": "bass clef",
     
     "piano": "treble and bass clef/ grand staff",
