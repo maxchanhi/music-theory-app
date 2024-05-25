@@ -73,8 +73,8 @@ impossiable_technique = {"strings":["with a mallet/beater","tonguing", "beater",
                         "woodwind":["with a mallet/beater","with pedal", "con sordino","with a mute","arco", "pizzicato","chord"],
                         "brass":["with a mallet/beater","with pedal","arco", "pizzicato","chord"],
                         "indefinite pitch membranophones":["arco","tonguing","pitches","arpeggiation"],
-                        "definite pitch membranophones":["arco","tonguing", "pizzicato"],
-                        "definite pitch ideophones":["a mute","tonguing", "pizzicato","arpeggiation"],
+                        "definite pitch membranophones":["arco","tonguing", "pizzicato","arpeggiation"],
+                        "definite pitch ideophones":["a mute","tonguing", "pizzicato"],
                         "indefinite pitch ideophones":["tonguing", "pizzicato","arpeggiation","pitches"],
                         "keyboard":["with a mallet/beater","arco","tonguing", "pizzicato"]  }
 
