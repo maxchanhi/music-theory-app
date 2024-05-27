@@ -6,14 +6,12 @@ from melody_key.find_key_main import melody_key_main
 from pitch_id.id import pitch_main
 from melody_key.chord_progression.main import chord_progression_main
 from inversion.main_iv import main_inversion
-import streamlit as st
-
-
+from urls import fun_emoji_list
 
 import streamlit as st
 
 import random
-#from urls import page_names_to_funcs
+
 def intro():
     em= random.choice(fun_emoji_list)
     st.title(f"{em}Music Theory App{em}")
