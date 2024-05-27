@@ -38,6 +38,7 @@ def duration_cal_main():
         small_dur, question_dur, question_dotted,dotted_time = generate_question(duration,dotted_vartion)
         st.session_state['questioncd'] = (small_dur, question_dur, question_dotted, dotted_time)
         st.session_state['correctcd'] = correct_ans(small_dur, question_dur, dotted_time)
+        print(st.session_state['questioncd'],st.session_state['correctcd'])
         st.rerun()
 
 if __name__ == "__main__":
