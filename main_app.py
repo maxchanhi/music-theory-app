@@ -8,13 +8,7 @@ from melody_key.chord_progression.main import chord_progression_main
 from inversion.main_iv import main_inversion
 import streamlit as st
 
-fun_emoji_list = [
-    "😂",  "🎉",   "🚀",  "🐱", 
-    "🐶",  "🦄",  
-    "🎶",  "😱","👼🏻","💃🏻","🐰","🐒","🐣","🦀","💥","✨","🥳",
-    "🍦",  "🌟",  "👻",  
-    "🎈",   "🎮",  "💩"
-]
+
 
 import streamlit as st
 
