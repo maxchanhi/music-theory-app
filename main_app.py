@@ -6,6 +6,7 @@ from melody_key.find_key_main import melody_key_main
 from pitch_id.id import pitch_main
 from melody_key.chord_progression.main import chord_progression_main
 from inversion.main_iv import main_inversion
+from duration_equation.cal_main import duration_cal_main
 from urls import fun_emoji_list
 
 import streamlit as st
