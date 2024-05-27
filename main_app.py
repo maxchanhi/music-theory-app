@@ -27,6 +27,9 @@ def intro():
             if st.button("Grouping and beaming"):
                 st.session_state.demo_name = "Grouping and beaming"
                 st.rerun()
+            if st.button("Duration calculation"):
+                st.session_state.demo_name = "Duration calculation"
+                st.rerun()
         with col2:
             if st.button("Simple-compound Modulation"):
                 st.session_state.demo_name = "Simple-compound Modulation"
@@ -83,7 +86,7 @@ def back_home():
         st.rerun()
 page_names_to_funcs = {
     "—": intro,
-    "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,
+    "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,"Duration calculation":duration_cal_main,
     "Pitch Identification": pitch_main,"Interval": interval_main,
     "Identifying Key in a Melody": melody_key_main,"Chord Progression": chord_progression_main,
     "Inversion":main_inversion, "Instrumental Knowledge": knowledgemain, 
