@@ -26,5 +26,6 @@ def main_ts():
         if user_answer == str(correct_answer):
             emo = random.choice(fun_emoji_list)
             st.success("Correct!")
-            rain(emo,duration=1)
+            st.balloons()
+            rain(emo,animation_length=1)
            
