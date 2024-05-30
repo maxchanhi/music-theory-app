@@ -1,5 +1,8 @@
 import streamlit as st
 from duration_equation.time_signature import generate_question
+from streamlit_extras.let_it_rain import rain
+from urls import fun_emoji_list 
+import random
 def main_ts():
     if "pressed_ts" not in st.session_state:
         st.session_state.pressed_ts = False
@@ -22,7 +25,9 @@ def main_ts():
             st.session_state.pressed_ts = True
             user_answer = str(user_answer)
             if user_answer == str(correct_answer):
+                emo = random.choice(fun_emoji_list)
                 st.success("Correct!")
+                rain(emo,duration=1)
             else:
                 st.error(f"Incorrect. The correct answer is {correct_answer}.")
         except:
