@@ -20,17 +20,11 @@ def main_ts():
     user_answer = st.text_input("Your Answer:")
     
     # Check answer
-    if st.button("Submit", disabled= st.session_state.pressed_ts):
-        try:
-            st.session_state.pressed_ts = True
-            user_answer = str(user_answer)
-            if user_answer == str(correct_answer):
-                emo = random.choice(fun_emoji_list)
-                st.success("Correct!")
-                rain(emo,duration=1)
-            else:
-                st.error(f"Incorrect. The correct answer is {correct_answer}.")
-        except:
-            st.error("Please enter a valid number.")
-
-# Button to generate a new question
+    if st.button("Submit", disabled= st.session_state.pressed_ts) and user_answer:
+        st.session_state.pressed_ts = True
+        user_answer = str(user_answer)
+        if user_answer == str(correct_answer):
+            emo = random.choice(fun_emoji_list)
+            st.success("Correct!")
+            rain(emo,duration=1)
+           
