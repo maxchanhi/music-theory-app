@@ -10,7 +10,7 @@ def main_ts():
         st.session_state.question_data_ts = generate_question()
     # Streamlit app
     question_data,correct_answer=st.session_state.question_data_ts
-    st.title("Rhythm Quiz")
+    st.title("Calculation for time signature")
     st.write(question_data)
     if st.button("New Question"):
         st.session_state.pressed_ts = False
