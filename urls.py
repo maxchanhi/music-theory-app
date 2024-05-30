@@ -6,6 +6,12 @@ fun_emoji_list = [
     "🍦",  "🌟",  "👻",  
     "🎈",   "🎮",  "💩"
 ]
+import random
+def rain_emoji():
+    emo=random.choice(fun_emoji_list)
+    st.balloons()
+    rain(emo,animation_length=1)
+
 def disclaimer():
     st.write("  ")
     st.write("  ")
