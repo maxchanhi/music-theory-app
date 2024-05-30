@@ -6,7 +6,7 @@ def main_ts():
     if "question_data_ts" not in st.session_state:
         st.session_state.question_data_ts = generate_question()
     # Streamlit app
-    question_data,correct_answer=st.session_state.question_data
+    question_data,correct_answer=st.session_state.question_data_ts
     st.title("Rhythm Quiz")
     st.write(question_data)
     if st.button("New Question"):
