@@ -9,7 +9,7 @@ def generate_lilypond_score(args):
     octave_list =  ["c,","c","c'","c''"]
     # Create a new LilyPond file content
     lilypond_content = '''
-\\version "2.24.3" % specify the LilyPond version
+\\version "2.22.0" % specify the LilyPond version
 \\paper {
     #(set-paper-size "a4landscape")
     left-margin = 10
