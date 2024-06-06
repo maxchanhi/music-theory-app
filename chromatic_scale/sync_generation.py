@@ -57,7 +57,7 @@ def generate_lilypond_score(args):
         ly_file.write(lilypond_content)
 
     # Run LilyPond to generate the PNG file
-    subprocess.run(["lilypond", "-o", "static/", "--png", ly_file_path])
+    subprocess.run(["lilypond", "-o", "chromatic_scale/static/", "--png", ly_file_path])
 
 async def crop_image(image_path, output_path):
     loop = asyncio.get_running_loop()
@@ -94,7 +94,7 @@ async def main(scale_list=dict,dir=bool, clef_list=list, octave=int):
         pool.map(generate_lilypond_score, tasks)
 
     # Create a list of crop tasks
-    crop_list = [crop_image(f"static/{name}.png", f"static/{name}.png") for name in ["Correct"] + [f"wrong_{idx}" for idx in range(len(wrong_options) - 1)]]
+    crop_list = [crop_image(f"chromatic_scale/static/{name}.png", f"chromatic_scale/static/{name}.png") for name in ["Correct"] + [f"wrong_{idx}" for idx in range(len(wrong_options) - 1)]]
 
     # Crop the generated images
     await asyncio.gather(*crop_list)
