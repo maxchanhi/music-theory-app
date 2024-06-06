@@ -27,7 +27,7 @@ a.button {
     background-color: #4CAF50;
     text-align: center;
     text-decoration: none;
-    border-radius: 10px;
+    border-radius: 8px;
     border: 2px solid #4CAF50;
     transition: background-color 0.3s, border-color 0.3s;
     margin-top: 1px; /* Adjust this value to move the button closer to the top */
