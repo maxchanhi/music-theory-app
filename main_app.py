@@ -8,6 +8,7 @@ from melody_key.chord_progression.main import chord_progression_main
 from inversion.main_iv import main_inversion
 from duration_equation.cal_main import duration_cal_main
 from duration_equation.time_main import main_ts
+from chromatic_scale.chromatic_main import chr_main
 from urls import fun_emoji_list
 
 import streamlit as st
@@ -46,6 +47,10 @@ def intro():
             if st.button("Pitch Identification"):
                 st.session_state.demo_name = "Pitch Identification"
                 st.rerun()
+            if st.button("Chromatic scale"):
+                st.session_state.demo_name = "Chromatic scale"
+                st.rerun()
+                
         with col2:
             if st.button("Interval"):
                 st.session_state.demo_name = "Interval"
@@ -91,7 +96,7 @@ def back_home():
 page_names_to_funcs = {
     "—": intro,
     "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,"Duration calculation":duration_cal_main,
-    "Calculation for time signature":main_ts,"Pitch Identification": pitch_main,"Interval": interval_main,
+    "Calculation for time signature":main_ts,"Pitch Identification": pitch_main,"Interval": interval_main,"Chromatic scale":chr_main,
     "Identifying Key in a Melody": melody_key_main,"Chord Progression": chord_progression_main,
     "Inversion":main_inversion, "Instrumental Knowledge": knowledgemain, 
 }
