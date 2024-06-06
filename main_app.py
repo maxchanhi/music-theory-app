@@ -84,13 +84,9 @@ def intro():
 
                 support_url = "https://music-glossary.streamlit.app"
                 # Use JavaScript to automatically click the link
-                js = f"""
-                <script type="text/javascript">
-                    window.open("{support_url}", "_blank");
-                </script>
-                """
-                support_url = "https://music-glossary.streamlit.app"
-                st.markdown(js, unsafe_allow_html=True)
+
+                st.markdown(f'<meta http-equiv="refresh"; url={support_url}">', unsafe_allow_html=True)
+
                 st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
 
     
