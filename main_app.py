@@ -19,7 +19,7 @@ def intro():
     em= random.choice(fun_emoji_list)
     st.title(f"{em}Music Theory App{em}")
     st.write(f"Welcome to my Music Theory App! You can practice your ABRSM grade 5 theory! {random.choice(fun_emoji_list)}")
-    st.write("Duration chromatic scale added!")
+    st.write("Duration chromatic scale and dictionary added!")
     st.session_state.demo_name = "—"
 
     # Rhythm-related container
