@@ -3,6 +3,8 @@ from chromatic_scale.notation import main_chromatic_generator,get_png_files
 from chromatic_scale.sync_generation import main
 import asyncio
 import os
+from urls import fun_emoji_list
+from streamlit_extras.let_it_rain import rain
 import random
 #st.set_page_config("Chromatic scale identify")
 def chr_main():
@@ -39,6 +41,8 @@ def chr_main():
         if chr_check_ans:
             if "Correct" in st.session_state.selected_image:
                 st.success("Correct Answer!")
+                fun_emoji = random.choice(fun_emoji_list)
+                rain(emoji = fun_emoji,animation_length="1")
             else:
                 st.error("Wrong Answer!")
             st.session_state.chr_pressed = True
