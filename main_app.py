@@ -75,8 +75,8 @@ def intro():
     with st.expander("Music Knowledge",expanded=True):
         col1, col2 = st.columns(2)
         with col1:
+            st.write("  ")
             if st.button("Instrumental Knowledge"):
-                st.write("  ")
                 st.session_state.demo_name = "Instrumental Knowledge"
                 st.rerun()
         with col2:
