@@ -21,7 +21,7 @@ button_style = """
 <style>
 a.button {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 8px 20px;
     font-size: 16px;
     color: white;
     background-color: #4CAF50;
