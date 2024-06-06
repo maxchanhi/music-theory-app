@@ -1,5 +1,4 @@
-import abjad
-from abjad import persist
+
 from PIL import Image
 import asyncio
 import subprocess
