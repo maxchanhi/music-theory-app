@@ -83,7 +83,7 @@ def intro():
                 support_url = "https://music-glossary.streamlit.app/"
         # Use JavaScript for redirection to avoid multiple redirects issue
                 st.markdown(f'<script>window.location.href="{support_url}";</script>', unsafe_allow_html=True)
-
+                st.rerun()
     #https://music-glossary.streamlit.app/
     
     with st.expander("Learn more",expanded=True):
