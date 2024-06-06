@@ -82,13 +82,13 @@ def intro():
             
             if st.button("Music Dictionary"):
 
-                js = """
+                support_url = "https://music-glossary.streamlit.app"
+                # Use JavaScript to automatically click the link
+                js = f"""
                 <script type="text/javascript">
-                    window.open("{https://music-glossary.streamlit.app}", "_blank");
+                    window.open("{support_url}", "_blank");
                 </script>
                 """
- 
-                st.markdown(js, unsafe_allow_html=True)
                 support_url = "https://music-glossary.streamlit.app"
                 st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
 
