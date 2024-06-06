@@ -73,9 +73,17 @@ def intro():
 
     # Music knowledge container
     with st.expander("Music Knowledge",expanded=True):
-        if st.button("Instrumental Knowledge"):
-            st.session_state.demo_name = "Instrumental Knowledge"
-            st.rerun()
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Instrumental Knowledge"):
+                st.session_state.demo_name = "Instrumental Knowledge"
+                st.rerun()
+        with col2:
+            if st.button("Music Dictionary"):
+                support_url = "https://music-glossary.streamlit.app/"  # Replace with your actual support URL
+                st.markdown(f'<meta http-equiv="refresh" content="0; url={support_url}">', unsafe_allow_html=True)
+
+    #https://music-glossary.streamlit.app/
     
     with st.expander("Learn more",expanded=True):
         col1, col2 = st.columns(2)
