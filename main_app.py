@@ -81,6 +81,14 @@ def intro():
         with col2:
             
             if st.button("Music Dictionary"):
+
+                js = """
+                <script type="text/javascript">
+                    window.open("{https://music-glossary.streamlit.app}", "_blank");
+                </script>
+                """
+ 
+                st.markdown(js, unsafe_allow_html=True)
                 support_url = "https://music-glossary.streamlit.app"
                 st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
         # Use JavaScript for redirection to avoid multiple redirects issue
