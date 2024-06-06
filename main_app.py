@@ -90,9 +90,7 @@ def intro():
  
                 st.markdown(js, unsafe_allow_html=True)
                 support_url = "https://music-glossary.streamlit.app"
-                st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
-        # Use JavaScript for redirection to avoid multiple redirects issue
-                st.markdown(f'<script>window.open("{support_url}", "_blank");</script>', unsafe_allow_html=True)
+                #st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
 
     
     with st.expander("Learn more",expanded=True):
