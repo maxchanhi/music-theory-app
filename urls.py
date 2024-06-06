@@ -21,13 +21,13 @@ button_style = """
 <style>
 a.button {
     display: inline-block;
-    padding: 8px 20px;
+    padding: 4px 20px;
     font-size: 16px;
     color: white;
     background-color: #4CAF50;
     text-align: center;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 10px;
     border: 2px solid #4CAF50;
     transition: background-color 0.3s, border-color 0.3s;
     margin-top: 1px; /* Adjust this value to move the button closer to the top */
