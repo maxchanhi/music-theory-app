@@ -80,7 +80,7 @@ def intro():
                 st.rerun()
         with col2:
             if st.button("Music Dictionary"):
-                support_url = "https://music-glossary.streamlit.app/"  # Replace with your actual support URL
+                support_url = "https://music-glossary.streamlit.app"  # Replace with your actual support URL
                 st.markdown(f'<meta http-equiv="refresh" content="0; url={support_url}">', unsafe_allow_html=True)
 
     #https://music-glossary.streamlit.app/
