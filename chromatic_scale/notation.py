@@ -168,5 +168,5 @@ def main_chromatic_generator():
     return chromatic_scale,wrong_options,accending_dir
 
 import os
-def get_png_files(directory="static"):
+def get_png_files(directory="chromatic_scale/static"):
     return [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith('.png')]
