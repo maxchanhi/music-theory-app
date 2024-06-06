@@ -133,9 +133,12 @@ def wrong_accending(idx,chromatic_scale):
         if chromatic_scale[idx][0] == "c":
             chromatic_scale[idx]=chromatic_scale[idx]
     else:
+        print("changed")
         chromatic_scale[idx]=wrong_letter+"f"
         if wrong_letter=="c":
             chromatic_scale[idx]=chromatic_scale[idx]+"'"
+        if chromatic_scale[idx-1][0]==chromatic_scale[idx][0]:
+            chromatic_scale[idx-1]=chromatic_scale[idx-1]+"f"
     if octave:
         chromatic_scale[idx]=chromatic_scale[idx]+octave
     return chromatic_scale
@@ -153,9 +156,12 @@ def wrong_descending(idx, chromatic_scale):
         if chromatic_scale[idx][0] == "b":
             chromatic_scale[idx]=chromatic_scale[idx]+","
     else:
+        print("changed")
         chromatic_scale[idx]=wrong_letter+"f"
         if wrong_letter=="c":
             chromatic_scale[idx]=chromatic_scale[idx]+","
+        if chromatic_scale[idx-1][0]==chromatic_scale[idx][0]:
+            chromatic_scale[idx-1]=chromatic_scale[idx-1]+"s"
     if octave:
         chromatic_scale[idx]=chromatic_scale[idx]+octave
     return chromatic_scale 
