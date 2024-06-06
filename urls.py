@@ -21,15 +21,16 @@ button_style = """
 <style>
 a.button {
     display: inline-block;
-    padding: 8px 20px;
+    padding: 10px 20px;
     font-size: 16px;
     color: white;
     background-color: #4CAF50;
     text-align: center;
     text-decoration: none;
-    border-radius: 10px;
-    border: 1px solid #4CAF50;
+    border-radius: 5px;
+    border: 2px solid #4CAF50;
     transition: background-color 0.3s, border-color 0.3s;
+    margin-top: 10px; /* Adjust this value to move the button closer to the top */
 }
 
 a.button:hover {
