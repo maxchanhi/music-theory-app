@@ -90,6 +90,7 @@ def intro():
                 </script>
                 """
                 support_url = "https://music-glossary.streamlit.app"
+                st.markdown(js, unsafe_allow_html=True)
                 st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
 
     
