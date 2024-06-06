@@ -30,7 +30,7 @@ a.button {
     border-radius: 5px;
     border: 2px solid #4CAF50;
     transition: background-color 0.3s, border-color 0.3s;
-    margin-top: 10px; /* Adjust this value to move the button closer to the top */
+    margin-top: 1px; /* Adjust this value to move the button closer to the top */
 }
 
 a.button:hover {
