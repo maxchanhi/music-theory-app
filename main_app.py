@@ -80,7 +80,7 @@ def intro():
                 st.rerun()
         with col2:
             if st.button("Music Dictionary"):
-                support_url = "https://music-glossary.streamlit.app/"
+                support_url = "https://music-glossary.streamlit.app"
         # Use JavaScript for redirection to avoid multiple redirects issue
                 st.markdown(f'<script>window.location.href="{support_url}";</script>', unsafe_allow_html=True)
                 st.rerun()
