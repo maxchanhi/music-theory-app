@@ -79,15 +79,31 @@ def intro():
                 st.session_state.demo_name = "Instrumental Knowledge"
                 st.rerun()
         with col2:
-            
             if st.button("Music Dictionary"):
-
-                support_url = "https://music-glossary.streamlit.app"
-                # Use JavaScript to automatically click the link
-
-                st.markdown(f'''<meta http-equiv="refresh"; url={support_url}">''', unsafe_allow_html=True)
-
                 st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
+                button_style = """
+<style>
+a.button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #4CAF50;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    border: 2px solid #4CAF50;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+a.button:hover {
+    background-color: #45a049;
+    border-color: #45a049;
+}
+</style>
+"""
+                st.markdown(button_style, unsafe_allow_html=True)
+                st.markdown('<a href="https://music-glossary.streamlit.app" class="button" target="_blank">Music Dictionary</a>', unsafe_allow_html=True)
 
     
     with st.expander("Learn more",expanded=True):
