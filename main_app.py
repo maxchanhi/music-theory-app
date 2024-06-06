@@ -79,6 +79,7 @@ def intro():
                 st.session_state.demo_name = "Instrumental Knowledge"
                 st.rerun()
         with col2:
+            st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
             if st.button("Music Dictionary"):
                 support_url = "https://music-glossary.streamlit.app"
         # Use JavaScript for redirection to avoid multiple redirects issue
