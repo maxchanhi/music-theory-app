@@ -82,7 +82,7 @@ def intro():
             if st.button("Music Dictionary"):
                 support_url = "https://music-glossary.streamlit.app"
         # Use JavaScript for redirection to avoid multiple redirects issue
-                st.markdown(f'<script>window.location.href="{support_url}";</script>', unsafe_allow_html=True)
+                st.markdown(f'<script>window.open("{support_url}", "_blank");</script>', unsafe_allow_html=True)
 
     
     with st.expander("Learn more",expanded=True):
