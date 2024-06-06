@@ -82,7 +82,7 @@ def intro():
         with col2:
             st.markdown(button_style, unsafe_allow_html=True)
             st.markdown('<a href="https://music-glossary.streamlit.app" class="button" target="_blank">Music Dictionary</a>', unsafe_allow_html=True)
-            st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
+            #st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
     
     with st.expander("Learn more",expanded=True):
         col1, col2 = st.columns(2)
