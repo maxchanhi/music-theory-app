@@ -2,6 +2,7 @@ import streamlit as st
 from random import randint
 from fractions import Fraction
 from duration_equation.question import generate_question, correct_ans,question_elements
+from urls import rain_emoji
 def duration_cal_main():
     st.title("Music Duration Quiz")
     col1,col2,col3=st.columns(3)
@@ -29,6 +30,7 @@ def duration_cal_main():
         st.session_state['pressed_cd']=True
         if str(user_ans) == str(correct):
             st.success("Correct answer")
+            rain_emoji()
         else:
             st.error(f"Wrong answer, the answer is {correct}.")
 
