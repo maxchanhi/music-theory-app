@@ -122,7 +122,7 @@ def generate_wrong_options(original_scale=list,accending_dir=bool):
 def wrong_accending(idx,chromatic_scale):
     wrong_idx = alphabat.index(chromatic_scale[idx][0])+1
     wrong_letter= alphabat[wrong_idx%len(alphabat)]
-    octave = "'" if "'" in chromatic_scale[idx] else ""
+    octave = "," if "," in chromatic_scale[idx] else "'" if "'" in chromatic_scale[idx] else ""
     add_acc=random.choice(["s","f"])
     if len(chromatic_scale[idx]) ==1 or( "s" != chromatic_scale[idx][1] and "f" != chromatic_scale[idx][1]):
         chromatic_scale[idx]= chromatic_scale[idx][0]+add_acc
@@ -145,7 +145,7 @@ def wrong_accending(idx,chromatic_scale):
 def wrong_descending(idx, chromatic_scale):
     wrong_idx = alphabat.index(chromatic_scale[idx][0])+1
     wrong_letter= alphabat[wrong_idx%len(alphabat)]
-    octave = "," if "," in chromatic_scale[idx] else ""
+    octave = "," if "," in chromatic_scale[idx] else "'" if "'" in chromatic_scale[idx] else ""
     add_acc=random.choice(["s","f"])
     if len(chromatic_scale[idx]) ==1 or( "s" != chromatic_scale[idx][1] and "f" != chromatic_scale[idx][1]):
         chromatic_scale[idx]= chromatic_scale[idx][0]+add_acc
