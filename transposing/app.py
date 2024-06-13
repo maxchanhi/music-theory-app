@@ -2,7 +2,7 @@ import streamlit as st
 from transposing.main_generation import picture_generation
 from transposing.get_pictures import get_pic_link
 
-def disable_option(idx):
+def disable_option_tr(idx):
     st.session_state.dis_option_tr=idx
 def transposing_main():
     st.header("Transposition Quiz")
@@ -26,7 +26,7 @@ def transposing_main():
         with col1:
             st.image(f'transposing/{link}', use_column_width=True)
         with col2:
-            if st.button(f"Image {idx + 1}", key=f"btn_{idx}", on_click=disable_option, args=(idx,),
+            if st.button(f"Image {idx + 1}", key=f"btn_{idx}", on_click=disable_option_tr, args=(idx,),
                          disabled=idx==st.session_state.dis_option):
                 st.session_state.selected_answer_tr = idx
                 st.session_state.answer_checked_tr = False  # Reset check on new selection
