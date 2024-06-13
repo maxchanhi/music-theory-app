@@ -1,5 +1,5 @@
 import random
-from notation import major_keys,minor_keys,keyscale,transposition,each_note_transposition,alphabat
+from transposing.notation import major_keys,minor_keys,keyscale,transposition,each_note_transposition,alphabat
 def add_accidental(melody=list)->list:
     picked=[]
     while True:
