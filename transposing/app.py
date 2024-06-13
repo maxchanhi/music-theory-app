@@ -26,6 +26,7 @@ def transposing_main():
         with col1:
             st.image(f'transposing/{link}', use_column_width=True)
         with col2:
+            st.write("    ")
             if st.button(f"Image {idx + 1}", key=f"btn_{idx}", on_click=disable_option_tr, args=(idx,),
                          disabled=idx==st.session_state.dis_option_tr):
                 st.session_state.selected_answer_tr = idx
