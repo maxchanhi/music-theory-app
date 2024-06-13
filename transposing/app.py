@@ -1,7 +1,7 @@
 import streamlit as st
 from transposing.main_generation import picture_generation
 from transposing.get_pictures import get_pic_link
-
+from urls import disclaimer, rain_emoji
 def disable_option_tr(idx):
     st.session_state.dis_option_tr=idx
 def transposing_main():
@@ -27,6 +27,7 @@ def transposing_main():
             st.image(f'transposing/{link}', use_column_width=True)
         with col2:
             st.write("    ")
+            st.write("    ")
             if st.button(f"Image {idx + 1}", key=f"btn_{idx}", on_click=disable_option_tr, args=(idx,),
                          disabled=idx==st.session_state.dis_option_tr):
                 st.session_state.selected_answer_tr = idx
@@ -38,6 +39,7 @@ def transposing_main():
             st.session_state.answer_checked_tr = True
             if "correct" in st.session_state['img_link'][st.session_state.selected_answer_tr]:
                 st.success("Correct!")
+                rain_emoji()
             else:
                 correct_idx = [i for i, link in enumerate(st.session_state.img_link) if "correct" in link][0] + 1
                 st.error(f"Incorrect. Image {correct_idx} is the correct answer.")
@@ -52,3 +54,4 @@ def transposing_main():
             st.session_state.answer_checked_tr = False
             st.session_state.dis_option_tr=None
             st.rerun()
+    disclaimer()
