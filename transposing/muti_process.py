@@ -7,7 +7,7 @@ def lilypond_generation(key_sign='fs minor', melody=['d', 'es', 'a'], name="test
     melody = [f"{note}8 " for note in melody]
     lily_melody = ' '.join(melody)
     lilypond_content = f"""
-        \\version "2.24.3"
+        \\version "2.22.0"
         \\language "english"
         {{
         \\omit Staff.TimeSignature
@@ -21,13 +21,13 @@ def lilypond_generation(key_sign='fs minor', melody=['d', 'es', 'a'], name="test
         #(set-global-staff-size 30)
         """
     
-    lilypond_file = f"static/{name}.ly"
+    lilypond_file = f"transposing/static/{name}.ly"
     with open(lilypond_file, 'w') as file:
         file.write(lilypond_content)
 
     # Generate PNG from LilyPond file
-    run(["lilypond", "-o", "static/", "--png", lilypond_file])
-    png_file = f"static/{name}.png"
+    run(["lilypond", "-o", "transposing/static/", "--png", lilypond_file])
+    png_file = f"transposing/static/{name}.png"
     
     return png_file
 
