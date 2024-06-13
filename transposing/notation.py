@@ -108,5 +108,3 @@ def count_piano(original_note="as,",new_letter="e",octave='',transpose_by="up a 
 def each_note_transposition(note="es",transpose_by="up a major 2nd"):
     trans_letter,octave = count_alphabat(note,transpose_by)
     return count_piano(note,trans_letter,octave,transpose_by)
-
-

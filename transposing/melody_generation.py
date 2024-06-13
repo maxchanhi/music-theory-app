@@ -1,7 +1,21 @@
 import random
 from notation import major_keys,minor_keys,keyscale,transposition,each_note_transposition,alphabat
-def melody_generation():
-    pick_a_key=random.choice(major_keys+minor_keys)
+def add_accidental(melody=list)->list:
+    picked=[]
+    while True:
+        idx = random.randint(0, len(melody)-1)
+        if idx not in picked:
+            if "f" in melody[idx] or "s" in melody[idx]:
+                melody[idx]= melody[idx][0]
+            else:
+                melody[idx]=melody[idx]+random.choice(["s", 'f'])
+            picked.append(idx)
+        if len(picked)==3:
+            break
+    return melody
+
+def melody_generation_n_tansposition():
+    pick_a_key=random.choice(major_keys)
     scale=keyscale[pick_a_key]
     while True:
         melody=[]
@@ -10,7 +24,8 @@ def melody_generation():
         if len(melody) - len(set(melody))>1:
             continue
         else:
-            break 
+            break
+    melody=add_accidental(melody)
     transposing_by= random.choice(transposition)
     transposed_melody=[]
     note_split = pick_a_key.split()
@@ -22,12 +37,13 @@ def melody_generation():
     if None in transposed_melody:
         print(melody, transposed_melody)
         raise Exception("None in transposed melody")
-    question_data={"original key":pick_a_key,
-                   "original melody":melody,
-                   "transposed key":transposed_key+" "+note_split[1],
-                   "transposed melody":transposed_melody,
-                   "transposing by":transposing_by}
+    question_data={"original_key":pick_a_key,
+                   "original_melody":melody,
+                   "transposed_key":transposed_key+" "+note_split[1],
+                   "transposed_melody":transposed_melody,
+                   "transposing_by":transposing_by}
     return question_data
+
 
 def wrong_accdental(transposed_melody=list):
     idx=random.randint(0,len(transposed_melody)-1)
@@ -55,7 +71,7 @@ def wrong_letter(transposed_melody=["f"]):
     else:
         accidental=''
         octave =''
-    if alpha_idx >= len(alphabat)-1 :
+    if alpha_idx > len(alphabat)-1 :
         alpha_idx=alpha_idx%(len(alphabat))
         if "," in pick_note:
             transposed_melody[idx]=alphabat[alpha_idx]+accidental
@@ -71,23 +87,20 @@ def wrong_letter(transposed_melody=["f"]):
         transposed_melody[idx]=alphabat[alpha_idx]+accidental+octave
     return transposed_melody
 
-def wrong_key_sign(key="bf minor", dir = "up a major 2nd"):
+def wrong_key_sign(key="bf minor"):
     key_letter=key.split(" ")
-    tran_letter = each_note_transposition(key_letter[0], dir)
-    tran_letter = tran_letter.replace("'", "").replace(",", "")  if "'" in tran_letter or  "," in tran_letter  else tran_letter
     wrong_dir = random.choice(["up a perfect 5th","down a perfect 5th"])
-    wrong_key_sign = each_note_transposition(tran_letter,wrong_dir)
+    wrong_key_sign = each_note_transposition(key_letter[0],wrong_dir)
     wrong_key_sign = wrong_key_sign.replace("'", "").replace(",", "")  if "'" in wrong_key_sign or  "," in wrong_key_sign  else wrong_key_sign
 
     return wrong_key_sign+" "+key_letter[1]
-
-def options_main(melody=list,key="bf minor",dir="up a major 2nd"):
-    options = [(key,melody), (key,wrong_accdental(melody)),
-            (key,wrong_letter(melody)), (wrong_key_sign(key, dir),melody),
-            (wrong_key_sign(key, dir),random.choice([wrong_accdental(melody),
-            wrong_letter(melody)]))]
+import copy
+def options_main(melody=list,key="d minor"):
+    options = [
+    [key, wrong_accdental(copy.deepcopy(melody))],
+    [key, wrong_letter(copy.deepcopy(melody))],
+    [wrong_key_sign(copy.deepcopy(key)), copy.deepcopy(melody)],
+    [wrong_key_sign(copy.deepcopy(key)), wrong_accdental(copy.deepcopy(melody))],
+    [wrong_key_sign(copy.deepcopy(key)), wrong_letter(copy.deepcopy(melody))]
+]
     return options
-
-def main_question():
-    data = melody_generation()
-    return data["original key"],data["original melody"],data["transposing by"],options_main(data["transposed melody"],data["transposed key"],data["transposing by"])
