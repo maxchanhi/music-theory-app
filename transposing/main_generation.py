@@ -1,5 +1,5 @@
-from melody_generation import melody_generation_n_tansposition,options_main
-from muti_process import main_generation
+from transposing.melody_generation import melody_generation_n_tansposition,options_main
+from transposing.muti_process import main_generation
 import asyncio
 def picture_generation():
 
