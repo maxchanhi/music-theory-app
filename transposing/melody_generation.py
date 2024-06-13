@@ -76,13 +76,13 @@ def wrong_letter(transposed_melody=["f"]):
         if "," in pick_note:
             transposed_melody[idx]=alphabat[alpha_idx]+accidental
         else:
-            transposed_melody[idx]=alphabat[alpha_idx]+"'"+accidental
+            transposed_melody[idx]=alphabat[alpha_idx]+accidental+"'"
     elif alpha_idx < 0:
         alpha_idx=alpha_idx%(len(alphabat))
         if "'" in pick_note:
             transposed_melody[idx]=alphabat[alpha_idx]+accidental
         else:
-            transposed_melody[idx]=alphabat[alpha_idx]+","+accidental
+            transposed_melody[idx]=alphabat[alpha_idx]+accidental+","
     else:
         transposed_melody[idx]=alphabat[alpha_idx]+accidental+octave
     return transposed_melody
