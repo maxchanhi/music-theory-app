@@ -27,7 +27,7 @@ def transposing_main():
             st.image(f'transposing/{link}', use_column_width=True)
         with col2:
             if st.button(f"Image {idx + 1}", key=f"btn_{idx}", on_click=disable_option_tr, args=(idx,),
-                         disabled=idx==st.session_state.dis_option):
+                         disabled=idx==st.session_state.dis_option_tr):
                 st.session_state.selected_answer_tr = idx
                 st.session_state.answer_checked_tr = False  # Reset check on new selection
     
