@@ -4,7 +4,7 @@ import random
 catagory = ["Correct notation", "Dotted rest in simple time",
             "Syncopated rest",
             "Breaking a rest",
-            "Beaming issue","Unclear down beat","Hemiola grouping"]
+            "Beaming issue","Unclear down beat","Hemiola"]
 
 urls = ["Correct_rest", "Dotted_rhythm",
         "Syncopated_rest",
@@ -21,7 +21,7 @@ import os
 import random
 
 def get_picture(url=str):
-    target_url = "grouping_quiz/static/" + url
+    target_url = "static/" + url #tag
     
     image_files = [f for f in os.listdir(target_url)]
     
@@ -40,10 +40,22 @@ def main_option()->dict:
     question_data={"Catagory": chosen_cat, "Picture": image_path}
     return question_data
 
-fun_emoji_list = [
-    "😂",  "🎉",   "🚀",  "🐱", 
-    "🐶",  "🦄",  
-    "🎶",  "😱","👼🏻","💃🏻","🐰","🐒","🐣","🦀","💥","✨","🥳",
-    "🍦",  "🌟",  "👻",  
-    "🎈",   "🎮",  "💩"
-]
+def needle_in_haystack():
+    img_list_path = []
+    while len(img_list_path) < 4:
+        url = str(random.choice(urls[1:]))
+        img_path = get_picture(url)
+        _, file_extension = os.path.splitext(img_path)
+        if file_extension.lower() == ".png" and img_path not in img_list_path:
+            img_list_path.append(img_path)
+    
+    correct_url = get_picture(urls[0])
+    _, file_extension = os.path.splitext(correct_url)
+    while file_extension.lower() != ".png":
+        correct_url = get_picture(urls[0])
+        _, file_extension = os.path.splitext(correct_url)
+    
+    img_list_path.append(correct_url)
+    random.shuffle(img_list_path)
+    print(img_list_path)
+    return img_list_path
