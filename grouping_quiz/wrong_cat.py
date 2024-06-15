@@ -21,7 +21,7 @@ import os
 import random
 
 def get_picture(url=str):
-    target_url = "static/" + url #tag
+    target_url = "grouping_quiz/static/" + url #tag
     
     image_files = [f for f in os.listdir(target_url)]
     
