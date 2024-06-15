@@ -2,7 +2,8 @@ import streamlit as st
 ss = st.session_state
 from PIL import Image
 import io
-from wrong_cat import needle_in_haystack
+from grouping_quiz.wrong_cat import needle_in_haystack
+from urls import rain_emoji
 
 def button_pressed_gp(idx):
     ss["press_idx_gp"] = idx
@@ -39,6 +40,7 @@ def grouping_quiz_main():
         ss["check_ans"] = True
         if "Correct_rest" in ss["grouping_link"][ss["press_idx_gp"]]:
             st.success("Correct")
+            rain_emoji()
         else:
             correct_idx = ss["press_idx_gp"]
             st.warning(f"Wrong. The answer is option {correct_idx}")
