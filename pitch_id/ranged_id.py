@@ -1,6 +1,6 @@
 import streamlit as st
 import random
-from element import get_note,levels,accidentals,note_letters
+from pitch_id.element import get_note,levels,accidentals,note_letters
 def disable_button():
     st.session_state.pressed_id = True
 def pitch_main():
