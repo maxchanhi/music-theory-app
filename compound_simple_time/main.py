@@ -42,7 +42,7 @@ def compound_simple_main():
         )
 
     pressed= st.session_state.submit_pressed_com
-    col_1,col_2=st.columns([5,1])
+    col_1,col_2=st.columns([4,1])
     with col_1:
         if st.button("New Question",on_click=submit_pressed,disabled= not pressed ) and st.session_state.submit_pressed_com:
             st.session_state.question_data_com = main_generate()
