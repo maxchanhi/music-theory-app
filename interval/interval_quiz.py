@@ -1,33 +1,33 @@
+import streamlit as st
+import random
+from interval.generation import score_generation,lilypond_generation,level_difficulty
+from interval.element import user_quality, user_interval, fun_emoji_list
+from interval.element import advance_accidentals, difficulty_list
+from streamlit_extras.let_it_rain import rain
+#st.set_page_config(page_title="Interval Quiz")
+
+def new_question(selected_clef,selected_acci,same_clef,compound_o):
+    ans, clef, clef2, fix_octave1, fix_octave2, note, note2 = score_generation(selected_clef,selected_acci,same_clef,compound_o)
+    lilypond_generation(clef, clef2, fix_octave1, fix_octave2, note, note2)
+    st.session_state['current_answer'] = ans
+    st.session_state['feedback'] = ""
+
+def check_answer():
+    user_ans = f"{st.session_state['user_quality']} {st.session_state['user_interval']}"
+    current_answer = st.session_state.get('current_answer')
+
+    if current_answer is None:
+        feedback = 'Error: No current answer available. Please try a new question.'
+    elif user_ans.lower() == current_answer.lower():
+        feedback = 'Correct!'
+        fun_emoji = random.choice(fun_emoji_list)
+        rain(emoji = fun_emoji,animation_length="1")
+        st.session_state['new_quest'] = True
+    else:
+        feedback = f'Incorrect. The answer should be {current_answer}'
+    st.session_state['feedback'] = feedback
+    
 def interval_main():
-    import streamlit as st
-    import random
-    from interval.generation import score_generation,lilypond_generation,level_difficulty
-    from interval.element import user_quality, user_interval, fun_emoji_list
-    from interval.element import advance_accidentals, difficulty_list
-    from streamlit_extras.let_it_rain import rain
-    #st.set_page_config(page_title="Interval Quiz")
-
-    def new_question(selected_clef,selected_acci,same_clef,compound_o):
-        ans, clef, clef2, fix_octave1, fix_octave2, note, note2 = score_generation(selected_clef,selected_acci,same_clef,compound_o)
-        lilypond_generation(clef, clef2, fix_octave1, fix_octave2, note, note2)
-        st.session_state['current_answer'] = ans
-        st.session_state['feedback'] = ""
-
-    def check_answer():
-        user_ans = f"{st.session_state['user_quality']} {st.session_state['user_interval']}"
-        current_answer = st.session_state.get('current_answer')
-
-        if current_answer is None:
-            feedback = 'Error: No current answer available. Please try a new question.'
-        elif user_ans.lower() == current_answer.lower():
-            feedback = 'Correct!'
-            fun_emoji = random.choice(fun_emoji_list)
-            rain(emoji = fun_emoji,animation_length="1")
-            st.session_state['new_quest'] = True
-        else:
-            feedback = f'Incorrect. The answer should be {current_answer}'
-
-        st.session_state['feedback'] = feedback
     if 'new_quest' not in st.session_state:
         st.session_state['new_quest'] = True
     if 'selected_clef' not in st.session_state:
@@ -63,16 +63,13 @@ def interval_main():
     if not st.session_state['selected_clef'] or not st.session_state['selected_acci']:
         st.warning("Please select a clef and a accidental.")
     
-    if st.button("New Question") and st.session_state['selected_clef'] and st.session_state['selected_acci']:
-        new_question(st.session_state['selected_clef'],st.session_state['selected_acci'],same_clef,compound_octave)
-        st.session_state['picture'] = True
-        st.rerun()
+    
     
     if st.session_state['picture'] :
         image_path = "interval/static/images/cropped_score_ans.png"
         st.image(image_path, use_column_width=True)
     else:
-        st.warning("⬆️Press for a New Question")
+        st.warning("Press for a New Question")
     
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -86,7 +83,10 @@ def interval_main():
             check_answer()
             if st.session_state.get('feedback',None):
                 st.write(st.session_state['feedback'])
-    
+        if st.button("New Question") and st.session_state['selected_clef'] and st.session_state['selected_acci']:
+            new_question(st.session_state['selected_clef'],st.session_state['selected_acci'],same_clef,compound_octave)
+            st.session_state['picture'] = True
+            st.rerun()
 
 if __name__ == '__main__':
     interval_main()
