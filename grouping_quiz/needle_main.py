@@ -37,7 +37,7 @@ def grouping_quiz_main():
             ss["press_idx_gp"] = None
             st.rerun()
     with col_2:
-        check_ans_gp = st.button("Check answer", on_click=check_answer_gp, disabled=ss["press_idx_gp"] is None)
+        check_ans_gp = st.button("Check answer", on_click=check_answer_gp, disabled=ss["press_idx_gp"] is None and ss["check_ans"])
     if check_ans_gp and ss["press_idx_gp"] is not None:
         if "Correct_rest" in ss["grouping_link"][ss["press_idx_gp"]]:
             st.success("Correct")
