@@ -27,7 +27,7 @@ def pitch_main():
         st.session_state.pressed_id = True
 
     if st.session_state.current_answer_id:
-        st.image("cropped_score.png") 
+        st.image("score.png") 
 
     col1, col2 = st.columns(2)
     with col1:
