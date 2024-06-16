@@ -7,8 +7,9 @@ from urls import rain_emoji
 
 def button_pressed_gp(idx):
     ss["press_idx_gp"] = idx
-    print("Pressed", idx)
 
+def check_answer_gp():
+    ss["check_ans"] = True
 def grouping_quiz_main():
     if "grouping_link" not in ss:
         ss["grouping_link"] = []
@@ -28,22 +29,22 @@ def grouping_quiz_main():
             with col_2:
                 st.write("    ")
                 st.button(f"Option {idx+1}", key=idx, on_click=button_pressed_gp, args=(idx,), disabled=idx == ss["press_idx_gp"])
-    col_1, col_2 = st.columns([5, 1])
+    col_1, col_2 = st.columns([4, 1])
     with col_1:
         if st.button("New Question",disabled= not ss["check_ans"]) and ss["check_ans"]:
             ss["grouping_link"] = needle_in_haystack()
             ss["check_ans"] = False
             ss["press_idx_gp"] = None
     with col_2:
-        if st.button("Check answer", disabled=ss["check_ans"]) and ss["press_idx_gp"] is not None:
-            ss["check_ans"] = True
-            if "Correct_rest" in ss["grouping_link"][ss["press_idx_gp"]]:
-                st.success("Correct")
-                rain_emoji()
-            else:
-                correct_idx = ss["press_idx_gp"]
-                st.warning(f"Wrong. The answer is option {correct_idx}")
-            ss["press_idx_gp"] = None
+        check_ans_gp = st.button("Check answer", on_click=check_answer_gp, disabled=ss["check_ans"])
+    if check_ans_gp and ss["press_idx_gp"] is not None:
+        if "Correct_rest" in ss["grouping_link"][ss["press_idx_gp"]]:
+            st.success("Correct")
+            rain_emoji()
+        else:
+            correct_idx = ss["press_idx_gp"]
+            st.warning(f"Wrong. The answer is option {correct_idx}")
+        ss["press_idx_gp"] = None
 
 if __name__ == "__main__":
     grouping_quiz_main()
