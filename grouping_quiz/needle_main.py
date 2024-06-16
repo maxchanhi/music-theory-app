@@ -21,6 +21,7 @@ def grouping_quiz_main():
         ss["press_idx_gp"] = None
 
     st.title("Grouping and beaming quiz")
+    st.subtitle("Which melody is correctly grouped and beaming without hemiola?")
     if len(ss["grouping_link"]) > 0:
         for idx, link in enumerate(ss["grouping_link"]):
             col_1, col_2 = st.columns([5, 1])
