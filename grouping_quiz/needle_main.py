@@ -35,6 +35,7 @@ def grouping_quiz_main():
             ss["grouping_link"] = needle_in_haystack()
             ss["check_ans"] = False
             ss["press_idx_gp"] = None
+            st.rerun()
     with col_2:
         check_ans_gp = st.button("Check answer", on_click=check_answer_gp, disabled=ss["check_ans"])
     if check_ans_gp and ss["press_idx_gp"] is not None:
