@@ -47,7 +47,8 @@ def pitch_main():
     user_ans = f"{selected_note}{selected_accidental}"
 
     if check_ans:
-        if user_ans.lower() == st.session_state.current_answer_id:
+        print(user_ans.lower(),st.session_state.current_answer_id)
+        if user_ans.lower() == st.session_state.current_answer_id.lower():
             st.success("Correct")
         else:
             st.error(f"The answer should be {st.session_state.current_answer_id}")
