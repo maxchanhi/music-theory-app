@@ -11,7 +11,7 @@ def main_ts():
     # Streamlit app
     question_data,correct_answer=st.session_state.question_data_ts
     st.title("Calculation for time signature")
-    st.write(question_data)
+    st.subheader(question_data)
     if st.button("New Question"):
         st.session_state.pressed_ts = False
         st.session_state.question_data_ts = generate_question()
