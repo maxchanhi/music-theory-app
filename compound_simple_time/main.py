@@ -2,6 +2,7 @@ from compound_simple_time.melody import main_generate
 from urls import disclaimer,rain_emoji
 import asyncio,random
 from compound_simple_time.asynchronous import score_generation
+import streamlit as st
 def submit_pressed():
     st.session_state.submit_pressed_com = True
 def select_option(idx):
