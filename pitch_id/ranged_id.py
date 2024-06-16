@@ -44,7 +44,7 @@ def pitch_main():
         # The select box for the accidentals
         selected_accidental = st.selectbox('Select the accidental:', accidentals)
         check_ans = st.button("Check Answer", on_click=disable_button,disabled=st.session_state.pressed_id)
-    user_ans = f"{selected_note}{selected_accidental}"
+    user_ans = f"{selected_note} {selected_accidental}"
 
     if check_ans:
         st.write(user_ans.lower())
