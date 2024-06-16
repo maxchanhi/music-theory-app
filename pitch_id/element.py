@@ -33,7 +33,7 @@ clefs = {
 #print(get_note(leger_line=True))
 def ranged_score_generation(chosen_clef,chosen_note,chosen_range):
     lilypond_score = f"""
-  \\version "2.24.3"  % ensure this matches your LilyPond version
+  \\version "2.22.0"  % ensure this matches your LilyPond version
   \\header {{
     tagline = ""  % removes the default LilyPond tagline
   }}
