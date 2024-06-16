@@ -30,7 +30,7 @@ def grouping_quiz_main():
             with col_2:
                 st.write("    ")
                 st.button(f"Option {idx+1}", key=idx, on_click=button_pressed_gp, args=(idx,), disabled=idx == ss["press_idx_gp"] or ss["check_ans"])
-    col_1, col_2 = st.columns([4, 1])
+    col_1, col_2 = st.columns([3, 1])
     with col_1:
         if st.button("New Question",disabled= not ss["check_ans"]) and ss["check_ans"]:
             ss["grouping_link"] = needle_in_haystack()
