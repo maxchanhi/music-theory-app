@@ -4,7 +4,7 @@ import random
 from melody_key.score_generation import lilypond_generation
 from melody_key.motif import generate_options,main_generation
 from streamlit_extras.let_it_rain import rain
-from urls import disclaimer
+from urls import disclaimer,rain_emoji
 #st.set_page_config(page_title="Identify Key in Melody")
 def melody_key_main():
     
@@ -54,14 +54,16 @@ def melody_key_main():
 
     with col1:
         new_score = st.button("Generate Score")
-        if new_score and selected_keys and st.session_state["pressed_mk"]:
-            st.session_state["pressed_mk"] = False
-            st.session_state['ans_key_mk'] = random.choice(selected_keys)
-            st.session_state['options_mk'] = generate_options(st.session_state['ans_key_mk'], selected_keys)
-            melody = main_generation(st.session_state['ans_key_mk'])
-            lilypond_generation(melody, "testing", 4, 4)
-            print("options", st.session_state['options_mk'])
-            st.rerun()
+    with col2:
+        check = st.button("Check Answer", disabled=st.session_state["pressed_mk"])
+    if new_score and selected_keys and st.session_state["pressed_mk"]:
+        st.session_state["pressed_mk"] = False
+        st.session_state['ans_key_mk'] = random.choice(selected_keys)
+        st.session_state['options_mk'] = generate_options(st.session_state['ans_key_mk'], selected_keys)
+        melody = main_generation(st.session_state['ans_key_mk'])
+        lilypond_generation(melody, "testing", 4, 4)
+        print("options", st.session_state['options_mk'])
+        st.rerun()
     
         if st.session_state['options_mk']:
             st.write("What key is the score in?")
@@ -75,19 +77,14 @@ def melody_key_main():
                 print("user_answer", st.session_state['user_answer_mk'], "ans_key", ans_key)
             except:
                 st.warning("Press Generate Score")
-    
-    with col2:
-        check = st.button("Check Answer", disabled=st.session_state["pressed_mk"])
-    
-        if check and st.session_state['user_answer_mk'] is not None:
-            st.session_state["pressed_mk"] = True
-            if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
-                st.success("Correct!")
-                fun_emoji = random.choice(fun_emoji_list)
-                rain(emoji=fun_emoji, animation_length="1")
-            elif user_answer != ans_key:
-                st.warning(f"Incorrect. The correct answer is {st.session_state['ans_key_mk']}.")
-    
+    if check and st.session_state['user_answer_mk'] is not None:
+        st.session_state["pressed_mk"] = True
+        if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
+            st.success("Correct!")
+            rain_emoji()
+        elif user_answer != ans_key:
+            st.warning(f"Incorrect. The correct answer is {st.session_state['ans_key_mk']}.")
+
     disclaimer()
 if __name__ == "__main__":
     melody_key_main()
