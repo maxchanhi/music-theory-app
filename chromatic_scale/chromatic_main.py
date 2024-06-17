@@ -52,7 +52,7 @@ def chr_main():
                         st.session_state[f"button_{png_file}"] = False
                     if st.button("Select", key=png_file, on_click=select_image, args=(png_file,), disabled=st.session_state[f"button_{png_file}"]):
                         st.session_state[f"button_{png_file}"] = True
-
+    col1, col2 = st.columns([4, 1])
     with col1:
         if st.button("Generate new question",disabled= st.session_state.new_ques_ch):
             st.session_state.new_ques_ch = True
