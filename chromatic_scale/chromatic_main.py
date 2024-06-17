@@ -7,7 +7,7 @@ from urls import rain_emoji
 from streamlit_extras.let_it_rain import rain
 import random
 #st.set_page_config("Chromatic scale identify")
-def generation_new_ques():
+def generation_new_ques(clef_list):
     with st.spinner("Generating new question..."):
         chromatic_scale,wrong_options,accending_dir = main_chromatic_generator()
         st.session_state.chromatic_data = chromatic_scale,wrong_options,accending_dir
@@ -30,7 +30,7 @@ def chr_main():
     clef_list = st.multiselect("Select clef", ["bass","tenor",'alto','treble'],default=['treble'])
     col1,col2=st.columns([4,1])
     if st.session_state.new_ques_ch:
-        generation_new_ques()
+        generation_new_ques(clef_list)
         st.session_state.new_ques_ch=False
     
     if st.session_state.chr_file:
