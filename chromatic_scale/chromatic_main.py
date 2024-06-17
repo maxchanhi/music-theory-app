@@ -44,6 +44,7 @@ def chr_main():
             with col1:
                 st.image(png_file)
             with col2:
+                st.write("    ")
                 if st.session_state.selected_image == png_file:
                     st.button("Selected", disabled=True, key=png_file)
                 else:
@@ -64,6 +65,7 @@ def chr_main():
                 st.success("Correct Answer!")
                 rain_emoji()
             else:
+                
                 st.error("Wrong Answer!")
             st.session_state.chr_pressed = True
 
