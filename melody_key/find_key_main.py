@@ -58,11 +58,7 @@ def melody_key_main():
 
     def check_answer():
         st.session_state["pressed_mk"] = True
-        if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
-            st.success("Correct!")
-            rain_emoji()
-        elif user_answer != ans_key:
-            st.warning(f"Incorrect. The correct answer is {st.session_state['ans_key_mk']}.")
+        
 
     if st.session_state['options_mk']:
         st.write("What key is the score in?")
@@ -79,7 +75,13 @@ def melody_key_main():
     with col1:
         st.button("New Question",disabled= not st.session_state["pressed_mk"],on_click=generate_question)
     with col2:
-        st.button("Check Answer", disabled=st.session_state["pressed_mk"] or not user_answer,on_click=check_answer)
+        check_ans=st.button("Check Answer", disabled=st.session_state["pressed_mk"] or not user_answer,on_click=check_answer)
+    if check_ans:
+        if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
+            st.success("Correct!")
+            rain_emoji()
+        elif user_answer != ans_key:
+            st.warning(f"Incorrect. The correct answer is {st.session_state['ans_key_mk']}.")
     disclaimer()
 if __name__ == "__main__":
     melody_key_main()
