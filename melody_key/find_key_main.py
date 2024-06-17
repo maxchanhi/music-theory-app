@@ -65,18 +65,18 @@ def melody_key_main():
         print("options", st.session_state['options_mk'])
         st.rerun()
     
-        if st.session_state['options_mk']:
-            st.write("What key is the score in?")
-            try:
-                st.image("melody_key/score.png", use_column_width=True)
-                st.audio("melody_key/testing.mp3", format="audio/mpeg")
-                user_answer = st.radio("Select the key:", st.session_state['options_mk'], index=None)
-                st.session_state['user_answer_mk'] = user_answer
-    
-                ans_key = st.session_state['ans_key_mk']
-                print("user_answer", st.session_state['user_answer_mk'], "ans_key", ans_key)
-            except:
-                st.warning("Press Generate Score")
+    if st.session_state['options_mk']:
+        st.write("What key is the score in?")
+        try:
+            st.image("melody_key/score.png", use_column_width=True)
+            st.audio("melody_key/testing.mp3", format="audio/mpeg")
+            user_answer = st.radio("Select the key:", st.session_state['options_mk'], index=None)
+            st.session_state['user_answer_mk'] = user_answer
+
+            ans_key = st.session_state['ans_key_mk']
+            print("user_answer", st.session_state['user_answer_mk'], "ans_key", ans_key)
+        except:
+            st.warning("Press Generate Score")
     if check and st.session_state['user_answer_mk'] is not None:
         st.session_state["pressed_mk"] = True
         if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
