@@ -17,6 +17,7 @@ import streamlit as st
 import random
 
 def intro():
+    
     em= random.choice(fun_emoji_list)
     st.title(f"{em}Music Theory App{em}")
     st.write(f"Welcome to my Music Theory App! You can practice your ABRSM grade 5 theory! {random.choice(fun_emoji_list)}")
@@ -112,7 +113,7 @@ page_names_to_funcs = {
     "Inversion":main_inversion, "Instrumental Knowledge": knowledgemain, 
 }
 def main():
-    st.set_page_config(page_title="Music Theory App")
+    st.set_page_config(page_title="Music Theory App",page_icon="🎵")
     if 'demo_name' not in st.session_state:
         st.session_state.demo_name = "—"
 
