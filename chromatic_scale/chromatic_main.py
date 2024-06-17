@@ -48,15 +48,11 @@ def chr_main():
                         st.session_state[f"button_{png_file}"] = True
 
     with col1:
-        if st.button("Generate new question",disabled=not disable_chr_check_ans):
+        if st.button("Generate new question",disabled=not st.session_state.new_ques_ch):
             st.session_state.new_ques_ch = True
             st.rerun()
     with col2:
-        if st.session_state.chr_file ==None:
-            disable_chr_check_ans=True
-        else:
-            disable_chr_check_ans=False
-        chr_check_ans= st.button("Check Answer",disabled=disable_chr_check_ans)
+        chr_check_ans= st.button("Check Answer",disabled=st.session_state.new_ques_ch and not st.session_state.chr_file)
     if st.session_state.selected_image:
         if chr_check_ans:
             if "Correct" in st.session_state.selected_image:
