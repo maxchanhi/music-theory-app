@@ -32,21 +32,18 @@ def transposing_main():
                 st.session_state.answer_checked_tr = False  # Reset check on new selection
     
     col1, col2 = st.columns([5, 1])
-    with col2:
-        if st.session_state.selected_answer_tr is not None and not st.session_state.answer_checked_tr:
-            check_ans = st.button("Check answer",disabled=st.session_state.answer_checked_tr)
                 
-    
     with col1:
-        if st.session_state.answer_checked_tr or not st.session_state.transposed_by:
-            if st.button("Generate question"):
-                st.session_state.transposed_by = picture_generation()
-                st.session_state.presses_tran = False
-                st.session_state.img_link = get_pic_link()
-                st.session_state.selected_answer_tr = None
-                st.session_state.answer_checked_tr = False
-                st.session_state.dis_option_tr=None
-                st.rerun()
+        if st.button("Generate question",disabled= not st.session_state.answer_checked_tr):
+            st.session_state.transposed_by = picture_generation()
+            st.session_state.presses_tran = False
+            st.session_state.img_link = get_pic_link()
+            st.session_state.selected_answer_tr = None
+            st.session_state.answer_checked_tr = False
+            st.session_state.dis_option_tr=None
+            st.rerun()
+    with col2:
+            check_ans = st.button("Check answer",disabled=st.session_state.answer_checked_tr)
     if check_ans:
         st.session_state.answer_checked_tr = True
         if "correct" in st.session_state['img_link'][st.session_state.selected_answer_tr]:
