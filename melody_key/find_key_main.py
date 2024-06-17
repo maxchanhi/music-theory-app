@@ -49,35 +49,14 @@ def melody_key_main():
         st.session_state['options_mk'] = ''
     if "pressed_mk" not in st.session_state:
         st.session_state["pressed_mk"] = True
-    
-    col1, col2 = st.columns([4, 1])
-
-    with col1:
-        new_score = st.button("Generate Score")
-    with col2:
-        check = st.button("Check Answer", disabled=st.session_state["pressed_mk"])
-    if new_score and selected_keys and st.session_state["pressed_mk"]:
+    def generate_question():
         st.session_state["pressed_mk"] = False
         st.session_state['ans_key_mk'] = random.choice(selected_keys)
         st.session_state['options_mk'] = generate_options(st.session_state['ans_key_mk'], selected_keys)
         melody = main_generation(st.session_state['ans_key_mk'])
         lilypond_generation(melody, "testing", 4, 4)
-        print("options", st.session_state['options_mk'])
-        st.rerun()
-    
-    if st.session_state['options_mk']:
-        st.write("What key is the score in?")
-        try:
-            st.image("melody_key/score.png", use_column_width=True)
-            st.audio("melody_key/testing.mp3", format="audio/mpeg")
-            user_answer = st.radio("Select the key:", st.session_state['options_mk'], index=None)
-            st.session_state['user_answer_mk'] = user_answer
 
-            ans_key = st.session_state['ans_key_mk']
-            print("user_answer", st.session_state['user_answer_mk'], "ans_key", ans_key)
-        except:
-            st.warning("Press Generate Score")
-    if check and st.session_state['user_answer_mk'] is not None:
+    def check_answer():
         st.session_state["pressed_mk"] = True
         if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
             st.success("Correct!")
@@ -85,6 +64,22 @@ def melody_key_main():
         elif user_answer != ans_key:
             st.warning(f"Incorrect. The correct answer is {st.session_state['ans_key_mk']}.")
 
+    if st.session_state['options_mk']:
+        st.write("What key is the score in?")
+        try:
+            st.image("melody_key/score.png", use_column_width=True)
+            st.audio("melody_key/testing.mp3", format="audio/mpeg")
+            user_answer = st.radio("Select the key:", st.session_state['options_mk'], index=None)
+            st.session_state['user_answer_mk'] = user_answer
+            ans_key = st.session_state['ans_key_mk']
+        except:
+            st.warning("Press New Question")
+        
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        st.button("New Question",disabled= not st.session_state["pressed_mk"],on_click=generate_question)
+    with col2:
+        st.button("Check Answer", disabled=st.session_state["pressed_mk"],on_click=check_answer)
     disclaimer()
 if __name__ == "__main__":
     melody_key_main()
