@@ -79,7 +79,7 @@ def melody_key_main():
     with col1:
         st.button("New Question",disabled= not st.session_state["pressed_mk"],on_click=generate_question)
     with col2:
-        st.button("Check Answer", disabled=st.session_state["pressed_mk"],on_click=check_answer)
+        st.button("Check Answer", disabled=st.session_state["pressed_mk"] or not user_answer,on_click=check_answer)
     disclaimer()
 if __name__ == "__main__":
     melody_key_main()
