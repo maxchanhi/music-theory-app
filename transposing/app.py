@@ -4,6 +4,9 @@ from transposing.get_pictures import get_pic_link
 from urls import disclaimer, rain_emoji
 def disable_option_tr(idx):
     st.session_state.dis_option_tr=idx
+
+def check_callback():
+    st.session_state.answer_checked_tr = True
 def transposing_main():
     st.header("Transposition Quiz")
     
@@ -43,9 +46,9 @@ def transposing_main():
             st.session_state.dis_option_tr=None
             st.rerun()
     with col2:
-            check_ans = st.button("Check answer",disabled=st.session_state.answer_checked_tr)
+            check_ans = st.button("Check answer",disabled=st.session_state.answer_checked_tr,on_click=check_callback)
     if check_ans:
-        st.session_state.answer_checked_tr = True
+        
         if "correct" in st.session_state['img_link'][st.session_state.selected_answer_tr]:
             st.success("Correct!")
             rain_emoji()
