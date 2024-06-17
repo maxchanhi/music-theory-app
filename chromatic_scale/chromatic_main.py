@@ -50,7 +50,7 @@ def chr_main():
                 else:
                     if f"button_{png_file}" not in st.session_state:
                         st.session_state[f"button_{png_file}"] = False
-                    if st.button(f"Option_{idx}", key=png_file, on_click=select_image, args=(png_file,), disabled=st.session_state[f"button_{png_file}"]):
+                    if st.button(f"Option {idx}", key=png_file, on_click=select_image, args=(png_file,), disabled=st.session_state[f"button_{png_file}"]):
                         st.session_state[f"button_{png_file}"] = True
             idx+=1
     col1, col2 = st.columns([4, 1])
@@ -72,7 +72,7 @@ def chr_main():
                         correct_idx=idxx
                         break
                     idxx+=1
-                st.error(f"The correct answer is option{correct_idx}")
+                st.error(f"The correct answer is option {correct_idx}")
             st.session_state.chr_pressed = True
 
 
