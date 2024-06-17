@@ -17,6 +17,11 @@ def generation_new_ques(clef_list):
         st.session_state.chr_file=png_files
     st.session_state.selected_image = None 
     st.session_state.chr_pressed = False
+def select_image(png_file):
+    st.session_state.selected_image = png_file
+    for file in st.session_state.chr_file:
+        if file != png_file:
+            st.session_state[f"button_{file}"] = False
 def chr_main():
     st.title("Chromatic scale identify")
 
@@ -63,11 +68,7 @@ def chr_main():
             st.session_state.chr_pressed = True
 
 
-    def select_image(png_file):
-        st.session_state.selected_image = png_file
-        for file in st.session_state.chr_file:
-            if file != png_file:
-                st.session_state[f"button_{file}"] = False
+    
 
     
 
