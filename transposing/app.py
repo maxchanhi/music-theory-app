@@ -46,7 +46,8 @@ def transposing_main():
             st.session_state.dis_option_tr=None
             st.rerun()
     with col2:
-            check_ans = st.button("Check answer",disabled=st.session_state.answer_checked_tr,on_click=check_callback)
+            check_ans = st.button("Check answer",disabled=st.session_state.answer_checked_tr or not st.session_state.dis_option_tr
+                                  ,on_click=check_callback)
     if check_ans:
         
         if "correct" in st.session_state['img_link'][st.session_state.selected_answer_tr]:
