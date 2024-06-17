@@ -48,7 +48,7 @@ def chr_main():
                         st.session_state[f"button_{png_file}"] = True
 
     with col1:
-        if st.button("Generate new question",disabled=not st.session_state.new_ques_ch):
+        if st.button("Generate new question",disabled= st.session_state.new_ques_ch):
             st.session_state.new_ques_ch = True
             st.rerun()
     with col2:
