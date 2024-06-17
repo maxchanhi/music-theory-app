@@ -7,6 +7,16 @@ from urls import rain_emoji
 from streamlit_extras.let_it_rain import rain
 import random
 #st.set_page_config("Chromatic scale identify")
+def generation_new_ques():
+    with st.spinner("Generating new question..."):
+        chromatic_scale,wrong_options,accending_dir = main_chromatic_generator()
+        st.session_state.chromatic_data = chromatic_scale,wrong_options,accending_dir
+        asyncio.run(main(st.session_state.chromatic_data,clef_list=clef_list))
+        png_files = get_png_files()
+        random.shuffle(png_files)
+        st.session_state.chr_file=png_files
+    st.session_state.selected_image = None 
+    st.session_state.chr_pressed = False
 def chr_main():
     st.title("Chromatic scale identify")
 
@@ -15,20 +25,14 @@ def chr_main():
         st.session_state.chr_pressed = True
         st.session_state.selected_image = None
         st.session_state.chr_file = None
+        st.session_state.new_ques_ch = False
+    
     clef_list = st.multiselect("Select clef", ["bass","tenor",'alto','treble'],default=['treble'])
     col1,col2=st.columns([4,1])
+    if st.session_state.new_ques_ch:
+        generation_new_ques()
+        st.session_state.new_ques_ch=False
     
-    if chr_new_q and st.session_state.chr_pressed:
-        with st.spinner("Generating new question..."):
-            chromatic_scale,wrong_options,accending_dir = main_chromatic_generator()
-            st.session_state.chromatic_data = chromatic_scale,wrong_options,accending_dir
-            asyncio.run(main(st.session_state.chromatic_data,clef_list=clef_list))
-            png_files = get_png_files()
-            random.shuffle(png_files)
-            st.session_state.chr_file=png_files
-
-        st.session_state.selected_image = None  # Reset selected image
-        st.session_state.chr_pressed = False
     if st.session_state.chr_file:
         for png_file in st.session_state.chr_file:
             col1, col2 = st.columns([4, 1])
@@ -44,8 +48,9 @@ def chr_main():
                         st.session_state[f"button_{png_file}"] = True
 
     with col1:
-        chr_new_q = st.button("Generate new question",disabled=not disable_chr_check_ans)
-        st.rerun()
+        if st.button("Generate new question",disabled=not disable_chr_check_ans):
+            st.session_state.new_ques_ch = True
+            st.rerun()
     with col2:
         if st.session_state.chr_file ==None:
             disable_chr_check_ans=True
