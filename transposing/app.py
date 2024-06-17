@@ -34,7 +34,7 @@ def transposing_main():
                 st.session_state.selected_answer_tr = idx
                 st.session_state.answer_checked_tr = False  # Reset check on new selection
     
-    col1, col2 = st.columns([5, 1])
+    col1, col2 = st.columns([4, 1])
                 
     with col1:
         if st.button("Generate question",disabled= not st.session_state.answer_checked_tr):
