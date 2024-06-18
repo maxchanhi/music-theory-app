@@ -1,10 +1,9 @@
 import streamlit as st
-from melody_key.chord_progression.notation import fun_emoji_list
+
 import random
 from melody_key.chord_progression.question import lilypond_generation, question_generation, display_options, chord_accompany, audio_generation
 from melody_key.chord_progression.progression import main_generation, key_generation
-from streamlit_extras.let_it_rain import rain
-from urls import disclaimer
+from urls import disclaimer, rain_emoji
 ss = st.session_state
 def new_question(choosen_range="Major"):
     choosen_key = key_generation(choosen_range)
@@ -45,7 +44,7 @@ def chord_progression_main():
     st.image("melody_key/chord_progression/static/cropped_score_question.png", use_column_width=True)
     display_key = ss['question_data']['key_signature']
     display_opts = ss["question_data"]["dis_options"]
-    user_ans = st.radio(f"Select the correct harmonic pattern in {display_key}:", display_opts)
+    user_ans = st.radio(f"Select the correct harmonic pattern in {display_key}:", display_opts,index=None)
 
     col1, col2 = st.columns([4, 1])
     with col1:
@@ -57,9 +56,8 @@ def chord_progression_main():
         options = ss["question_data"]["options"]
         correct_index = ss["question_data"]["correct_index"]
         if display_opts.index(user_ans) == correct_index:
-            emoji = random.choice(fun_emoji_list)
-            st.success(f"Correct!{emoji}")
-            rain(emoji=emoji, animation_length=1)
+            st.success(f"Correct!")
+            rain_emoji()
             st.balloons()
             audio_generation()
             st.audio("melody_key/chord_progression/static/question.mp3")
