@@ -37,10 +37,6 @@ def knowledgemain():
             ss["get_url"] = "instrument_knowledge_quiz/"+ss["choosen_topic"]["pic_url"]
         else:
             ss["get_url"] = None
-    col_1,col_2=st.columns([1,4])
-    with col_1:
-        st.button('New question',disabled= not ss["pressed_kn"],on_click=new_question_call)
-    
     
     if ss["choosen_topic"]:
         choosen_topic = ss["choosen_topic"]
@@ -48,6 +44,9 @@ def knowledgemain():
         if ss["get_url"]:
             st.image(ss["get_url"])
         reed_options = st.radio("Options:", choosen_topic['options'])
+    col_1,col_2=st.columns([1,4])
+    with col_1:
+        st.button('New question',disabled= not ss["pressed_kn"],on_click=new_question_call)
     with col_2:
         if st.button('Check Answer', disabled=ss["pressed_kn"] or not reed_options):
             ss["pressed_kn"] = True
