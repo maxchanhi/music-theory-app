@@ -48,7 +48,7 @@ def knowledgemain():
     with col_1:
         st.button('New question',disabled= not ss["pressed_kn"],on_click=new_question_call)
     with col_2:
-        if st.button('Check Answer', disabled=ss["pressed_kn"] or not reed_options):
+        if st.button('Check Answer', disabled=ss["pressed_kn"] or reed_options is None):
             ss["pressed_kn"] = True
             if reed_options == choosen_topic['answer']:
                 fun_emoji = random.choice(fun_emoji_list)
