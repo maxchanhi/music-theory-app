@@ -1,8 +1,7 @@
 
 import streamlit as st
 from instrument_knowledge_quiz.topics import pick_topic
-from instrument_knowledge_quiz.data import fun_emoji_list
-from streamlit_extras.let_it_rain import rain
+from urls import rain_emoji
 from instrument_knowledge_quiz.AIfeedback import provide_feedback
 from instrument_knowledge_quiz.preembed import login_for_feedback,rag_feedback
 import random
@@ -51,9 +50,8 @@ def knowledgemain():
         if st.button('Check Answer', disabled=ss["pressed_kn"] or reed_options is None):
             ss["pressed_kn"] = True
             if reed_options == choosen_topic['answer']:
-                fun_emoji = random.choice(fun_emoji_list)
-                st.success(f"Correct!{fun_emoji}")
-                rain(emoji=fun_emoji, animation_length="1")
+                rain_emoji()
+                st.success(f"Correct!")
                 st.balloons()
                 ss["student_ans"].append([choosen_topic['question'], "student answer: " + reed_options, "correct"])
             else:
