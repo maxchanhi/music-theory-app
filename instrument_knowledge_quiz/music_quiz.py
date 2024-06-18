@@ -26,7 +26,6 @@ def knowledgemain():
         st.warning("Tip: You need to answer at least 5 questions to get the AI feedback.")
     topics = ['Reed', 'Transposing', "Clef", "Voice types", "Piano", "Ornaments", "Inst. technique"]
     topics_selected = st.multiselect('Select topics to be quizzed on:', topics, default=topics)
-    new_question = 
     if not topics_selected:
         st.warning('Please select at least one topic.')
     def new_question_call():
