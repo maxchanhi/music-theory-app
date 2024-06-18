@@ -43,7 +43,7 @@ def knowledgemain():
         st.subheader(choosen_topic['question'])
         if ss["get_url"]:
             st.image(ss["get_url"])
-        reed_options = st.radio("Options:", choosen_topic['options'])
+        reed_options = st.radio("Options:", choosen_topic['options'],index=None)
     col_1,col_2=st.columns([4,1])
     with col_1:
         st.button('New question',disabled= not ss["pressed_kn"],on_click=new_question_call)
