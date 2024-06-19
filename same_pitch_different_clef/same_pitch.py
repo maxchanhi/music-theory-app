@@ -1,5 +1,5 @@
 import streamlit as st
-from notation import main_generation
+from same_pitch_different_clef.notation import main_generation
 from urls import rain_emoji
 ss=st.session_state
 
