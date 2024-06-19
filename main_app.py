@@ -54,7 +54,7 @@ def intro():
                 st.session_state.demo_name = "Chromatic scale"
                 st.rerun()
             if st.button("Same pitches with different clefs"):
-                st.session_state.demo_name = "Same pitchse with different clefs"
+                st.session_state.demo_name = "Same pitches with different clefs"
                 st.rerun()
                 
         with col2:
