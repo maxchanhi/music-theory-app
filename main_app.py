@@ -11,6 +11,7 @@ from duration_equation.time_main import main_ts
 from chromatic_scale.chromatic_main import chr_main
 from urls import fun_emoji_list,button_style
 from transposing.app import transposing_main
+from same_pitch_different_clef.same_pitch import main_sp
 
 import streamlit as st
 
@@ -51,6 +52,9 @@ def intro():
                 st.rerun()
             if st.button("Chromatic scale"):
                 st.session_state.demo_name = "Chromatic scale"
+                st.rerun()
+            if st.button("Same pitches with different clefs"):
+                st.session_state.demo_name = "Same pitchse with different clefs"
                 st.rerun()
                 
         with col2:
@@ -109,6 +113,7 @@ page_names_to_funcs = {
     "—": intro,
     "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,"Duration calculation":duration_cal_main,
     "Calculation for time signature":main_ts,"Pitch Identification": pitch_main,"Interval": interval_main,"Chromatic scale":chr_main,"Transposing":transposing_main,
+    "Same pitches with different clefs":main_sp,
     "Identifying Key in a Melody": melody_key_main,"Chord Progression": chord_progression_main,
     "Inversion":main_inversion, "Instrumental Knowledge": knowledgemain, 
 }
