@@ -30,6 +30,8 @@ import os
 import subprocess
 import uuid
 
+from PIL import Image
+
 def lilypond_generation(data, melody):
     str_melody = " ".join(melody)
     clef = data[2]
@@ -63,7 +65,16 @@ def lilypond_generation(data, melody):
 
     try:
         subprocess.run(["lilypond", "-dpreview", "-dbackend=eps", "-dno-gs-load-fonts", "-dinclude-eps-fonts", "--png", f"--output={temp_output_file}", temp_ly_file], check=True)
-        os.rename(f"{temp_output_file}.png", f"{file_name}.png")
+        image = Image.open(f"{temp_output_file}.png")
+
+        width, height = image.size
+        left = 0
+        top = 0
+        right = width // 2
+        bottom = height // 2
+        cropped_image = image.crop((left, top, right, bottom))
+        cropped_image.save(f"{file_name}.png")
+        
     except subprocess.CalledProcessError as e:
         print(f"Error running LilyPond: {e}")
     except FileNotFoundError:
@@ -74,8 +85,8 @@ def lilypond_generation(data, melody):
             os.remove(temp_ly_file)
         if os.path.exists(f"{temp_output_file}.eps"):
             os.remove(f"{temp_output_file}.eps")
-        if os.path.exists(f"{temp_output_file}.preview.png"):
-            os.remove(f"{temp_output_file}.preview.png")
+        if os.path.exists(f"{temp_output_file}.png"):
+            os.remove(f"{temp_output_file}.png")
 def main_generation():
     link_list=['diff','same_1','same_2']
     random.shuffle(link_list)
