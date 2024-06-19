@@ -43,7 +43,7 @@ def lilypond_generation(data, melody):
     temp_ly_file = f"temp_{job_id}.ly"
     temp_output_file = f"temp_{job_id}_out"
     
-    lilypond = f"""\\version "2.24.0"
+    lilypond = f"""\\version "2.22.0"
 #(set-global-staff-size 40)
 \\score {{
   \\new Staff \\with {{
