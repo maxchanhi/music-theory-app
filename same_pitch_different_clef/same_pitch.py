@@ -19,7 +19,7 @@ def main_sp():
     col1, col2 = st.columns([4, 1])
     
     with col1:
-        st.subheader("Pick two melody that they are at the same pitch.")
+        st.subheader("Pick two melodies that they are at the same pitch.")
     if ss.data_pc:
         with col2:
             st.write("   ")
