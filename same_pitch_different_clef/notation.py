@@ -71,7 +71,7 @@ def lilypond_generation(data, melody):
         left = 0
         top = 0
         right = width // 2
-        bottom = height // 5
+        bottom = height // 6
         cropped_image = image.crop((left, top, right, bottom))
         cropped_image.save(f"{file_name}.png")
         
