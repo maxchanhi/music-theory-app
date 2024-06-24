@@ -11,6 +11,7 @@ from duration_equation.time_main import main_ts
 from chromatic_scale.chromatic_main import chr_main
 from urls import fun_emoji_list,button_style
 from transposing.app import transposing_main
+from clef_minor.clef_minor_main import clef_main
 from same_pitch_different_clef.same_pitch import main_sp
 
 import streamlit as st
@@ -79,6 +80,9 @@ def intro():
             if st.button("Chord Progression"):
                 st.session_state.demo_name = "Chord Progression"
                 st.rerun()
+            if st.button("Identify clef from minor scale"):
+                st.session_state.demo_name = "Identify clef from minor scale"
+                st.rerun()
 
     # Music knowledge container
     with st.expander("Music Knowledge",expanded=True):
@@ -114,7 +118,7 @@ page_names_to_funcs = {
     "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,"Duration calculation":duration_cal_main,
     "Calculation for time signature":main_ts,"Pitch Identification": pitch_main,"Interval": interval_main,"Chromatic scale":chr_main,"Transposing":transposing_main,
     "Same pitches with different clefs":main_sp,
-    "Identifying Key in a Melody": melody_key_main,"Chord Progression": chord_progression_main,
+    "Identifying Key in a Melody": melody_key_main,"Chord Progression": chord_progression_main, "Identify clef from minor scale": clef_main,
     "Inversion":main_inversion, "Instrumental Knowledge": knowledgemain, 
 }
 def main():
