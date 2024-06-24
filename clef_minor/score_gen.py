@@ -15,7 +15,7 @@ def lilypond_score_uid(data, melody):
     temp_ly_file = f"temp_{job_id}.ly"
     temp_output_file = f"temp_{job_id}_out"
     
-    lilypond = f"""\\version "2.24.3"
+    lilypond = f"""\\version "2.22.0"
 \\language "english"
 \\paper {{
   #(set-global-staff-size 32)
