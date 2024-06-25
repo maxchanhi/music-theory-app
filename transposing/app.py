@@ -15,7 +15,7 @@ def transposing_main():
         st.session_state['presses_tran'] = True
         st.session_state['img_link'] = []
         st.session_state['selected_answer_tr'] = None
-        st.session_state['answer_checked_tr'] = False
+        st.session_state['answer_checked_tr'] = True
         st.session_state.dis_option_tr=None
     
     if st.session_state.transposed_by:
