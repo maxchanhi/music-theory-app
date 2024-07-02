@@ -1,7 +1,7 @@
 import time
 from random import randint
 from fractions import Fraction
-hard_duration = ["hemidemisemiquacer","demisemiquaver", "semiquaver","quaver","crotchet","minim","semibreve","breve"]
+hard_duration = ["hemidemisemiquaver","demisemiquaver", "semiquaver","quaver","crotchet","minim","semibreve","breve"]
 easy_duration=["semiquaver","quaver","crotchet","minim","semibreve"]
 
 duration_fration={"hemidemisemiquaver":Fraction(1,64),"demisemiquaver":Fraction(1,32), "semiquaver":Fraction(1,16), "quaver":Fraction(1,8), "crotchet":Fraction(1,4), "minim":Fraction(1,2), "semibreve":1, "breve":2}
@@ -30,7 +30,6 @@ def generate_question(duration,dotted_vartion):
     small_idx = question_idx // randint(2, 4)
     small_dur = duration[small_idx]
     #print (f"How many {small_dur}s equal to a {question_dotted}{question_dur}?")
-    print(small_dur, question_dur,question_dotted,dotted_time)
     return small_dur, question_dur,question_dotted,dotted_time
 
 def user_input():
