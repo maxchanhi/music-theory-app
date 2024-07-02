@@ -2,9 +2,9 @@ alphabat= ["c","d","e","f","g","a","b"]
 import random
 
 black_white_key = {
-    0: ['c', 'bs'], 2: ['d'], 4: ['e'],
+    0: ['c'], 2: ['d'], 4: ['e'],
     5: ['f', 'es'], 7: ['g'], 9: ['a'],
-    11: ['b', 'cf'], 1: ['cs', 'df'], 3: ['ds', 'ef'],
+    11: ['b'], 1: ['cs', 'df'], 3: ['ds', 'ef'],
     6: ['fs', 'gf'], 8: ['gs', 'af'], 10: ['as', 'bf']
 }
 alphabet = ["c", "d", "e", "f", "g", "a", "b"]
