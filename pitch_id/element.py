@@ -57,12 +57,21 @@ def ranged_score_generation(chosen_clef,chosen_note,chosen_range):
     }}
   }}
   """
+    current_dir = os.getcwd()
 
-  # Write the string to a LilyPond (.ly) file
-    with open('score.ly', 'w') as f:
+    ly_file_path = os.path.join(current_dir, 'score.ly')
+    with open(ly_file_path, 'w') as f:
         f.write(lilypond_score)
 
-    subprocess.run(['lilypond', '--png', 'score.ly'])
+    try:
+        result = subprocess.run(['lilypond', '--png', ly_file_path], capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"LilyPond error: {e.stderr}")
+        raise
+
+    # Check if the PNG file was created
+    png_file_path = os.path.join(current_dir, 'score.png')
+    return png_file_path
   
 def get_note(available_clef=["treble","bass","tenor","alto"],
              accidentals=accidentals,
