@@ -8,13 +8,18 @@ intermediate = ["A major", "F-sharp minor",
 hard = ['E major', 'C-sharp minor', 'B major', 'G-sharp minor', 'F-sharp major',
         'D-sharp minor', 'G-flat major', 'E-flat minor', 'D-flat major', 
         'B-flat minor', 'A-flat major', 'F minor']
-fun_emoji_list = [
-    "😂",  "🎉",   "🚀",  "🐱", 
-    "🐶",  "🦄",  
-    "🎶",  "😱","👼🏻","💃🏻","🐰","🐒","🐣","🦀","💥","✨","🥳",
-    "🍦",  "🌟",  "👻",  
-    "🎈",   "🎮",  "💩"
-]
+
+sharp_keys = {
+    "sharp_major": ["G major", "D major", "A major", "E major", "B major", "F-sharp major"],
+    "sharp_minor": ["E minor", "B minor", "F-sharp minor", "C-sharp minor", "G-sharp minor", "D-sharp minor"]
+}
+
+flat_keys = {
+    "flat_major": ["F major", "B-flat major", "E-flat major", "A-flat major", "D-flat major", "G-flat major"],
+    "flat_minor": ["D minor", "G minor", "C minor", "F minor", "B-flat minor", "E-flat minor"]
+}
+all_sharpkeys= sharp_keys['sharp_major']+sharp_keys['sharp_minor']
+all_flatkeys= flat_keys['flat_major']+flat_keys['flat_minor']
 durations_fraction = {
     "2": Fraction(1, 2),
     "4": Fraction(1, 4),
@@ -56,7 +61,6 @@ keyscale = {
 key_list=[]
 for key,value in keyscale.items():
     key_list.append(key)
-print(key_list)
 def tonal_triad(key):
     scale = keyscale[key]
     triad_dic = {

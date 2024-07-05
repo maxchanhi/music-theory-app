@@ -1,136 +1,131 @@
-from grouping_quiz.needle_main import grouping_quiz_main
-from instrument_knowledge_quiz.music_quiz import knowledgemain
-from compound_simple_time.main import compound_simple_main
-from interval.interval_quiz import interval_main
-from melody_key.find_key_main import melody_key_main
-from pitch_id.ranged_id import pitch_main
-from melody_key.chord_progression.main import chord_progression_main
-from inversion.main_iv import main_inversion
-from duration_equation.cal_main import duration_cal_main
-from duration_equation.time_main import main_ts
-from chromatic_scale.chromatic_main import chr_main
-from urls import fun_emoji_list,button_style
-from transposing.app import transposing_main
-from clef_minor.clef_minor_main import clef_main
-from same_pitch_different_clef.same_pitch import main_sp
-
-import streamlit as st
-
-import random
+from init_import import * 
 
 def intro():
-    
-    em= random.choice(fun_emoji_list)
+    # Get database connection
+    db = get_database()
+    users_collection = db['login']
+            
+    col1, col2 = st.columns([5,1])
+    with col1:
+        with st.popover("Sign Up"):
+            if not ss.logged:
+                register = sign_up(users_collection)
+                if register:
+                    ss.logged = True
+                    st.rerun()
+            elif ss.logged:
+                st.success("You are already logged in")
+
+    with col2:
+        if not ss.logged:
+            with st.popover("Log In"):
+                login = login_form()
+                if login:
+                    ss.logged = True
+                    st.rerun()
+                elif login==False:
+                    st.error("Incorrect username or password")
+        else:
+            if st.button("Log Out"):
+                ss.logged = False
+                st.rerun()
+            
+    em = random.choice(fun_emoji_list)
     st.title(f"{em}Music Theory App{em}")
     st.write(f"Welcome to my Music Theory App! You can practice your ABRSM grade 5 theory! {random.choice(fun_emoji_list)}")
     st.write("Transposing and dictionary added!")
-    st.session_state.demo_name = "—"
+    
+    login_greeting()
+    ss.demo_name = "—"
 
     # Rhythm-related container
-    with st.expander("Rhythm-related",expanded=True):
+    with st.expander("Rhythm-related", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("Grouping and beaming"):
-                st.session_state.demo_name = "Grouping and beaming"
-                st.rerun()
-            if st.button("Duration calculation"):
-                st.session_state.demo_name = "Duration calculation"
-                st.rerun()
+            if st.button("Grouping and beaming"): ss.demo_name = "Grouping and beaming"
+            if st.button("Duration calculation"): ss.demo_name = "Duration calculation"
         with col2:
-            if st.button("Simple-compound Modulation"):
-                st.session_state.demo_name = "Simple-compound Modulation"
-                st.rerun()
-            if st.button("Calculation for time signature"):
-                st.session_state.demo_name = "Calculation for time signature"
-                st.rerun()
+            if st.button("Simple-compound Modulation"): ss.demo_name = "Simple-compound Modulation"
+            if st.button("Calculation for time signature"): ss.demo_name = "Calculation for time signature"
 
     # Pitch-related container
-    with st.expander("Pitch-related",expanded=True):
+    with st.expander("Pitch-related", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("Pitch Identification"):
-                st.session_state.demo_name = "Pitch Identification"
-                st.rerun()
-            if st.button("Chromatic scale"):
-                st.session_state.demo_name = "Chromatic scale"
-                st.rerun()
-            if st.button("Same pitches with different clefs"):
-                st.session_state.demo_name = "Same pitches with different clefs"
-                st.rerun()
-                
+            if st.button("Pitch Identification"): ss.demo_name = "Pitch Identification"
+            if st.button("Chromatic scale"): ss.demo_name = "Chromatic scale"
+            if st.button("Same pitches with different clefs"): ss.demo_name = "Same pitches with different clefs"
         with col2:
-            if st.button("Interval"):
-                st.session_state.demo_name = "Interval"
-                st.rerun()
-            if st.button("Transposing"):
-                st.session_state.demo_name = "Transposing"
-                st.rerun()
+            if st.button("Interval"): ss.demo_name = "Interval"
+            if st.button("Transposing"): ss.demo_name = "Transposing"
 
     # Key-related container
-    with st.expander("Key-related",expanded=True):
+    with st.expander("Key-related", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("Identifying Key in a Melody"):
-                st.session_state.demo_name = "Identifying Key in a Melody"
-                st.rerun()
-            if st.button("Chord Inversion"):
-                st.session_state.demo_name = "Inversion"
-                st.rerun()
+            if st.button("Identifying Key in a Melody"): ss.demo_name = "Identifying Key in a Melody"
+            if st.button("Chord Inversion"): ss.demo_name = "Inversion"
         with col2:
-            if st.button("Chord Progression"):
-                st.session_state.demo_name = "Chord Progression"
-                st.rerun()
-            if st.button("Identify clef from minor scale"):
-                st.session_state.demo_name = "Identify clef from minor scale"
-                st.rerun()
+            if st.button("Chord Progression"): ss.demo_name = "Chord Progression"
+            if st.button("Identify clef from minor scale"): ss.demo_name = "Identify clef from minor scale"
 
     # Music knowledge container
-    with st.expander("Music Knowledge",expanded=True):
+    with st.expander("Music Knowledge", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
             st.write("  ")
-            if st.button("Instrumental Knowledge"):
-                st.session_state.demo_name = "Instrumental Knowledge"
-                st.rerun()
+            if st.button("Instrumental Knowledge"): ss.demo_name = "Instrumental Knowledge"
         with col2:
             st.markdown(button_style, unsafe_allow_html=True)
             st.markdown('<a href="https://music-glossary.streamlit.app" class="button" target="_blank">Music Dictionary</a>', unsafe_allow_html=True)
-            #st.markdown("[Music Dictionary](https://music-glossary.streamlit.app)")
     
-    with st.expander("Learn more",expanded=True):
+    with st.expander("Learn more", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Support me"):
-                support_url = "/support_me"  # Replace with your actual support URL
-                st.markdown(f'<meta http-equiv="refresh" content="0; url={support_url}">', unsafe_allow_html=True)
+                st.markdown('<meta http-equiv="refresh" content="0; url=/support_me">', unsafe_allow_html=True)
         with col2:
             if st.button("About me"):
-                support_url = "/about_me"  # Replace with your actual support URL
-                st.markdown(f'<meta http-equiv="refresh" content="0; url={support_url}">', unsafe_allow_html=True)
-  
-    
-def back_home():
-    if st.button("Home"):
-        st.session_state.demo_name = "—"
+                st.markdown('<meta http-equiv="refresh" content="0; url=/about_me">', unsafe_allow_html=True)
+
+    if ss.demo_name != "—":
         st.rerun()
+
 page_names_to_funcs = {
     "—": intro,
-    "Grouping and beaming": grouping_quiz_main,"Simple-compound Modulation": compound_simple_main,"Duration calculation":duration_cal_main,
-    "Calculation for time signature":main_ts,"Pitch Identification": pitch_main,"Interval": interval_main,"Chromatic scale":chr_main,"Transposing":transposing_main,
-    "Same pitches with different clefs":main_sp,
-    "Identifying Key in a Melody": melody_key_main,"Chord Progression": chord_progression_main, "Identify clef from minor scale": clef_main,
-    "Inversion":main_inversion, "Instrumental Knowledge": knowledgemain, 
+    "Grouping and beaming": grouping_quiz_main,
+    "Simple-compound Modulation": compound_simple_main,
+    "Duration calculation": duration_cal_main,
+    "Calculation for time signature": main_ts,
+    "Pitch Identification": pitch_main,
+    "Interval": interval_main,
+    "Chromatic scale": chr_main,
+    "Transposing": transposing_main,
+    "Same pitches with different clefs": main_sp,
+    "Identifying Key in a Melody": melody_key_main,
+    "Chord Progression": chord_progression_main,
+    "Identify clef from minor scale": clef_main,
+    "Inversion": main_inversion,
+    "Instrumental Knowledge": knowledgemain,
 }
-def main():
-    st.set_page_config(page_title="Music Theory App",page_icon="🎵")
-    if 'demo_name' not in st.session_state:
-        st.session_state.demo_name = "—"
 
-    page_selected = st.sidebar.radio("Choose a page", page_names_to_funcs.keys(), index=list(page_names_to_funcs.keys()).index(st.session_state.demo_name))
-    if page_selected != st.session_state.demo_name:
-        st.session_state.demo_name = page_selected
+def main():
+    st.set_page_config(page_title="Music Theory App", page_icon="🎵")
+    if 'demo_name' not in ss:
+        ss.demo_name = "—"
+    if "logged" not in ss:
+        ss.logged = None
+        ss.last_ai_greeting = None
+    
+    page_selected = st.sidebar.radio("Choose a page", page_names_to_funcs.keys(), index=list(page_names_to_funcs.keys()).index(ss.demo_name))
+    if page_selected != ss.demo_name:
+        ss.demo_name = page_selected
         st.rerun()
-    if page_selected  != "—":
+    if page_selected != "—":
+        if ss.logged:
+            st.success("You are logged in")
+        else:
+            st.warning("You are not logged in")
         back_home()
         
     page_names_to_funcs[page_selected]()

@@ -1,9 +1,8 @@
 import streamlit as st
-from melody_key.notation import keyscale,easymode,intermediate,fun_emoji_list,hard
+from melody_key.notation import keyscale,easymode,intermediate,hard,sharp_keys,flat_keys,all_flatkeys,all_sharpkeys
 import random
 from melody_key.score_generation import lilypond_generation
 from melody_key.motif import generate_options,main_generation
-from streamlit_extras.let_it_rain import rain
 from urls import disclaimer,rain_emoji
 #st.set_page_config(page_title="Identify Key in Melody")
 def melody_key_main():
@@ -79,8 +78,27 @@ def melody_key_main():
     if check_ans:
         if st.session_state['user_answer_mk'] == ans_key and st.session_state['user_answer_mk'] is not None:
             st.success("Correct!")
+            feedback="Correct"
             rain_emoji()
         elif user_answer != ans_key:
+            if st.session_state['ans_key_mk'] in all_sharpkeys and st.session_state['user_answer_mk'] in all_sharpkeys:
+                feedback = "Can identify the melody is a sharp key. "
+                if (st.session_state['ans_key_mk'] in sharp_keys["sharp_major"] and 
+                    st.session_state['user_answer_mk'] in sharp_keys["sharp_major"]):
+                    feedback += "Not careful about how many sharps in the melody in relation to the major key."
+                elif (st.session_state['ans_key_mk'] in sharp_keys["sharp_minor"] and 
+                    st.session_state['user_answer_mk'] in sharp_keys["sharp_minor"]):
+                    feedback += "Not careful about how many sharps in the melody in relation to the minor key."
+            elif st.session_state['ans_key_mk'] in all_flatkeys and st.session_state['user_answer_mk'] in all_flatkeys:
+                feedback = "Can identify the melody is s flat key. "
+                if (st.session_state['ans_key_mk'] in flat_keys["flat_major"] and 
+                    st.session_state['user_answer_mk'] in flat_keys["flat_major"]):
+                    feedback += "Not careful about how many flats in the melody in relation to the major key."
+                elif (st.session_state['ans_key_mk'] in flat_keys["flat_minor"] and 
+                    st.session_state['user_answer_mk'] in flat_keys["flat_minor"]):
+                    feedback += "Not careful about how many flats in the melody in relation to the minor key."
+            else:
+                feedback = "Poor in identifying the key in the melody."
             st.warning(f"Incorrect. The correct answer is {st.session_state['ans_key_mk']}.")
     disclaimer()
 if __name__ == "__main__":

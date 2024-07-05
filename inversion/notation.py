@@ -5,13 +5,6 @@ intermediate = ["C major","A minor" , "G major","E minor", "D major","B minor", 
                    "E major","C-sharp minor","B major","G-sharp minor",
                    "F major","D minor","B-flat major","G minor", "E-flat major", "C minor",
                    "A-flat major","F minor", "D-flat major","B-flat minor"]
-fun_emoji_list = [
-    "😂",  "🎉",   "🚀",  "🐱", 
-    "🐶",  "🦄",  
-    "🎶",  "😱","👼🏻","💃🏻","🐰","🐒","🐣","🦀","💥","✨","🥳",
-    "🍦",  "🌟",  "👻",  
-    "🎈",   "🎮",  "💩"
-]
 
 keyscale = {
     "C major": ['c', 'd', 'e', 'f', 'g', 'a', 'b'],

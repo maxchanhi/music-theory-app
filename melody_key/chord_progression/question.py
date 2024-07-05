@@ -1,4 +1,4 @@
-from melody_key.chord_progression.progression import main_generation,major_roman,major_tonal_triad
+from melody_key.chord_progression.progression import main_generation,major_roman,major_tonal_triad,chord_prograssion
 
 import random
 import subprocess
@@ -20,6 +20,13 @@ def question_generation(ans_prograssion):
     correct_index = options.index(ans_prograssion)
     return correct_index,options
 
+def chord_progression_checking(chord_list = ['V', 'I', 'ii', 'I']):
+    for i in range(len(chord_list)-1):
+        current_chord = chord_list[i]
+        next_chord = chord_list[i+1]
+        if next_chord not in chord_prograssion[current_chord]:
+            return False
+    return True
 
 def display_options(options):
     cleaned_progressions = ['-'.join(progression) for progression in options]
