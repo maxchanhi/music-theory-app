@@ -1,5 +1,12 @@
 import random
 from transposing.notation import major_keys,minor_keys,keyscale,transposition,each_note_transposition,alphabat
+option_problems = {
+    "wrong_accidental": "Student does not carefully count semitones on the keyboard",
+    "wrong_letter": "Student does not carefully count letters",
+    "wrong_key_sign": "Student has some knowledge on transposing but forgot that transposing includes key signature",
+    "wrong_key_sign_and_accidental": "Student has poor knowledge on transposing",
+    "wrong_key_sign_and_letter": "Student has poor knowledge on transposing"
+}
 def add_accidental(melody=list)->list:
     picked=[]
     while True:
@@ -95,12 +102,13 @@ def wrong_key_sign(key="bf minor"):
 
     return wrong_key_sign+" "+key_letter[1]
 import copy
-def options_main(melody=list,key="d minor"):
+
+def options_main(melody=list, key="d minor"):
     options = [
-    [key, wrong_accdental(copy.deepcopy(melody))],
-    [key, wrong_letter(copy.deepcopy(melody))],
-    [wrong_key_sign(copy.deepcopy(key)), copy.deepcopy(melody)],
-    [wrong_key_sign(copy.deepcopy(key)), wrong_accdental(copy.deepcopy(melody))],
-    [wrong_key_sign(copy.deepcopy(key)), wrong_letter(copy.deepcopy(melody))]
-]
+        [key, wrong_accdental(copy.deepcopy(melody)), "wrong_accidental"],
+        [key, wrong_letter(copy.deepcopy(melody)), "wrong_letter"],
+        [wrong_key_sign(copy.deepcopy(key)), copy.deepcopy(melody), "wrong_key_sign"],
+        [wrong_key_sign(copy.deepcopy(key)), wrong_accdental(copy.deepcopy(melody)), "wrong_key_sign_and_accidental"],
+        [wrong_key_sign(copy.deepcopy(key)), wrong_letter(copy.deepcopy(melody)), "wrong_key_sign_and_letter"]
+    ]
     return options

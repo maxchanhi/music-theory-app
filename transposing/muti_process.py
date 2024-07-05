@@ -57,12 +57,3 @@ def main_generation(tasks_list):
     pool.close()
     pool.join()
 
-# Example usage
-tasks_list = [
-    ['fs minor', ['d', 'es', 'a'], 'test1'],
-    ['g major', ['g', 'a', 'b'], 'test2'],
-    # Add more tasks as needed
-]
-
-if __name__ == "__main__":
-    main_generation(tasks_list)

@@ -1,6 +1,9 @@
 import streamlit as st
 import random
 from pitch_id.element import get_note,levels,accidentals,note_letters
+from urls import rain_emoji
+from data_func import record_feedback
+ss = st.session_state
 def disable_button():
     st.session_state.pressed_id = True
 def pitch_main():
@@ -25,6 +28,8 @@ def pitch_main():
         st.session_state.current_answer_id = None
     if 'pressed_id' not in st.session_state:
         st.session_state.pressed_id = True
+    if "ans_history_id" not in ss:
+        ss.ans_history_id = []
 
     if st.session_state.current_answer_id:
         st.image("cropped_score.png") 
@@ -47,12 +52,30 @@ def pitch_main():
     user_ans = f"{selected_note} {selected_accidental}"
 
     if check_ans:
-        st.write(user_ans.lower())
-        st.write(st.session_state.current_answer_id.lower())
         if user_ans.lower() == st.session_state.current_answer_id.lower():
             st.success("Correct")
+            result = "User is Correct"
+            ans = ""
+            rain_emoji()
         else:
             st.error(f"The answer should be {st.session_state.current_answer_id}")
+            print(selected_note, selected_accidental, st.session_state.current_answer_id.split()[1].lower())
+            ans = f"User answer: {user_ans}. The correct answer: {st.session_state.current_answer_id}."
+            if st.session_state.current_answer_id.split()[0].lower() == selected_note.lower():
+                result =f"The note is correct, but the accidental is wrong. The correct accidental is {st.session_state.current_answer_id.split()[1]}"
+            elif st.session_state.current_answer_id.split()[1].lower() == selected_accidental.split()[0].lower():
+                result =f"The accidental is correct, but the note is wrong. The correct note is {st.session_state.current_answer_id.split()[0]}"
+            else:
+                result =f"The note and accidental are both wrong. The correct answer is {st.session_state.current_answer_id}"
+            st.write(result)
+        if ss.logged:
+            ss.ans_history_id.append(f"""{result}.{ans}.Level difficulty:{chosen_level}. Ledger line used:{ledger}""")
+            if len(ss.ans_history_id) > 2:
+                record_feedback("pitch identification",text=str(ss.ans_history_id))
+                ss.ans_history_id=[]
+                st.write("Result recorded")
+
+            
        
 if __name__ == "__main__":
     pitch_main()

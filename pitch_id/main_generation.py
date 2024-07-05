@@ -6,13 +6,7 @@ levels={"basic":[["treble","bass"],['Natural (♮)']],
         "intermediate":[["treble","bass"],['Flat (♭)', 'Natural (♮)', 'Sharp (♯)']],
         "advanced":[["treble","bass"],accidentals],
         "c clefs":[["alto","tenor"],['Natural (♮)']],"all clefs":[["treble","alto","tenor","bass"],accidentals]}
-fun_emoji_list = [
-    "😂",  "🎉",   "🚀",  "🐱", 
-    "🐶",  "🦄",  
-    "🎶",  "😱","👼🏻","💃🏻","🐰","🐒","🐣","🦀","💥","✨","🥳",
-    "🍦",  "🌟",  "👻",  
-    "🎈",   "🎮",  "💩"
-] 
+
 def score_generation(chosen_clef,chosen_accidental):
   clef = random.choice(chosen_clef)
   output_note = random.choice(note_letters)

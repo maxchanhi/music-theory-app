@@ -1,6 +1,7 @@
 import streamlit as st
 from same_pitch_different_clef.notation import main_generation
 from urls import rain_emoji
+from data_func import record_feedback
 ss=st.session_state
 
 def press_callback_check_ans():
@@ -10,11 +11,11 @@ def option_callback(p_idx):
     if p_idx not in ss.pick_ans:
         ss.pick_ans.append(p_idx)
 def main_sp():
-    st.warning("🚧Under construction!!🚧")
     if "button_clicked_check_ans" not in ss:
         ss.button_clicked_check_ans = False
         ss.pick_ans=[]
         ss.data_pc=[]
+        ss.ans_his_sp=[]
     st.header("Clef and Pitch quiz")
     col1, col2 = st.columns([4, 1])
     
@@ -55,7 +56,13 @@ def main_sp():
                 correct_idx.append(idx_l)
         if set(ss.pick_ans) == set(correct_idx):
             st.success("Correct!")
+            ss.ans_his_sp.append("correct")
             rain_emoji()
         else:
             str_ans = ' and '.join(str(idx+1) for idx in correct_idx)
-            st.error(f"Incorrect! The correct pair should be {str_ans}.")    
+            st.error(f"Incorrect! The correct pair should be {str_ans}.")
+            ss.ans_his_sp.append("wrong")
+        if ss.logged and len(ss.ans_his_sp)>2:
+            record_feedback("same pitch",str(ss.ans_his_sp))
+            ss.ans_his_sp=[]
+            st.write("Feedback recorded!")
