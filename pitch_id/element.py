@@ -67,7 +67,7 @@ def ranged_score_generation(chosen_clef,chosen_note,chosen_range):
       # Calculate the crop rectangle
       width, height = img.size
       crop_height = height
-      crop_rectangle = (0, 0, width//5, crop_height)
+      crop_rectangle = (0, 0, width, crop_height)
       
       # add code to crop 1/10 from the top
       cropped_img = img.crop(crop_rectangle)
