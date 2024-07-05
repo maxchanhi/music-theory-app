@@ -2,7 +2,6 @@ import streamlit as st
 import random
 import subprocess
 from PIL import Image
-import os
 note_letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
 accidentals = ['Flat (♭)', 'Natural (♮)', 'Sharp (♯)','Double-sharp (x)','Double-flat (𝄫)']
 
@@ -30,56 +29,57 @@ clefs = {
     }
 }
 
-
-#print(get_note(leger_line=True))
-def ranged_score_generation(chosen_clef,chosen_note,chosen_range):
+def ranged_score_generation(chosen_clef, chosen_note, acc, chosen_range):
     lilypond_score = f"""
-  \\version "2.22.0"  % ensure this matches your LilyPond version
+  \\version "2.22.0"
   \\header {{
-    tagline = ""  % removes the default LilyPond tagline
+    tagline = ""
   }}
-  #(set-global-staff-size 26)  % Adjust staff size to affect resolution
+  #(set-global-staff-size 26)
 
   \\score {{
     {{
       \\clef {chosen_clef}
       \\fixed {chosen_range}
-      {chosen_note}
+      {chosen_note}{acc}
     }}
     \\layout {{
-      indent = 0\\mm  % Remove indentation to avoid unnecessary space
-      line-width = #150  % Adjust line width to fit your content
-      ragged-right = ##f  % To avoid ragged right lines
+      indent = 0\\mm
+      line-width = #150
+      ragged-right = ##f
       \\context {{
         \\Score
         \\omit TimeSignature
-        \\remove "Bar_number_engraver"  % Remove bar numbers
+        \\remove "Bar_number_engraver"
       }}
     }}
   }}
   """
 
-
     with open('score.ly', 'w') as f:
         f.write(lilypond_score)
 
-    subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=score', 'score.ly'],
-                   check=True)
+    try:
+        subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=score', 'score.ly'],
+                       check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        print(f"LilyPond error: {e.stderr}")
+        raise
 
-  
+
 def get_note(available_clef=["treble","bass","tenor","alto"],
              accidentals=accidentals,
              leger_line=bool):
     chosen_clef = random.choice(available_clef)
-    clef_data=clefs[chosen_clef]
+    clef_data = clefs[chosen_clef]
     chosen_accidental = random.choice(accidentals)
-    tran_acc= accidentals_lilypond[chosen_accidental]
+    tran_acc = accidentals_lilypond[chosen_accidental]
     if leger_line:
-        note_list=clef_data["leger_lines"]
+        note_list = clef_data["leger_lines"]
     else:
-        note_list=clef_data["instaff"]
+        note_list = clef_data["instaff"]
     chosen_note = random.choice(note_list)
-    octave= chosen_note[1:] if len(chosen_note)>1 else ""
-    picked_note=chosen_note[0]+tran_acc+octave
-    ranged_score_generation(chosen_clef,picked_note,clef_data['pitch_range'])
-    return chosen_clef,chosen_note[0].upper()+" "+chosen_accidental,clef_data['pitch_range']
+    octave = chosen_note[1:] if len(chosen_note) > 1 else ""
+    picked_note = chosen_note[0] + tran_acc + octave
+    ranged_score_generation(chosen_clef, picked_note, tran_acc, clef_data['pitch_range'])
+    return chosen_clef, chosen_note[0].upper() + " " + chosen_accidental, clef_data['pitch_range']

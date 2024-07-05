@@ -1,20 +1,12 @@
 import streamlit as st
 import random
-from pitch_id.element import get_note,levels,accidentals,note_letters,ranged_score_generation
+from pitch_id.element import get_note,levels,accidentals,note_letters,ranged_score_generation,clefs
 from urls import rain_emoji
 from data_func import record_feedback
-import os
 ss = st.session_state
 def disable_button():
     st.session_state.pressed_id = True
 def pitch_main():
-    if 'current_answer_id' not in st.session_state:
-        st.session_state.current_answer_id = None
-    if 'pressed_id' not in st.session_state:
-        st.session_state.pressed_id = True
-    if "ans_history_id" not in ss:
-        ss.ans_history_id = []
-        
     st.title('Note Identification')
     col1,col2=st.columns([3,1])
     with col1:
@@ -31,9 +23,16 @@ def pitch_main():
     if len(chosen_clefs) ==0 or len(chosen_accidental)==0:
         st.warning("Please select at least one clef")
         st.stop()
+
+    if 'current_answer_id' not in st.session_state:
+        st.session_state.current_answer_id = None
+    if 'pressed_id' not in st.session_state:
+        st.session_state.pressed_id = True
+    if "ans_history_id" not in ss:
+        ss.ans_history_id = []
+
     if st.session_state.current_answer_id:
-        st.image("score.png")
-    
+        st.image("score.png") 
 
     col1, col2 = st.columns(2)
     with col1:
@@ -42,8 +41,7 @@ def pitch_main():
         new_quest = st.button("New Question",disabled= not st.session_state.pressed_id)
         if new_quest and st.session_state.pressed_id:
             st.session_state.pressed_id = False
-            clef, note,acc = get_note(chosen_clefs,chosen_accidental,ledger)
-            ranged_score_generation(chosen_clef, picked_note, clef_data['pitch_range'])
+            clef, note, acc = get_note(chosen_clefs, chosen_accidental, ledger)
             st.session_state.current_answer_id = note
             st.rerun()
         
