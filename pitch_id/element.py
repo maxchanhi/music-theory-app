@@ -65,6 +65,16 @@ def ranged_score_generation(chosen_clef, chosen_note, acc, chosen_range):
     except subprocess.CalledProcessError as e:
         print(f"LilyPond error: {e.stderr}")
         raise
+    try:
+      with Image.open('score.png') as img:
+          width, height = img.size
+          crop_height = height
+          crop_rectangle = (0, 0, width//5, crop_height)
+          cropped_img = img.crop(crop_rectangle)
+          cropped_img.save('score.png')
+    except Exception as e:
+        print(f"Image processing error: {str(e)}")
+        raise
 
 
 def get_note(available_clef=["treble","bass","tenor","alto"],
