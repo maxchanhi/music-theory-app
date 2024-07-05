@@ -1,8 +1,8 @@
-
-from PIL import Image
+import concurrent.futures
 import asyncio
+import random
+from PIL import Image
 import subprocess
-import multiprocessing
 def generate_lilypond_score(args):
     scale, name, clef, octave, acc_dir,problem = args
     tran = 0 if acc_dir else 1
@@ -75,11 +75,10 @@ def sync_crop_image(image_path, output_path):
     crop_box = (0, 0, width, height)
     cropped_img = img.crop(crop_box)
     cropped_img.save(output_path)
-import random
 
-async def main(scale_list=dict,dir=bool, clef_list=list, octave=int):
-    chromatic_scale, wrong_options,dir = scale_list
-    clef=random.choice(clef_list)
+async def main(scale_list=dict, dir=bool, clef_list=list, octave=int):
+    chromatic_scale, wrong_options, dir = scale_list
+    clef = random.choice(clef_list)
     if clef == "treble":
         octave = 2
     elif clef == "alto":
@@ -88,12 +87,14 @@ async def main(scale_list=dict,dir=bool, clef_list=list, octave=int):
         octave = 1
     elif clef == "bass":
         octave = 0
-    tasks = [(chromatic_scale, "Correct", clef, octave, dir,"Correct")]
+    tasks = [(chromatic_scale, "Correct", clef, octave, dir, "Correct")]
     for idx in range(len(wrong_options) - 1):
-        tasks.append((wrong_options[idx][0], f"wrong_{idx}", clef, octave,dir,wrong_options[idx][1]))
+        tasks.append((wrong_options[idx][0], f"wrong_{idx}", clef, octave, dir, wrong_options[idx][1]))
     random.shuffle(tasks)
-    with multiprocessing.Pool() as pool:
-        pool.map(generate_lilypond_score, tasks)
+
+    # Use ThreadPoolExecutor instead of multiprocessing.Pool
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        list(executor.map(generate_lilypond_score, tasks))
 
     # Create a dictionary to store problem information
     problem_info = {"Correct": "Correct"}
