@@ -62,8 +62,7 @@ def ranged_score_generation(chosen_clef,chosen_note,chosen_range):
     with open('score.ly', 'w') as f:
         f.write(lilypond_score)
 
-    subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=score', 'score.ly'],
-                   check=True)
+    subprocess.run(['lilypond', '--png', 'score.ly'])
     with Image.open('score.png') as img:
       # Calculate the crop rectangle
       width, height = img.size
