@@ -93,7 +93,6 @@ def adjust_rhythms_pitch(rhythms, rate=2):
 def setting_generation():
     time_cat=[]
     time_frac = []
-    setting_list = []
     for key, list_t in time_sign_cat.items():
         time_cat.append(key)
         time_frac.append(list_t)
@@ -158,13 +157,6 @@ for key, value in equal_dic.items():
 equal_list.extend(key_list)
 equal_list.extend(value_list)
 
-fun_emoji_list = [
-    "😂",  "🎉",   "👍","🤌","🚀",  "🐱", 
-    "🐶",  "🦄",  "🎼","🎹","🎷","🎺","🪘","🪈","🎻","🪕","🎸","🪗","🥁","🏅",
-    "🎶",  "😱","👼🏻","💃🏻","🐰","🐒","🐣","🦀","💥","✨","🥳",
-    "🍦",  "🌟",  "👻",  
-    "🎈",   "🎮",  "💩"
-]
 durations_fraction = {
     "2": Fraction(1, 2),
     "4": Fraction(1, 4),
@@ -206,36 +198,4 @@ keyscale = {
 major_keys=['C major', 'G major', 'D major', 'A major', 'E-flat major', 'B-flat major', 'F major']
 minor_keys=['A minor', 'E minor', 'B minor', 'F-sharp minor', 'C minor', 'G minor', 'D minor']
 
-
-def tonal_triad(key):
-    scale = keyscale[key]
-    triad_dic = {
-        "tonic": [scale[0], scale[2], scale[4]],
-        "supertonic": [scale[1], scale[3], scale[5]],
-        "mediant": [scale[2], scale[4], scale[6]],
-        "subdominant": [scale[3], scale[5], scale[0]],
-        "dominant": [scale[4], scale[6], scale[1]],
-        "submediant": [scale[5], scale[0], scale[2]],
-        "leadingtone": [scale[6], scale[1], scale[3]]
-    }
-    return triad_dic
-
-
-def chord_finder(key,melody,activaion):
-    triad_list=["tonic","supertonic","mediant","subdominant",
-                "dominant","submediant","leadingtone"]
-    triad_dic = tonal_triad(key)
-    count_list=[]
-    for triad in triad_list:
-        j= 0
-        for note in melody:
-            if note[0] in triad_dic[triad]:
-                j += 1*durations_fraction[note[1]]
-        count_list.append(j)
-    print(count_list,max(count_list),
-          triad_list[count_list.index(max(count_list))])
-    if max(count_list) < activaion or count_list.count(max(triad_list)) > 1:
-        return False
-    else:
-        return triad_list[count_list.index(max(count_list))]
     

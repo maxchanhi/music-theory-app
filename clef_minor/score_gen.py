@@ -78,7 +78,7 @@ def display_note(note="af"):
                 return note
     else:
         return note.upper()
-print(display_note("g"))
+
 # Example usage
 """data = ["c'", "score_cm", "treble"]
 melody = ['a', 'b', "c'", "d'", "e'", "f'", "gs'", "a'"]

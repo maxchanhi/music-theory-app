@@ -2,7 +2,9 @@ from compound_simple_time.melody import main_generate
 from urls import disclaimer,rain_emoji
 import asyncio,random
 from compound_simple_time.asynchronous import score_generation
+from data_func import record_feedback
 import streamlit as st
+ss=st.session_state
 def submit_pressed():
     st.session_state.submit_pressed_com = True
 def select_option(idx):
@@ -10,10 +12,11 @@ def select_option(idx):
         st.session_state[f"disabled_{st.session_state.option_selected}"] = False
     st.session_state.option_selected = idx
     st.session_state[f"disabled_{idx}"] = True
+    
 def compound_simple_main():
     if 'option_selected' not in st.session_state:
         st.session_state.option_selected = []
-    
+        ss["feedback_mm"]=[]
     if 'question_data_com' not in st.session_state:
         st.session_state.question_data_com = main_generate()
         st.session_state.submit_pressed_com = False
@@ -25,11 +28,12 @@ def compound_simple_main():
     
     st.image("compound_simple_time/temp/cropped_score_question_melody.png", caption='Question')
 
-    for idx, option in enumerate(question_data['options']):
+    for idx, option_data in enumerate(question_data['options']):
+        option, reason, image_path = option_data  # Unpack all three elements
         container = st.container()
         col1, col2 = container.columns([6, 1])
-        col1.image(f"compound_simple_time/temp/cropped_score_wr_option_{idx}.png")
-            
+        col1.image(image_path)  # Use the image path from the option data
+        
         if f"disabled_{idx}" not in st.session_state:
             st.session_state[f"disabled_{idx}"] = False
 
@@ -40,6 +44,9 @@ def compound_simple_main():
             args=(idx,),
             disabled=st.session_state[f"disabled_{idx}"]
         )
+
+        # Store the reason in session state
+        st.session_state[f"reason_{idx}"] = reason
 
     pressed= st.session_state.submit_pressed_com
     col_1,col_2=st.columns([4,1])
@@ -53,15 +60,39 @@ def compound_simple_main():
         check_ans_mm=st.button("Check Answer",on_click=submit_pressed,disabled=pressed)
     if check_ans_mm and st.session_state.option_selected is not None:
         correct_idx = None
-        for idx, (time, melody) in enumerate(question_data["options"]):
+        for idx, option_data in enumerate(question_data["options"]):
+            option, reason, image_path = option_data
+            if isinstance(option, list) and len(option) >= 2:
+                time, melody = option[0], option[1]
+            else:
+                st.warning(f"Unexpected option format at index {idx}: {option}")
+                continue
+
             if time == question_data["answer"][0] and melody == question_data["answer"][1]:
                 correct_idx = idx
                 break
 
-        if st.session_state.option_selected == correct_idx:
-            rain_emoji()
+        if correct_idx is not None:
+            if st.session_state.option_selected == correct_idx:
+                rain_emoji()
+                st.success("Correct answer!")
+                ss["feedback_mm"].append(("Correct", ""))
+            else:
+                st.error(f"Wrong answer! The correct answer is Option {correct_idx + 1}")
+                if f"reason_{st.session_state.option_selected}" in st.session_state:
+                    feedback = f"Reason for the wrong choice: {st.session_state[f'reason_{st.session_state.option_selected}']}"
+                    st.info(feedback)
+                    ss["feedback_mm"].append(("Wrong", feedback))
+                else:
+                    ss["feedback_mm"].append(("Wrong", "No reason found for the selected option"))
         else:
-            st.error(f"Wrong answer! The correct answer is Option {correct_idx + 1}")
+            st.error("An error occurred: Could not find the correct answer in the options.")
+            
+    if len(ss["feedback_mm"])>2 and ss.logged:
+        record_feedback("metric modulation",ss.feedback_mm)
+        st.write("Feedback recorded")
+        ss["feedback_mm"]=[]
+
 
     disclaimer()
 if __name__ == "__main__":

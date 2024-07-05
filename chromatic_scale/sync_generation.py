@@ -4,7 +4,7 @@ import asyncio
 import subprocess
 import multiprocessing
 def generate_lilypond_score(args):
-    scale, name, clef, octave, acc_dir = args
+    scale, name, clef, octave, acc_dir,problem = args
     tran = 0 if acc_dir else 1
     octave_list =  ["c,","c","c'","c''"]
     # Create a new LilyPond file content
@@ -58,6 +58,7 @@ def generate_lilypond_score(args):
 
     # Run LilyPond to generate the PNG file
     subprocess.run(["lilypond", "-o", "chromatic_scale/static/", "--png", ly_file_path])
+    return problem
 
 async def crop_image(image_path, output_path):
     loop = asyncio.get_running_loop()
@@ -87,14 +88,22 @@ async def main(scale_list=dict,dir=bool, clef_list=list, octave=int):
         octave = 1
     elif clef == "bass":
         octave = 0
-    tasks = [(chromatic_scale, "Correct", clef, octave, dir)]
+    tasks = [(chromatic_scale, "Correct", clef, octave, dir,"Correct")]
     for idx in range(len(wrong_options) - 1):
-        tasks.append((wrong_options[idx], f"wrong_{idx}", clef, octave,dir))
+        tasks.append((wrong_options[idx][0], f"wrong_{idx}", clef, octave,dir,wrong_options[idx][1]))
+    random.shuffle(tasks)
     with multiprocessing.Pool() as pool:
         pool.map(generate_lilypond_score, tasks)
 
-    # Create a list of crop tasks
-    crop_list = [crop_image(f"chromatic_scale/static/{name}.png", f"chromatic_scale/static/{name}.png") for name in ["Correct"] + [f"wrong_{idx}" for idx in range(len(wrong_options) - 1)]]
+    # Create a dictionary to store problem information
+    problem_info = {"Correct": "Correct"}
+    for idx in range(len(wrong_options) - 1):
+        problem_info[f"wrong_{idx}"] = wrong_options[idx][1]
 
-    # Crop the generated images
+    # Create a list of crop tasks
+    crop_list = [crop_image(f"chromatic_scale/static/{name}.png", f"chromatic_scale/static/{name}.png") 
+                 for name in ["Correct"] + [f"wrong_{idx}" for idx in range(len(wrong_options) - 1)]]
+
     await asyncio.gather(*crop_list)
+
+    return problem_info

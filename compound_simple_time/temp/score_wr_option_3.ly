@@ -8,9 +8,9 @@
 
 \score {
     \fixed c' {
-      \time 9/8
+      \time 3/4
       \omit Score.BarLine
-      \tuplet 2/3 {a8 a8} b4. b4 e8
+      a8 a8 b4 \tuplet 3/2 { b4 e8 }
     }
     \layout {
       indent = 0\mm

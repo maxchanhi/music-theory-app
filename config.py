@@ -1,7 +1,7 @@
 import os
 from pymongo import MongoClient
-
-MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://localhost:27017')
+import streamlit as st
+MONGO_URI = st.secrets["MONGO_URI"]
 DB_NAME = 'users'
 
 client = MongoClient(MONGO_URI)

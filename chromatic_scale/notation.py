@@ -2,9 +2,9 @@ alphabat= ["c","d","e","f","g","a","b"]
 import random
 
 black_white_key = {
-    0: ['c', 'bs'], 2: ['d'], 4: ['e'],
+    0: ['c'], 2: ['d'], 4: ['e'],
     5: ['f', 'es'], 7: ['g'], 9: ['a'],
-    11: ['b', 'cf'], 1: ['cs', 'df'], 3: ['ds', 'ef'],
+    11: ['b'], 1: ['cs', 'df'], 3: ['ds', 'ef'],
     6: ['fs', 'gf'], 8: ['gs', 'af'], 10: ['as', 'bf']
 }
 alphabet = ["c", "d", "e", "f", "g", "a", "b"]
@@ -23,7 +23,7 @@ def generate_chromatic_scale(accending_dir):
     return chromatic_scale
 
 
-def descending(starting_pc,chromatic_list=list):
+def descending(starting_pc=11,chromatic_list=[["cf"]]):
     for i in range(11):
         octave = starting_pc - i -1
         note_idx = octave % 12
@@ -128,20 +128,22 @@ def wrong_accending(idx,chromatic_scale):
         chromatic_scale[idx]= chromatic_scale[idx][0]+add_acc
         if chromatic_scale[idx][0] == "c":
             chromatic_scale[idx]=chromatic_scale[idx]
+        problem = "wrongly added accidental"
     elif idx%2==0:
         chromatic_scale[idx]=chromatic_scale[idx][0]
         if chromatic_scale[idx][0] == "c":
             chromatic_scale[idx]=chromatic_scale[idx]
+        problem = "removed accidental"
     else:
-        print("changed")
         chromatic_scale[idx]=wrong_letter+"f"
         if wrong_letter=="c":
             chromatic_scale[idx]=chromatic_scale[idx]+"'"
         if chromatic_scale[idx-1][0]==chromatic_scale[idx][0]:
             chromatic_scale[idx-1]=chromatic_scale[idx-1]+"f"
+        problem = "three same letter"
     if octave:
         chromatic_scale[idx]=chromatic_scale[idx]+octave
-    return chromatic_scale
+    return chromatic_scale, problem
 def wrong_descending(idx, chromatic_scale):
     wrong_idx = alphabat.index(chromatic_scale[idx][0])+1
     wrong_letter= alphabat[wrong_idx%len(alphabat)]
@@ -151,20 +153,22 @@ def wrong_descending(idx, chromatic_scale):
         chromatic_scale[idx]= chromatic_scale[idx][0]+add_acc
         if chromatic_scale[idx][0] == "b":
             chromatic_scale[idx]=chromatic_scale[idx]
+        problem = "wrongly added accidental"
     elif idx%2==0:
         chromatic_scale[idx]=chromatic_scale[idx][0]
         if chromatic_scale[idx][0] == "b":
             chromatic_scale[idx]=chromatic_scale[idx]+","
+        problem = "removed accidental"
     else:
-        print("changed")
         chromatic_scale[idx]=wrong_letter+"f"
         if wrong_letter=="c":
             chromatic_scale[idx]=chromatic_scale[idx]+","
         if chromatic_scale[idx-1][0]==chromatic_scale[idx][0]:
             chromatic_scale[idx-1]=chromatic_scale[idx-1]+"s"
+        problem = "three same letter"
     if octave:
         chromatic_scale[idx]=chromatic_scale[idx]+octave
-    return chromatic_scale 
+    return chromatic_scale, problem
 
 def main_chromatic_generator():
     accending_dir=random.choice([True,False])
