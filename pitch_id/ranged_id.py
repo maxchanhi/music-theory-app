@@ -33,7 +33,7 @@ def pitch_main():
         ss.ans_history_id = []
 
     if st.session_state.pressed_id:
-        st.image(score.png)
+        st.image("score.png")
         
 
     col1, col2 = st.columns(2)
