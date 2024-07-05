@@ -10,3 +10,4 @@ openai
 tiktoken
 faiss-cpu
 tenacity
+pymongo
