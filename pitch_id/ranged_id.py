@@ -32,7 +32,7 @@ def pitch_main():
         ss.ans_history_id = []
 
     if st.session_state.current_answer_id:
-        st.image("cropped_score.png") 
+        st.image("score.png") 
 
     col1, col2 = st.columns(2)
     with col1:
