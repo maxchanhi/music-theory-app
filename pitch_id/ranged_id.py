@@ -31,7 +31,7 @@ def pitch_main():
     if len(chosen_clefs) ==0 or len(chosen_accidental)==0:
         st.warning("Please select at least one clef")
         st.stop()
-    if st.session_state.pressed_id:
+    if st.session_state.current_answer_id:
         st.image("score.png")
     
 
