@@ -72,7 +72,7 @@ def sync_crop_image(image_path, output_path):
 
     # Get image dimensions
     width, height = img.size
-    crop_box = (0, 25, width//2, height / 5.5)
+    crop_box = (0, 0, width, height)
     cropped_img = img.crop(crop_box)
     cropped_img.save(output_path)
 import random
