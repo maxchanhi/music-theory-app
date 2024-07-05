@@ -47,8 +47,7 @@ def score_generation(chosen_clef,chosen_accidental):
   with open('pitch_id/score.ly', 'w') as f:
       f.write(lilypond_score)
 
-  subprocess.run(['lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300', '--output=pitch_id/score', 'pitch_id/score.ly'],
-                   check=True)
+  subprocess.run(['lilypond', '--png', 'score.ly'])
   
   with Image.open('pitch_id/score.png') as img:
       # Calculate the crop rectangle
