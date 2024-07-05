@@ -63,15 +63,7 @@ def ranged_score_generation(chosen_clef,chosen_note,chosen_range):
         f.write(lilypond_score)
 
     subprocess.run(['lilypond', '--png', 'score.ly'])
-    with Image.open('score.png') as img:
-      # Calculate the crop rectangle
-      width, height = img.size
-      crop_height = height
-      crop_rectangle = (0, 0, width, crop_height)
-      
-      # add code to crop 1/10 from the top
-      cropped_img = img.crop(crop_rectangle)
-      cropped_img.save(f'cropped_score.png')
+  
 def get_note(available_clef=["treble","bass","tenor","alto"],
              accidentals=accidentals,
              leger_line=bool):
