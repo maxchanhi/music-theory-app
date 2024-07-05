@@ -11,3 +11,4 @@ tiktoken
 faiss-cpu
 tenacity
 pymongo
+mistralai
