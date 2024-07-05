@@ -8,6 +8,13 @@ ss = st.session_state
 def disable_button():
     st.session_state.pressed_id = True
 def pitch_main():
+    if 'current_answer_id' not in st.session_state:
+        st.session_state.current_answer_id = None
+    if 'pressed_id' not in st.session_state:
+        st.session_state.pressed_id = True
+    if "ans_history_id" not in ss:
+        ss.ans_history_id = []
+        
     st.title('Note Identification')
     col1,col2=st.columns([3,1])
     with col1:
@@ -24,17 +31,9 @@ def pitch_main():
     if len(chosen_clefs) ==0 or len(chosen_accidental)==0:
         st.warning("Please select at least one clef")
         st.stop()
-
-    if 'current_answer_id' not in st.session_state:
-        st.session_state.current_answer_id = None
-    if 'pressed_id' not in st.session_state:
-        st.session_state.pressed_id = True
-    if "ans_history_id" not in ss:
-        ss.ans_history_id = []
-
     if st.session_state.pressed_id:
         st.image("score.png")
-        
+    
 
     col1, col2 = st.columns(2)
     with col1:
