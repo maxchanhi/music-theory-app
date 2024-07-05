@@ -2,6 +2,7 @@ import streamlit as st
 import random
 import subprocess
 from PIL import Image
+import os
 note_letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
 accidentals = ['Flat (♭)', 'Natural (♮)', 'Sharp (♯)','Double-sharp (x)','Double-flat (𝄫)']
 
