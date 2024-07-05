@@ -31,8 +31,11 @@ def pitch_main():
     if "ans_history_id" not in ss:
         ss.ans_history_id = []
 
-    if st.session_state.current_answer_id:
-        st.image("score.png") 
+    if os.path.exists(png_file_path):
+        try:
+            st.image(png_file_path)
+        except Exception as e:
+            st.error(f"Error displaying image: {e}")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -42,6 +45,7 @@ def pitch_main():
         if new_quest and st.session_state.pressed_id:
             st.session_state.pressed_id = False
             clef, note,acc = get_note(chosen_clefs,chosen_accidental,ledger)
+            png_file_path = ranged_score_generation(chosen_clef, picked_note, clef_data['pitch_range'])
             st.session_state.current_answer_id = note
             st.rerun()
         
