@@ -21,7 +21,7 @@ clefs = {
     },
     "tenor":{
         "instaff": ["c,",'d,', 'e,', 'f,', 'g,', 'a,', 'b,', "c", "d", "e", "f"],
-        "leger_lines": ["g,,", "a,,", "b,,", "g", "a", "b", "c''"], "pitch_range":"c'"
+        "leger_lines": ["g,,", "a,,", "b,,", "g", "a", "b", "c'","d'"], "pitch_range":"c'"
     },
     "alto": {
         "instaff": ['e,', 'f,', 'g,', 'a,', 'b,', "c", "d", "e", "f","g",'a'],
