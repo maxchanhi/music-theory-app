@@ -19,43 +19,38 @@ def get_catagory():
 
 import os
 import random
-
-def get_picture(url=str):
-    target_url = "grouping_quiz/static/" + url #tag
+def get_picture(url):
+    target_url = "grouping_quiz/static/" + url
     
-    image_files = [f for f in os.listdir(target_url)]
+    image_files = [f for f in os.listdir(target_url) if f.lower().endswith('.png')]
     
     if not image_files:
-        print(f"No image files found in {target_url}")
-        return None
+        print(f"No PNG image files found in {target_url}")
+        return None, None
 
     random_image = random.choice(image_files)
     image_path = os.path.join(target_url, random_image)
-    
-    return image_path
+    problem_idx = urls.index(url)
+    problem_tag = catagory[problem_idx]
+    return image_path, problem_tag
 
-def main_option()->dict:
-    chosen_cat, chosen_url= get_catagory()
-    image_path= get_picture(chosen_url)
-    question_data={"Catagory": chosen_cat, "Picture": image_path}
-    return question_data
 
 def needle_in_haystack():
     img_list_path = []
-    while len(img_list_path) < 4:
-        url = str(random.choice(urls[1:]))
-        img_path = get_picture(url)
-        _, file_extension = os.path.splitext(img_path)
-        if file_extension.lower() == ".png" and img_path not in img_list_path:
-            img_list_path.append(img_path)
     
-    correct_url = get_picture(urls[0])
-    _, file_extension = os.path.splitext(correct_url)
-    while file_extension.lower() != ".png":
-        correct_url = get_picture(urls[0])
-        _, file_extension = os.path.splitext(correct_url)
+    # First, get the correct answer
+    correct_url, correct_tag = get_picture(urls[0])
+    while not correct_url or not correct_url.lower().endswith('.png'):
+        correct_url, correct_tag = get_picture(urls[0])
     
-    img_list_path.append(correct_url)
+    img_list_path.append((correct_url, correct_tag))
+    
+    # Then get the incorrect answers
+    while len(img_list_path) < 5:
+        url = random.choice(urls[1:])
+        img_path, problem_tag = get_picture(url)
+        if img_path and img_path.lower().endswith('.png') and img_path not in [img for img, _ in img_list_path]:
+            img_list_path.append((img_path, problem_tag))
+    
     random.shuffle(img_list_path)
-    print(img_list_path)
     return img_list_path
