@@ -2,7 +2,7 @@ import streamlit as st
 ss = st.session_state
 from PIL import Image
 import io
-from wrong_cat import needle_in_haystack
+from grouping_quiz.wrong_cat import needle_in_haystack
 
 def button_pressed_gp(idx):
     ss["press_idx_gp"] = idx
