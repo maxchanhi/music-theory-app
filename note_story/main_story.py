@@ -24,7 +24,7 @@ def story_main():
     st.title("Note Reading Exercise Generator")
     st.info("For further customization of your story or to support this project, please contact chakhangc@yahoo.com.hk. Your feedback and donations are appreciated.")
   
-    if st.button("Check Sample"):
+    if st.button("View a demo"):
         sample_html_path = "note_story/Muti_Day_Out.html"
         static_dir = "note_story/static"
 
