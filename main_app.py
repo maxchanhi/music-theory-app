@@ -78,7 +78,12 @@ def intro():
         with col2:
             st.markdown(button_style, unsafe_allow_html=True)
             st.markdown('<a href="https://music-glossary.streamlit.app" class="button" target="_blank">Music Dictionary</a>', unsafe_allow_html=True)
-    
+    with st.expander("Music Supplement", expanded=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Note Reading Exercise Generator"): ss.demo_name = "Note Reading Exercise Generator"
+        with col2:
+            pass
     with st.expander("Learn more", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
@@ -107,6 +112,7 @@ page_names_to_funcs = {
     "Identify clef from minor scale": clef_main,
     "Inversion": main_inversion,
     "Instrumental Knowledge": knowledgemain,
+    "Note Reading Exercise Generator":story_main
 }
 
 def main():
