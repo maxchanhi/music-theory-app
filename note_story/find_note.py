@@ -1,6 +1,6 @@
-from story import story_line,html_upper_pt,html_lower_pt
-from score_generation import main_score_generation
-from test_3 import three_notename, to_notename,upper_3
+from note_story.story import story_line,html_upper_pt,html_lower_pt
+from note_story.score_generation import main_score_generation
+from note_story.test_3 import three_notename, to_notename,upper_3
 import random
 import multiprocessing
 
