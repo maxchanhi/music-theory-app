@@ -33,7 +33,7 @@ def intro():
     em = random.choice(fun_emoji_list)
     st.title(f"{em}Music Theory App{em}")
     st.write(f"Welcome to my Music Theory App! You can practice your ABRSM grade 5 theory! {random.choice(fun_emoji_list)}")
-    st.write("Transposing and dictionary added!")
+    st.subheader("❗️Try out the new Note Reading Exercise Generator❗️")
     
     login_greeting()
     ss.demo_name = "—"
