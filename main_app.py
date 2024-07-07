@@ -31,8 +31,8 @@ def intro():
                 st.rerun()
             
     em = random.choice(fun_emoji_list)
-    st.title(f"{em}Music Theory App{em}")
-    st.write(f"Welcome to my Music Theory App! You can practice your ABRSM grade 5 theory! {random.choice(fun_emoji_list)}")
+    st.title(f"{em}Welcome to Music Cluster!{em}")
+    st.write(f"A music theory app that you can practice your ABRSM grade 5 theory! {random.choice(fun_emoji_list)}")
     st.subheader("❗️Try out the new Note Reading Exercise Generator❗️")
     
     login_greeting()
@@ -112,7 +112,7 @@ page_names_to_funcs = {
     "Identify clef from minor scale": clef_main,
     "Inversion": main_inversion,
     "Instrumental Knowledge": knowledgemain,
-    "Note Reading Exercise Generator":story_main
+    "Note Reading Exercise Generator":story_main,
 }
 
 def main():
