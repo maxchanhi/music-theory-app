@@ -25,6 +25,7 @@ from aigreeting import get_mistral_analysis, get_feedback
 from datetime import datetime, timedelta
 import streamlit as st
 import json
+from note_story.main_story import story_main
 
 # Add this line near the other session state initialization
 ss = st.session_state
