@@ -11,12 +11,10 @@ def interval_calculation(lower_pitch="g",higher_pitch="c"):
         letter_interval = higher_idx+len(note_letter)-lower_idx+1
     elif lower_idx==higher_idx:
         letter_interval = 1
-    print(letter_interval)
     lower_pc = NOTE_TO_SEMITONES_LILYPOND[lower_pitch]
     higher_pc = NOTE_TO_SEMITONES_LILYPOND[higher_pitch]
     if lower_pc>higher_pc: higher_pc+=12
     pitch_interval = abs(higher_pc-lower_pc+1)
-    print(pitch_interval)
     cal_quality,cal_interval = None, None
     cal_quality,cal_interval = JUMP_CHART[str(letter_interval),str(pitch_interval)],NUM_PLACEMENT[str(letter_interval)]
     if cal_quality and cal_interval:
