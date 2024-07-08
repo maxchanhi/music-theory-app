@@ -1,5 +1,5 @@
 JUMP_CHART = {
-    ("1","1"):"Perfect",
+    ("1","1"):"Perfect",("1","2"):"Augmented",
     ('2', '1'): "Diminished", ('2', '2'): "Minor",
     ('2', '3'): "Major", ('2', '4'): "Augmented",
     
