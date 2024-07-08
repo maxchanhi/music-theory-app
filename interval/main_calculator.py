@@ -27,10 +27,15 @@ def in_calculator_main():
 
     with tab2:
         st.header("Note Calculation from a lower note")
-        note = st.selectbox("Select Note", options=sorted(NOTE_TO_SEMITONES_LILYPOND.keys()))
-        quality = st.selectbox("Select Quality", options=set(JUMP_CHART.values()))
-        interval = st.selectbox("Select Interval", options=RE_NUM_PLACEMENT.keys())
-        if st.button("Calculate Note"):
+        col1,col2=st.columns(2)
+        with col1:
+            letter = st.selectbox("Select Note", options=note_letters)
+            quality = st.selectbox("Select Quality", options=set(JUMP_CHART.values()))
+        with col2:
+            accidental = st.selectbox("Select Accidental", options=advance_accidentals)
+            interval = st.selectbox("Select Interval", options=RE_NUM_PLACEMENT.keys())
+        note = letter.lower()+accidentals_lilypond[accidental]
+        if st.button("Find Note"):
             result_note = note_calculation(note, quality, interval)
             if result_note:
                 display_note = result_note
@@ -38,6 +43,6 @@ def in_calculator_main():
                     display_note = display_note.replace(v, k)
                 st.success(f"The resulting note is {display_note}")
             else:
-                st.error("Invalid note input")
+                st.error("Invalid input")
 if __name__ == "__main__":
     in_calculator_main()
