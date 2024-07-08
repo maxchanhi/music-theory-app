@@ -23,8 +23,19 @@ NOTE_TO_SEMITONES_LILYPOND = {
     'fisis': 7, 'geses': 5,  # F## (equivalent to G), Gbb (enharmonic equivalent to F)
     'gisis': 9, 'aeses': 7,  # G## (equivalent to A), Abb (enharmonic equivalent to G)
     'aisis': 11, 'beses': 9,  # A## (equivalent to B), Bbb (enharmonic equivalent to A)
-    'bisis': 1, 'ceses': 11  # B## (equivalent to C#), Cbb (enharmonic equivalent to B)
+    'bisis': 1, 'ceses': 10  # B## (equivalent to C#), 
 }
+from collections import defaultdict
+RE_NOTE_TO_SEMITONES = defaultdict(list)
+
+# Populate the reversed dictionary
+for key, value in NOTE_TO_SEMITONES_LILYPOND.items():
+    RE_NOTE_TO_SEMITONES[value].append(key)
+
+# Convert defaultdict back to a regular dictionary if needed
+RE_NOTE_TO_SEMITONES = dict(RE_NOTE_TO_SEMITONES)
+
+print(RE_NOTE_TO_SEMITONES)
 JUMP_CHART = {
 
     ('2', '1'): "Diminished", ('2', '2'): "Minor",
@@ -49,7 +60,15 @@ JUMP_CHART = {
     ('1', '13'): "Perfect",('1', '14'): "Augmented",
     ('1', '1'): "Perfect",('1', '12'): "Augmented"
 }
+def reverse_jump_chart(chart):
+    reversed_chart = defaultdict(dict)
+    for (interval_num, semitones), quality in chart.items():
+        reversed_chart[quality][interval_num] = semitones
+    return dict(reversed_chart)
 
+# Create the reversed JUMP_CHART
+RE_JUMP_CHART = reverse_jump_chart(JUMP_CHART)
+print(RE_JUMP_CHART)
 OCTAVE={"c,":2,"c":3,"c'":4,"c''":5}
 NUM_PLACEMENT = {
     '1':"Unison", '2': "Second",
@@ -64,6 +83,7 @@ NUM_PLACEMENT = {
     '25': "Twenty-fifth", '26': "Twenty-sixth", '27': "Twenty-seventh",
     '28': "Twenty-eighth", '29': "3 Compound Octaves"
 }
+RE_NUM_PLACEMENT = {v: k for k, v in NUM_PLACEMENT.items()}
 user_interval=["--","Unison","Second",
      "Third",  "Fourth", "Fifth", "Sixth", "Seventh", "Octave",  "Ninth",
     "Tenth", "Eleventh", "Twelfth", "Thirteenth",  "Fourteenth", "Compound Octave",
