@@ -41,6 +41,7 @@ def in_calculator_main():
                 display_note = result_note
                 for k, v in accidental_translation.items():
                     display_note = display_note.replace(v, k)
+                display_note= display_note[0].upper()+" "+display_note[1:]
                 st.success(f"The resulting note is {display_note}")
             else:
                 st.error("Invalid input")
