@@ -21,19 +21,19 @@ def interval_calculation(lower_pitch="g",higher_pitch="c"):
     else:
         return False,False
 
-def note_calculation(note="bis",quality="Perfect", interval="Ninth"):
+def note_calculation(note="cis",quality="Major", interval="Ninth"):
     letter_idx = note_letter.index(note[0])
-    interval_idx = int(RE_NUM_PLACEMENT[interval])%len(note_letter)
+    interval_idx = (int(RE_NUM_PLACEMENT[interval])-1)%len(note_letter)
     higher_letter = note_letter[(letter_idx+interval_idx)%len(note_letter)]
     cal_semitone=None
     for key,value in JUMP_CHART.items():
-        if key[0]==str(interval_idx) and value==quality:
+        if key[0]==str(interval_idx+1) and value==quality:
             cal_semitone = int(key[1])
+    #breakpoint()
     if cal_semitone:
-        enharmonic_eq_list = RE_NOTE_TO_SEMITONES[NOTE_TO_SEMITONES_LILYPOND[note]+cal_semitone+1]
+        enharmonic_eq_list = RE_NOTE_TO_SEMITONES[NOTE_TO_SEMITONES_LILYPOND[note]+cal_semitone-1]
         for el in enharmonic_eq_list:
             if el[0]==higher_letter:
                 return el
     else:
         return False
-    
