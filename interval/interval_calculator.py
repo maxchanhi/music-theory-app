@@ -1,6 +1,6 @@
-from element import NOTE_TO_SEMITONES_LILYPOND,NUM_PLACEMENT,RE_NUM_PLACEMENT,RE_NOTE_TO_SEMITONES,RE_JUMP_CHART
+from interval.element import NOTE_TO_SEMITONES_LILYPOND,NUM_PLACEMENT,RE_NUM_PLACEMENT,RE_NOTE_TO_SEMITONES,RE_JUMP_CHART
 note_letter = "abcdefg"
-from jump_chart import JUMP_CHART
+from interval.jump_chart import JUMP_CHART
 accidental_translation = {"Double-flat":"eses","Flat":"es","Sharp":"is","Double-sharp":"isis"}
 def interval_calculation(lower_pitch="g",higher_pitch="c"):
     lower_idx =note_letter.index(lower_pitch[0])
