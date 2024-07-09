@@ -82,6 +82,7 @@ def intro():
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Note Reading Exercise Generator"): ss.demo_name = "Note Reading Exercise Generator"
+            if st.button("Key finder"): ss.demo_name = "Key Finder"
         with col2:
             if st.button("Interval Calculator"): ss.demo_name = "Interval Calculator"
     with st.expander("Learn more", expanded=True):
@@ -113,7 +114,7 @@ page_names_to_funcs = {
     "Inversion": main_inversion,
     "Instrumental Knowledge": knowledgemain,
     "Note Reading Exercise Generator":story_main,
-    "Interval Calculator":in_calculator_main,
+    "Interval Calculator":in_calculator_main, "Key Finder": find_key_main,
 }
 
 def main():
