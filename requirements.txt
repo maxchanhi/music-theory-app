@@ -13,4 +13,4 @@ tenacity
 pymongo
 mistralai
 streamlit_js_eval
-cpython
+Cython
