@@ -1,5 +1,5 @@
 import streamlit as st
-from clef_minor.key_finder2 import finding_key
+import clef_minor.key_finder2 as kf
 def find_key_main():
     st.title("Music Key Analyzer")
 
@@ -10,7 +10,7 @@ def find_key_main():
 
     if st.button("Analyze"):
         if notes_input:
-            results = finding_key(notes_input)
+            results = kf.finding_key(notes_input)
             if results:
                 st.write("### Analysis Results:")
                 for key, freq, scale_type in results:
