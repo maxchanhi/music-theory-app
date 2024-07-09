@@ -22,8 +22,9 @@ def Find_Note(note, quality, interval):
     else:
         st.error("Invalid input")
 
-page_width = streamlit_js_eval(js_expressions='window.innerWidth', key='WIDTH',  want_output = True,)
-def in_calculator_main(page_width):
+
+def in_calculator_main():
+    page_width = streamlit_js_eval(js_expressions='window.innerWidth', key='WIDTH',  want_output = True,)
     st.title("Music Interval and Note Calculator")
 
     tab1, tab2 = st.tabs(["Interval Calculation", "Note Calculation"])
@@ -81,4 +82,4 @@ def in_calculator_main(page_width):
                 Find_Note(note, quality, interval)
             
 if __name__ == "__main__":
-    in_calculator_main(page_width)
+    in_calculator_main()
