@@ -54,7 +54,7 @@ def story_main():
     
     if leger_line_option == "Random":
         leger_line = None
-    elif leger_line_option == "Use leger lines":
+    elif leger_line_option == "Use ledger lines":
         leger_line = True
     else:
         leger_line = False
