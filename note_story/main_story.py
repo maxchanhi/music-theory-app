@@ -50,7 +50,7 @@ def story_main():
         clef = st.selectbox("Choose the clef:", ["treble", "bass", "alto", "tenor"])
     
     with col2:
-        leger_line_option = st.selectbox("Leger line option:", ["Random", "Use leger lines", "Don't use leger line"])
+        leger_line_option = st.selectbox("Ledger line option:", ["Random", "Use ledger lines", "Don't use ledger line"])
     
     if leger_line_option == "Random":
         leger_line = None
