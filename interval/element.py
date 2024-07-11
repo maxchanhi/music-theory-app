@@ -4,6 +4,8 @@ basic_accidentals = ['Flat (♭)', 'Natural (♮)', 'Sharp (♯)']
 advance_accidentals = ['Flat (♭)', 'Natural (♮)', 'Sharp (♯)','Double-sharp(x)','Double-flat(♭♭)']
 
 accidentals_lilypond = {'Sharp (♯)':"is",'Natural (♮)':"",'Flat (♭)':"es",'Double-sharp(x)':"isis",'Double-flat(♭♭)':"eses"}
+reversed_accidentals_lilypond = {value: key for key, value in accidentals_lilypond.items()}
+
 NOTE_TO_SEMITONES_LILYPOND = {
     'c': 0, 'bis':0,  # C, B#
     'cis': 1, 'des': 1,  # C#, Db
