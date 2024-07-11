@@ -15,6 +15,9 @@ JUMP_CHART = {
     ('6', '8'): "Diminished",('6', '9'): "Minor",
     ('6', '10'): "Major",('6', '11'): "Augmented",
     
+    ('7', '10'): "Diminished",('7', '11'): "Minor",
+    ('7', '12'): "Major",('7', '13'): "Augmented",
+    
     ('0', '10'): "Diminished",('0', '11'): "Minor",
     ('0', '12'): "Major",('0', '13'): "Augmented",
     
