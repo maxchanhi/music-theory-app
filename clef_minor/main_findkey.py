@@ -19,7 +19,10 @@ def find_key_main():
                     else:
                         key_le = key
                         acc = None
-                    st.write(f"**Key:** {key_le.upper()}{acc} {scale_type}")
+                    if acc:
+                        st.write(f"**Key:** {key_le.upper()}{acc} {scale_type}")
+                    else:
+                        st.write(f"**Key:** {key_le.upper()} {scale_type}")
                     st.write(f"**Match:** {match_percentage:.2f}%")
             else:
                 st.write("No matching keys found.")
