@@ -1,6 +1,6 @@
 import streamlit as st
-from interval.interval_calculator import interval_calculation,note_calculation,accidental_translation
-from interval.element import NOTE_TO_SEMITONES_LILYPOND,JUMP_CHART,RE_NUM_PLACEMENT,note_letters,advance_accidentals,accidentals_lilypond
+from interval.interval_calculator import interval_calculation,note_calculation
+from interval.element import JUMP_CHART,RE_NUM_PLACEMENT,note_letters,advance_accidentals,accidentals_lilypond,reversed_accidentals_lilypond
 from streamlit_js_eval import streamlit_js_eval
 
 def Calculate_Interval(lower_pitch_letter,lower_pitch_acc,higher_pitch_letter,higher_pitch_acc):
@@ -14,11 +14,8 @@ def Calculate_Interval(lower_pitch_letter,lower_pitch_acc,higher_pitch_letter,hi
 def Find_Note(note, quality, interval):
     result_note = note_calculation(note, quality, interval)
     if result_note:
-        display_note = result_note
-        for k, v in accidental_translation.items():
-            display_note = display_note.replace(v, k)
-        display_note= display_note[0].upper()+" "+display_note[1:]
-        st.success(f"The resulting note is {display_note}")
+        display= result_note[0].upper()+" "+reversed_accidentals_lilypond[result_note[1:]]
+        st.success(f"The resulting note is {display}")
     else:
         st.error("Invalid input")
 
