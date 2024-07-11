@@ -2,9 +2,10 @@ from collections import Counter
 from clef_minor.all_keys1 import melodic_minor_scales, harmonic_ascending, major_scale
 
 accidental_tran = {"bb": "ff", "b": "f", "#": "s", "x": "ss"}
-note_letter= "a b c d e f g"
+reversed_accidental_tran = {value: key for key, value in accidental_tran.items()}
 
 def smart_input(notes="bb")->str:
+    note_letter= "a b c d e f g"
     note_letter_list = note_letter.split()
     note_list = set(notes.lower().split())
     if len(note_list)==0:
