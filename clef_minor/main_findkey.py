@@ -1,11 +1,9 @@
 import streamlit as st
-from clef_minor.key_finder2 import finding_key
+from clef_minor.key_finder2 import finding_key,reversed_accidental_tran
 def find_key_main():
     st.title("Music Key Analyzer")
 
     st.write("Enter the notes separated by spaces. Use 'b' for flat and '#' for sharp.")
-    #st.write()
-
     notes_input = st.text_input("Enter notes:", "C Eb G B")
 
     if st.button("Analyze"):
@@ -15,7 +13,13 @@ def find_key_main():
                 st.write("### Analysis Results:")
                 for key, freq, scale_type in results:
                     match_percentage = freq / 7 * 100
-                    st.write(f"**Key:** {key.upper()} {scale_type}")
+                    if len(key)>1:
+                        key_le= key[0]
+                        acc = reversed_accidental_tran[key[1]]
+                    else:
+                        key_le = key
+                        acc = None
+                    st.write(f"**Key:** {key_le.upper()}{acc} {scale_type}")
                     st.write(f"**Match:** {match_percentage:.2f}%")
             else:
                 st.write("No matching keys found.")
