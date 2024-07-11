@@ -1,7 +1,8 @@
 import streamlit as st
 from interval.interval_calculator import interval_calculation,note_calculation
-from interval.element import JUMP_CHART,RE_NUM_PLACEMENT,note_letters,advance_accidentals,accidentals_lilypond,reversed_accidentals_lilypond
+from interval.element import note_letters,advance_accidentals,accidentals_lilypond,reversed_accidentals_lilypond
 from streamlit_js_eval import streamlit_js_eval
+from interval.ava_option import quality_selection_callback,all_quality
 
 def Calculate_Interval(lower_pitch_letter,lower_pitch_acc,higher_pitch_letter,higher_pitch_acc):
     lower_pitch = lower_pitch_letter.lower()+accidentals_lilypond[lower_pitch_acc]
@@ -11,6 +12,7 @@ def Calculate_Interval(lower_pitch_letter,lower_pitch_acc,higher_pitch_letter,hi
         st.success(f"The interval is a {quality} {interval}")
     else:
         st.error("Invalid interval input")
+
 def Find_Note(note, quality, interval):
     result_note = note_calculation(note, quality, interval)
     if result_note:
@@ -46,8 +48,8 @@ def in_calculator_main():
                 letter = st.selectbox("Select Note", options=note_letters)
                 accidental = st.selectbox("Select Accidental", options=advance_accidentals)
             with col2:
-                quality = st.selectbox("Select Quality", options=set(JUMP_CHART.values()))
-                interval = st.selectbox("Select Interval", options=RE_NUM_PLACEMENT.keys())
+                quality = st.selectbox("Select Quality", options=all_quality)
+                interval = st.selectbox("Select Interval", options=quality_list)
             note = letter.lower()+accidentals_lilypond[accidental]
             if st.button("Find Note"):
                 Find_Note(note, quality, interval)
@@ -70,10 +72,11 @@ def in_calculator_main():
             col1,col2=st.columns(2)
             with col1:
                 letter = st.selectbox("Select Note", options=note_letters)
-                quality = st.selectbox("Select Quality", options=set(JUMP_CHART.values()))
+                quality = st.selectbox("Select Quality", options=all_quality)
+                quality_list = quality_selection_callback(quality)
             with col2:
                 accidental = st.selectbox("Select Accidental", options=advance_accidentals)
-                interval = st.selectbox("Select Interval", options=RE_NUM_PLACEMENT.keys())
+                interval = st.selectbox("Select Interval", options=quality_list)
             note = letter.lower()+accidentals_lilypond[accidental]
             if st.button("Find Note"):
                 Find_Note(note, quality, interval)
