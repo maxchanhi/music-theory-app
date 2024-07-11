@@ -46,9 +46,10 @@ def in_calculator_main():
             col1,col2=st.columns(2)
             with col1:
                 letter = st.selectbox("Select Note", options=note_letters)
-                accidental = st.selectbox("Select Accidental", options=advance_accidentals)
-            with col2:
                 quality = st.selectbox("Select Quality", options=all_quality)
+                quality_list = quality_selection_callback(quality)
+            with col2:
+                accidental = st.selectbox("Select Accidental", options=advance_accidentals)
                 interval = st.selectbox("Select Interval", options=quality_list)
             note = letter.lower()+accidentals_lilypond[accidental]
             if st.button("Find Note"):
