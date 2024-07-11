@@ -3,10 +3,10 @@ from clef_minor.all_keys1 import melodic_minor_scales, harmonic_ascending, major
 
 accidental_tran = {"bb": "ff", "b": "f", "#": "s", "x": "ss"}
 note_letter= "a b c d e f g"
+
 def smart_input(notes="bb")->str:
-    
-    note_list = notes.lower().split()
     note_letter_list = note_letter.split()
+    note_list = set(notes.lower().split())
     if len(note_list)==0:
         return note_letter
     else:
