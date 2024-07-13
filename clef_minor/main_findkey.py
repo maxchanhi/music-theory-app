@@ -1,5 +1,5 @@
 import streamlit as st
-from clef_minor.key_finder2 import finding_key,reversed_accidental_tran
+from clef_minor.key_finder import finding_key,reversed_accidental_tran
 def find_key_main():
     st.title("Music Key Analyzer")
 
