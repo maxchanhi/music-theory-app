@@ -44,7 +44,8 @@ def in_calculator_main():
     st.title("Music Interval and Note Calculator")
 
     tab1, tab2 = st.tabs(["Interval Calculation", "Note Calculation"])
-
+    if page_width is None:
+        page_width = 800 
     if page_width < 470:
         with tab1:
             st.header("Interval Calculation between two notes")
