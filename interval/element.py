@@ -5,7 +5,6 @@ advance_accidentals = ['Flat (♭)', 'Natural (♮)', 'Sharp (♯)','Double-shar
 
 accidentals_lilypond = {'Sharp (♯)':"is",'Natural (♮)':"",'Flat (♭)':"es",'Double-sharp(x)':"isis",'Double-flat(♭♭)':"eses"}
 reversed_accidentals_lilypond = {value: key for key, value in accidentals_lilypond.items()}
-
 NOTE_TO_SEMITONES_LILYPOND = {
     'c': 0, 'bis':0,  # C, B#
     'cis': 1, 'des': 1,  # C#, Db
@@ -35,9 +34,8 @@ for key, value in NOTE_TO_SEMITONES_LILYPOND.items():
     RE_NOTE_TO_SEMITONES[value].append(key)
 
 # Convert defaultdict back to a regular dictionary if needed
-RE_NOTE_TO_SEMITONES = dict(RE_NOTE_TO_SEMITONES)
+#RE_NOTE_TO_SEMITONES = dict(RE_NOTE_TO_SEMITONES)
 
-print(RE_NOTE_TO_SEMITONES)
 JUMP_CHART = {
 
     ('2', '1'): "Diminished", ('2', '2'): "Minor",
@@ -70,7 +68,6 @@ def reverse_jump_chart(chart):
 
 # Create the reversed JUMP_CHART
 RE_JUMP_CHART = reverse_jump_chart(JUMP_CHART)
-print(RE_JUMP_CHART)
 OCTAVE={"c,":2,"c":3,"c'":4,"c''":5}
 NUM_PLACEMENT = {
     '1':"Unison", '2': "Second",

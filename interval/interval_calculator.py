@@ -12,15 +12,17 @@ def interval_calculation(lower_pitch="g",higher_pitch="c"):
     elif lower_idx==higher_idx:
         letter_interval = 1
     lower_pc = NOTE_TO_SEMITONES_LILYPOND[lower_pitch]
-    higher_pc = NOTE_TO_SEMITONES_LILYPOND[higher_pitch]
+    higher_pc = NOTE_TO_SEMITONES_LILYPOND[higher_pitch] 
     if lower_pc>higher_pc: higher_pc+=12
+
     pitch_interval = abs(higher_pc-lower_pc+1)
     cal_quality,cal_interval = None, None
-    cal_quality,cal_interval = JUMP_CHART[str(letter_interval),str(pitch_interval)],NUM_PLACEMENT[str(letter_interval)]
-    if cal_quality and cal_interval:
-        return cal_quality,cal_interval
-    else:
-        return False,False
+    try:
+        cal_quality,cal_interval = JUMP_CHART[str(letter_interval),str(pitch_interval)],NUM_PLACEMENT[str(letter_interval)]
+        if cal_quality and cal_interval:
+            return cal_quality,cal_interval,letter_interval
+    except:
+        return False,False,False
 
 def note_calculation(note="ces",quality="Major", interval="Third"):
     
@@ -35,9 +37,8 @@ def note_calculation(note="ces",quality="Major", interval="Third"):
     #breakpoint()
     if cal_semitone:
         enharmonic_eq_list = RE_NOTE_TO_SEMITONES[(NOTE_TO_SEMITONES_LILYPOND[note]+cal_semitone-1)%12]
-        
         for el in enharmonic_eq_list:
             if el[0]==higher_letter:
-                return el
+                return el,cal_semitone
     else:
-        return False
+        return False,False

@@ -1,23 +1,40 @@
 import streamlit as st
 from interval.interval_calculator import interval_calculation,note_calculation
-from interval.element import note_letters,advance_accidentals,accidentals_lilypond,reversed_accidentals_lilypond
+from interval.element import note_letters,advance_accidentals,accidentals_lilypond,reversed_accidentals_lilypond,RE_NUM_PLACEMENT
 from streamlit_js_eval import streamlit_js_eval
 from interval.ava_option import quality_selection_callback,all_quality
-
+from interval.piano_keyboard.note_tranlate import create_note_list
+import streamlit.components.v1 as components
+from interval.jump_chart import highlight_result
 def Calculate_Interval(lower_pitch_letter,lower_pitch_acc,higher_pitch_letter,higher_pitch_acc):
     lower_pitch = lower_pitch_letter.lower()+accidentals_lilypond[lower_pitch_acc]
     higher_pitch = higher_pitch_letter.lower()+accidentals_lilypond[higher_pitch_acc]
-    quality, interval = interval_calculation(lower_pitch, higher_pitch)
+    quality, interval,letter_count = interval_calculation(lower_pitch, higher_pitch)
     if quality and interval:
+        html_content,letter_show,semitone_count = create_note_list(lower_pitch,higher_pitch)
         st.success(f"The interval is a {quality} {interval}")
+        st.write(f"1st count the letters: The distance is {letter_count} letters. \n{letter_show}")
+        st.write("2nd count the semitones:")
+        components.html(html_content,height=210)
+        st.write(f"The distance is {semitone_count} semitones")
+        st.write(f"Let's remember the data: {letter_count} letters and {semitone_count} semitones")
+        highlight_result(letter_count,semitone_count)
+        st.write(f"The interval is a {quality} {interval}")
     else:
         st.error("Invalid interval input")
 
 def Find_Note(note, quality, interval):
-    result_note = note_calculation(note, quality, interval)
+    result_note,cal_semi = note_calculation(note, quality, interval)
     if result_note:
         display= result_note[0].upper()+" "+reversed_accidentals_lilypond[result_note[1:]]
         st.success(f"The resulting note is {display}")
+        if interval != "Unison":
+            st.write(f"Let's locate the data: {quality} and {interval}. \nIt is {cal_semi}.")
+            highlight_result(int(RE_NUM_PLACEMENT[interval]),int(cal_semi))
+            html_find,letter_show,count_letter=create_note_list(note, result_note)
+            st.write(f"Count {cal_semi} semitones.")
+            components.html(html_find,height=210)
+            st.write(f"Count the letter: {letter_show}. The note must start with {letter_show[-1]}. The answer is {display}")
     else:
         st.error("Invalid input")
 
