@@ -56,9 +56,10 @@ def create_note_list(lower_pitch="b", higher_pitch="a"):
                      "E'", "F'", "F#\nGb'", "G'", "G#\nAb'", "A'", "A#\nBb'", "B'"]
     lower_note = pc_to_keyboard[NOTE_TO_SEMITONES_LILYPOND[lower_pitch]]
     higher_note = pc_to_keyboard[NOTE_TO_SEMITONES_LILYPOND[higher_pitch]]
+    print(lower_pitch,higher_pitch)
     if letter_list.index(lower_pitch[0])>letter_list.index(higher_pitch[0]):
         lower_index = keyboard_list.index(lower_note)
-        if higher_note=="B" or lower_note=="C":
+        if higher_pitch in ["ces" ,"ceses"] or lower_pitch in ["bis","bisis"]:
             higher_index = keyboard_list.index(higher_note)
             keyboard_list= keyboard_list[:12]
         else:    
@@ -68,11 +69,12 @@ def create_note_list(lower_pitch="b", higher_pitch="a"):
         higher_index = keyboard_list.index(higher_note+"'")
     else:
         lower_index = keyboard_list.index(lower_note)
-        if lower_pitch=="ces" or lower_pitch=="ceses":
+        if lower_pitch in ["ces" ,"ceses"] or higher_pitch in ["bis","bisis"]:
             higher_index = keyboard_list.index(higher_note+"'")
         else:    
             higher_index = keyboard_list.index(higher_note)
             keyboard_list= keyboard_list[:12]
+
     keyboard_list[lower_index]=keyboard_list[lower_index]+"p"
     keyboard_list[higher_index]=keyboard_list[higher_index]+"p"
     html = piano_generation(keyboard_list)
