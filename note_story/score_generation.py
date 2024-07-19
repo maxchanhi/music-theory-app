@@ -1,19 +1,19 @@
 clefs = {
     "treble":{
         "instaff": ['d', 'e', 'f', 'g', 'a', 'b', "c'", "d'", "e'", "f'", "g'"],
-        "leger_lines": ["g,", "a,", "b,", "c", "a'", "b'", "c''", "d''","e''","f''"], "pitch_range":"c'"
+        "ledger_lines": ["g,", "a,", "b,", "c", "a'", "b'", "c''", "d''","e''","f''"], "pitch_range":"c'"
     },
     "bass": {
         "instaff": ['f,', 'g,', 'a,', 'b,', "c", "d", "e", "f", "g","a","b"],
-        "leger_lines": ["c,", "d,", "e,", "c'", "d'","e'","f'"], "pitch_range":"c"
+        "ledger_lines": ["c,", "d,", "e,", "c'", "d'","e'","f'"], "pitch_range":"c"
     },
     "tenor":{
         "instaff": ["c,",'d,', 'e,', 'f,', 'g,', 'a,', 'b,', "c", "d", "e", "f"],
-        "leger_lines": ["g,,", "a,,", "b,,", "g", "a", "b", "c'","d'"], "pitch_range":"c'"
+        "ledger_lines": ["g,,", "a,,", "b,,", "g", "a", "b", "c'","d'"], "pitch_range":"c'"
     },
     "alto": {
         "instaff": ['e,', 'f,', 'g,', 'a,', 'b,', "c", "d", "e", "f","g",'a'],
-        "leger_lines": ["c,",'d,', "b", "c'","d'","e'"], "pitch_range":"c'"
+        "ledger_lines": ["c,",'d,', "b", "c'","d'","e'"], "pitch_range":"c'"
     }
 }
 import random
