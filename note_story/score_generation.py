@@ -29,7 +29,7 @@ def map_note(chosen_clef="treble", chosen_word="CAFE", add_line=True):
             leger_line = random.choice([True, False])
         else:
             leger_line = add_line
-        note_list = clefs[chosen_clef]["leger_lines" if leger_line else "instaff"]
+        note_list = clefs[chosen_clef]["ledger_lines" if leger_line else "instaff"]
 
         for opt in note_list: 
             if note.lower() in opt:
