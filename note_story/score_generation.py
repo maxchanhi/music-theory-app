@@ -16,28 +16,29 @@ clefs = {
         "ledger_lines": ["c,",'d,', "b", "c'","d'","e'"], "pitch_range":"c'"
     }
 }
-import random
+import random,time
 import subprocess
 from PIL import Image
 def map_note(chosen_clef="treble", chosen_word="CAFE", add_line=True):
-    
     fix_pitch = clefs[chosen_clef]["pitch_range"]
     display_note = []
-    available_note = []
-    for note in chosen_word: #C
+    
+    for note in chosen_word:
         if add_line is None:
             leger_line = random.choice([True, False])
         else:
             leger_line = add_line
+        
         note_list = clefs[chosen_clef]["ledger_lines" if leger_line else "instaff"]
-
-        for opt in note_list: 
-            if note.lower() in opt:
-                available_note.append(opt)
-        pick_note=random.choice(available_note)
+        available_note = [opt for opt in note_list if note.lower() in opt]
+        
+        if not available_note:
+            available_note = note_list
+        
+        pick_note = random.choice(available_note)
         display_note.append(pick_note)
-        available_note=[]
-    return fix_pitch," ".join(display_note)
+    
+    return fix_pitch, " ".join(display_note)
 
 import subprocess,os
 
