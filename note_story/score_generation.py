@@ -61,11 +61,9 @@ def score_generation(chosen_clef="treble", word=("c'", "c a' f'' e''"), output_f
   \\layout {{ }}
 }}"""
     current_dir = os.getcwd()
-    os.chdir(static_dir)
-    os.makedirs(static_dir, exist_ok=True)
-    
     # Write the .ly file to the static directory
-    ly_file_path = os.path.join(static_dir, f"{output_filename}.ly")
+    ly_file_path = os.path.join('note_story/static_dir', f"{output_filename}.ly")
+    static_dir= 'note_story/static_dir'
     with open(ly_file_path, "w") as ly_file:
         ly_file.write(lilypond_score)
 
