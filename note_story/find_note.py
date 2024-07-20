@@ -38,7 +38,7 @@ def generate_html(output_story,title):
     for item in output_story:
         if isinstance(item, list):
             image_name, answer = item
-            story_content += f'<img src="static/{image_name}.png" class="note-image"><span class="blank"><input type="text" data-answer="{answer}"></span>'
+            story_content += f'<img src="note_story/static/{image_name}.png" class="note-image"><span class="blank"><input type="text" data-answer="{answer}"></span>'
         else:
             story_content += item + " "
             
