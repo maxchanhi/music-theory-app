@@ -90,11 +90,12 @@ def intro():
         with col1:
             if st.button("Support me"):
                 st.markdown('<meta http-equiv="refresh" content="0; url=/support_me">', unsafe_allow_html=True)
+            st.markdown(button_style, unsafe_allow_html=True)
+            st.markdown('<a href="https://cnnmusicclassifier.streamlit.app/" class="button" target="_blank">AI music genre classifier</a>', unsafe_allow_html=True)
+            
         with col2:
             if st.button("About me"):
                 st.markdown('<meta http-equiv="refresh" content="0; url=/about_me">', unsafe_allow_html=True)
-            st.markdown(button_style, unsafe_allow_html=True)
-            st.markdown('<a href="https://cnnmusicclassifier.streamlit.app/" class="button" target="_blank">AI music genre classifier</a>', unsafe_allow_html=True)
                
 
     if ss.demo_name != "—":
