@@ -22,25 +22,18 @@ from PIL import Image
 def map_note(chosen_clef="treble", chosen_word="CAFE", add_line=True):
     fix_pitch = clefs[chosen_clef]["pitch_range"]
     display_note = []
-    
+
     for note in chosen_word:
-        if add_line is None:
-            leger_line = random.choice([True, False])
-        else:
-            leger_line = add_line
-        
+        leger_line = random.choice([True, False]) if add_line is None else add_line
         note_list = clefs[chosen_clef]["ledger_lines" if leger_line else "instaff"]
         available_note = [opt for opt in note_list if note.lower() in opt]
-        
-        if not available_note:
-            available_note = note_list
-        
-        pick_note = random.choice(available_note)
+
+        # Ensure there's always a note to choose
+        pick_note = random.choice(available_note) if available_note else random.choice(note_list)
         display_note.append(pick_note)
-    
+
     return fix_pitch, " ".join(display_note)
 
-print(map_note("tenor","FEED"))
 import os
 import subprocess
 from PIL import Image
