@@ -18,6 +18,7 @@ clefs = {
 }
 import random,time
 import subprocess
+import os
 from PIL import Image
 def map_note(chosen_clef="treble", chosen_word="CAFE", add_line=True):
     fix_pitch = clefs[chosen_clef]["pitch_range"]
@@ -59,9 +60,9 @@ def score_generation(chosen_clef="treble", word=("c'", "c a' f'' e''"), output_f
   }}
   \\layout {{ }}
 }}"""
-    
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+    current_dir = os.getcwd()
     static_dir = os.path.join(current_dir, "static")
+    os.chdir(static_dir)
     os.makedirs(static_dir, exist_ok=True)
     
     # Write the .ly file to the static directory
@@ -71,7 +72,7 @@ def score_generation(chosen_clef="treble", word=("c'", "c a' f'' e''"), output_f
 
     try:
         command = "lilypond -fpng -o "+static_dir+" "+ly_file_path
-        result = subprocess.run(command, check=True, capture_output=True, text=True)
+        result = subprocess.run(command, check=True, capture_output=True, text=True, shell=True)
         print(f"LilyPond output:\n{result.stdout}")
         print(f"LilyPond errors:\n{result.stderr}")
     except subprocess.CalledProcessError as e:
@@ -79,7 +80,10 @@ def score_generation(chosen_clef="treble", word=("c'", "c a' f'' e''"), output_f
         print(f"LilyPond output:\n{e.output}")
         print(f"LilyPond errors:\n{e.stderr}")
         return
-    
+    finally:
+        os.chdir(current_dir)
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Command being executed: {command}")
     png_path = os.path.join(static_dir, f"{output_filename}.png")
     print(f"PNG path: {png_path}")
     
