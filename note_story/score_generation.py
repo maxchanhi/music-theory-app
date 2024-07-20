@@ -18,23 +18,29 @@ clefs = {
 }
 import random,time
 import subprocess
-import os
 from PIL import Image
 def map_note(chosen_clef="treble", chosen_word="CAFE", add_line=True):
     fix_pitch = clefs[chosen_clef]["pitch_range"]
     display_note = []
-
+    
     for note in chosen_word:
-        leger_line = random.choice([True, False]) if add_line is None else add_line
+        if add_line is None:
+            leger_line = random.choice([True, False])
+        else:
+            leger_line = add_line
+        
         note_list = clefs[chosen_clef]["ledger_lines" if leger_line else "instaff"]
         available_note = [opt for opt in note_list if note.lower() in opt]
-
-        # Ensure there's always a note to choose
-        pick_note = random.choice(available_note) if available_note else random.choice(note_list)
+        
+        if not available_note:
+            available_note = note_list
+        
+        pick_note = random.choice(available_note)
         display_note.append(pick_note)
-
+    
     return fix_pitch, " ".join(display_note)
 
+print(map_note("tenor","FEED"))
 import os
 import subprocess
 from PIL import Image
@@ -43,7 +49,7 @@ def score_generation(chosen_clef="treble", word=("c'", "c a' f'' e''"), output_f
     fixed_pitch, melody = word
     output_filename = output_filename.replace(" ", "_")
     lilypond_score = f"""
-\\version "2.22.0"
+\\version "2.24.3"
 \\header {{
   tagline = ""
 }}
@@ -60,16 +66,19 @@ def score_generation(chosen_clef="treble", word=("c'", "c a' f'' e''"), output_f
   }}
   \\layout {{ }}
 }}"""
-    current_dir = os.path.abspath(os.getcwd())
-    static_dir = os.path.join(current_dir, 'note_story', 'static_dir')
+    
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    static_dir = os.path.join(current_dir, "static")
     os.makedirs(static_dir, exist_ok=True)
+    
+    # Write the .ly file to the static directory
     ly_file_path = os.path.join(static_dir, f"{output_filename}.ly")
     with open(ly_file_path, "w") as ly_file:
         ly_file.write(lilypond_score)
 
     try:
         command = "lilypond -fpng -o "+static_dir+" "+ly_file_path
-        result = subprocess.run(command, check=True, capture_output=True, text=True, shell=True)
+        result = subprocess.run(command, check=True, capture_output=True, text=True)
         print(f"LilyPond output:\n{result.stdout}")
         print(f"LilyPond errors:\n{result.stderr}")
     except subprocess.CalledProcessError as e:
@@ -77,10 +86,7 @@ def score_generation(chosen_clef="treble", word=("c'", "c a' f'' e''"), output_f
         print(f"LilyPond output:\n{e.output}")
         print(f"LilyPond errors:\n{e.stderr}")
         return
-    finally:
-        os.chdir(current_dir)
-    print(f"Current working directory: {os.getcwd()}")
-    print(f"Command being executed: {command}")
+    
     png_path = os.path.join(static_dir, f"{output_filename}.png")
     print(f"PNG path: {png_path}")
     
