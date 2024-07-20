@@ -61,7 +61,6 @@ def score_generation(chosen_clef="treble", word=("c'", "c a' f'' e''"), output_f
   \\layout {{ }}
 }}"""
     current_dir = os.getcwd()
-    static_dir = os.path.join(current_dir, "static")
     os.chdir(static_dir)
     os.makedirs(static_dir, exist_ok=True)
     
