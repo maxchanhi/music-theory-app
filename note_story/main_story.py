@@ -23,25 +23,7 @@ async def process_story(title, story, clef, leger_line):
 def story_main():
     st.title("Note Reading Exercise Generator")
     st.info("For further customization of your story or to support this project, please contact chakhangc@yahoo.com.hk. Your feedback and donations are appreciated.")
-  
-    if st.button("View a demo"):
-        sample_html_path = "note_story/Muti_Day_Out.html"
-        static_dir = "note_story/static"
 
-        with open(sample_html_path, "r", encoding="utf-8") as file:
-            sample_html = file.read()
-
-        # Replace relative image paths with base64 encoded images
-        for img_file in os.listdir(static_dir):
-            if img_file.endswith(('.png')):
-                img_path = os.path.join(static_dir, img_file)
-                img_base64 = get_image_base64(img_path)
-                sample_html = sample_html.replace(
-                    f'src="static/{img_file}"',
-                    f'src="data:image/png;base64,{img_base64}"'
-                )
-        # Display the HTML with embedded images
-        components.html(sample_html, height=600, scrolling=False)
     title = st.text_input("Enter the title of the story:", "My Music Story")
     
     story = st.text_area("Enter your story:", "Captitalise your words to generate the music notes: \nE.g. CAGE, ABCDEF, spEED. \nThe app only recongise 3 and more note letters in succession.\nOnce upon a time in a magical musical land...")
