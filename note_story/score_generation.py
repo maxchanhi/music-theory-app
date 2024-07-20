@@ -40,7 +40,6 @@ def map_note(chosen_clef="treble", chosen_word="CAFE", add_line=True):
     
     return fix_pitch, " ".join(display_note)
 
-print(map_note("tenor","FEED"))
 import os
 import subprocess
 from PIL import Image
@@ -78,7 +77,7 @@ def score_generation(chosen_clef="treble", word=("c'", "c a' f'' e''"), output_f
 
     try:
         command = "lilypond -fpng -o "+static_dir+" "+ly_file_path
-        result = subprocess.run(command, check=True, capture_output=True, text=True)
+        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
         print(f"LilyPond output:\n{result.stdout}")
         print(f"LilyPond errors:\n{result.stderr}")
     except subprocess.CalledProcessError as e:
