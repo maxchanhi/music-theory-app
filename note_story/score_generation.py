@@ -43,7 +43,7 @@ def score_generation(chosen_clef="treble", word=("c'", "c a' f'' e''"), output_f
     fixed_pitch, melody = word
     output_filename = output_filename.replace(" ", "_")
     lilypond_score = f"""
-\\version "2.24.3"
+\\version "2.22.0"
 \\header {{
   tagline = ""
 }}
