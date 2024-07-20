@@ -8,14 +8,16 @@ def main_process_story(title = "Grand_Day_Out",story=str,clef=str,leger_line=Non
     text_list = story.split()
     output_story = []
     keywords = []
+    title= title.replace(" ", "_")
     i=1
     for word in text_list:
         if word.isupper():
             cleaned_word = word.replace(",", "").replace(".", "")
-            output_story.append([f"!{title}_pic_{i}",cleaned_word])
-            keywords.append((clef, cleaned_word,leger_line,f"!{title}_pic_{i}"))
+            file_name = f"{title}_pic_{i}"
+            output_story.append([f"{title}_pic_{i}",cleaned_word])
+            keywords.append((clef, cleaned_word, leger_line, file_name))
         else:
-            pick = random.choices([True,False],[4,1])[0] 
+            pick = random.choices([True,False],[1,1])[0] 
             check_3, _ = three_notename(word)
             if upper_3(word) or (pick and check_3):
                 result = to_notename(word)
@@ -24,8 +26,8 @@ def main_process_story(title = "Grand_Day_Out",story=str,clef=str,leger_line=Non
                     continue
                 output_story.append(result[0])
                 cleaned_word = result[1].replace(",", "").replace(".", "")
-                output_story.append([f"!{title}_pic_{i}",cleaned_word])
-                keywords.append((clef, cleaned_word,leger_line,f"!{title}_pic_{i}"))
+                output_story.append([f"{title}_pic_{i}",cleaned_word])
+                keywords.append((clef, cleaned_word,leger_line,f"{title}_pic_{i}"))
                 output_story.append(result[2])
             else:
                 output_story.append(word)

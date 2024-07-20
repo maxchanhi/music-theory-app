@@ -33,7 +33,7 @@ def story_main():
 
         # Replace relative image paths with base64 encoded images
         for img_file in os.listdir(static_dir):
-            if img_file.endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            if img_file.endswith(('.png')):
                 img_path = os.path.join(static_dir, img_file)
                 img_base64 = get_image_base64(img_path)
                 sample_html = sample_html.replace(
@@ -41,7 +41,7 @@ def story_main():
                     f'src="data:image/png;base64,{img_base64}"'
                 )
         # Display the HTML with embedded images
-        components.html(sample_html, height=600, scrolling=True)
+        components.html(sample_html, height=600, scrolling=False)
     title = st.text_input("Enter the title of the story:", "My Music Story")
     
     story = st.text_area("Enter your story:", "Captitalise your words to generate the music notes: \nE.g. CAGE, ABCDEF, spEED. \nThe app only recongise 3 and more note letters in succession.\nOnce upon a time in a magical musical land...")
