@@ -17,6 +17,8 @@ from data_func import login_form
 from grouping_quiz.needle_main import grouping_quiz_main
 import os
 from pymongo import MongoClient
+import ssl
+import certifi
 from data_func import login_form
 #from main_app import intro
 import time
@@ -28,19 +30,21 @@ import json
 from note_story.main_story import story_main
 from interval.main_calculator import in_calculator_main
 from clef_minor.main_findkey import find_key_main
-
+from pymongo.server_api import ServerApi
 # Add this line near the other session state initialization
 ss = st.session_state
-MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://localhost:27017')
+MONGO_URI = st.secrets["MONGO_URI"]
 DB_NAME = 'users'
 
-client = MongoClient(MONGO_URI)
+client = MongoClient(MONGO_URI,
+                    tlsCAFile=certifi.where())
 db = client[DB_NAME]
 users_collection = db['login']
 
 def test_db_connection():
     try:
-        client = MongoClient(MONGO_URI)
+        client = MongoClient(MONGO_URI,
+                           tlsCAFile=certifi.where())
         db = client[DB_NAME]
         users_collection = db['login']
         # Try to insert a test document
@@ -53,11 +57,8 @@ def test_db_connection():
         print(f"Database connection or insertion failed: {e}")
 
 @st.cache_resource
-def init_connection():
-    return MongoClient(MONGO_URI)
-
 def get_database():
-    client = init_connection()
+    client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
     return client[DB_NAME]
 test_db_connection()
 
