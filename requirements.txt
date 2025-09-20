@@ -14,3 +14,4 @@ pymongo
 mistralai
 streamlit_js_eval
 Cython
+pymongo
