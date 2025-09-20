@@ -20,7 +20,10 @@ def get_catagory():
 import os
 import random
 def get_picture(url):
-    target_url = "grouping_quiz/static/" + url
+    # Get the absolute path to the directory of the current file
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # Construct the absolute path to the target_url directory
+    target_url = os.path.join(current_dir, "static", url)
     
     image_files = [f for f in os.listdir(target_url) if f.lower().endswith('.png')]
     
