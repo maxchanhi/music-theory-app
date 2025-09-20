@@ -29,7 +29,7 @@ def grouping_quiz_main():
         for idx, link in enumerate(ss["grouping_link"]):
             col_1, col_2 = st.columns([5, 1])
             with col_1:
-                st.image(link)
+                st.image(link[0])  # Extract image_path from the tuple
 
             with col_2:
                 st.write("    ")
@@ -37,10 +37,14 @@ def grouping_quiz_main():
 
     if st.button("Check answer", disabled=ss["check_ans"]) and ss["press_idx_gp"] is not None:
         ss["check_ans"] = True
-        if "Correct_rest" in ss["grouping_link"][ss["press_idx_gp"]]:
+        if "Correct_rest" in ss["grouping_link"][ss["press_idx_gp"]][0]:  # Check the image_path
             st.success("Correct")
         else:
-            correct_idx = ss["press_idx_gp"]
+            correct_idx = 0  # Find the correct answer index
+            for i, (path, tag) in enumerate(ss["grouping_link"]):
+                if "Correct_rest" in path:
+                    correct_idx = i + 1
+                    break
             st.warning(f"Wrong. The answer is option {correct_idx}")
         ss["press_idx_gp"] = None
 
