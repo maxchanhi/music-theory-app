@@ -99,16 +99,33 @@ def lilypond_generation(melody, name, uppertime, lowertime):
     return cropped_png_file_path
 
 def score_generation(question_data):
-    # Clean up old files before generating new ones
     cleanup_temp_files()
-    
-    tasks_args = []
-    tasks_args.append((question_data['melody'][1], 'question_melody', question_data['melody'][0][0], question_data['melody'][0][1]))
-    for idx, option in enumerate(question_data['options']):
-        tasks_args.append((option[0][1], f'wr_option_{idx}', option[0][0][0], option[0][0][1]))
 
-    with multiprocessing.Pool() as pool:
-        pool.starmap(lilypond_generation, tasks_args)
+    # Generate question melody image
+    lilypond_generation(
+        question_data['melody'][1],
+        question_data['melody'][0],
+        "question_melody"
+    )
+
+    # Generate images for each option and update the options list
+    updated_options = []
+    for i, (option, reason) in enumerate(question_data['options']):
+        time_sign = option[0]
+        melody = option[1]
+        
+        # Generate the image for the option
+        output_filename = f"option_{i}"
+        lilypond_generation(melody, time_sign, output_filename)
+        
+        # The image path is now relative to the temp directory
+        image_path = os.path.join(TEMP_DIR, f"cropped_score_{output_filename}.png")
+        
+        # Prepend the image path to the option tuple
+        updated_options.append((image_path, option, reason))
+
+    # Replace the old options with the updated ones
+    question_data['options'] = updated_options
 
     # Add image paths to question_data
     # Ensure these paths are also absolute or correctly relative to where they are used

@@ -46,17 +46,16 @@ def compound_simple_main():
     question_data = st.session_state.question_data_com
     st.title("Compound-simple-time Modulation Quiz")
     st.subheader(question_data['question'])
-    
-    st.image("compound_simple_time/temp/cropped_score_question_melody.png", caption='Question')
+    if question_data['question']:
+        st.image(os.path.join("compound_simple_time", "temp", "cropped_score_question_melody.png"), caption='Question')
 
     for idx, option_data in enumerate(question_data['options']):
-        # The unpacking is now adjusted to handle the new data structure
         image_path, option, reason = option_data
         container = st.container()
         col1, col2 = container.columns([6, 1])
         if image_path:
             col1.image(image_path)
-        
+
         if f"disabled_{idx}" not in st.session_state:
             st.session_state[f"disabled_{idx}"] = False
 
@@ -101,7 +100,6 @@ def compound_simple_main():
     if st.session_state.submit_pressed_com:
         correct_idx = None
         for idx, option_data in enumerate(question_data["options"]):
-            # The unpacking is also adjusted here
             image_path, option, reason = option_data
             if isinstance(option, list) and len(option) >= 2:
                 time_signature, melody = option[0], option[1]
