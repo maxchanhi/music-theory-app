@@ -1,4 +1,5 @@
-import asyncio
+import multiprocessing
+import subprocess
 from PIL import Image
 import os
 
@@ -23,8 +24,8 @@ def remove_duplication(data=list()):
     # Extract unique values from the dictionary
     unique_list = list(unique_data.values())
     return unique_list
-  
-async def lilypond_generation(melody, name, uppertime, lowertime):
+
+def lilypond_generation(melody, name, uppertime, lowertime):
     lilypond_score = f"""
 \\version "2.22.0"  
 \\header {{
@@ -54,26 +55,27 @@ async def lilypond_generation(melody, name, uppertime, lowertime):
         f.write(lilypond_score)
 
     # Generate PNG image and MIDI file
-    proc = await asyncio.create_subprocess_exec(
+    subprocess.run([
         'lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300',
        f'--output=compound_simple_time/temp/score_{name}', f'compound_simple_time/temp/score_{name}.ly'
-    )
-    await proc.wait()
+    ])
+
     with Image.open(f'compound_simple_time/temp/score_{name}.png') as img:
         width, height = img.size
-        crop_rectangle = (0, 0, width, height) # no need to crop for online version
+        crop_rectangle = (0, 0, width, height)
         cropped_img = img.crop(crop_rectangle)
 
         cropped_img.save(f'compound_simple_time/temp/cropped_score_{name}.png')
     return f'compound_simple_time/temp/cropped_score_{name}.png'
 
-async def score_generation(question_data):
-    tasks = []
-    tasks.append(asyncio.create_task(lilypond_generation(question_data['melody'][1], 'question_melody', question_data['melody'][0][0], question_data['melody'][0][1])))
+def score_generation(question_data):
+    tasks_args = []
+    tasks_args.append((question_data['melody'][1], 'question_melody', question_data['melody'][0][0], question_data['melody'][0][1]))
     for idx, option in enumerate(question_data['options']):
-        tasks.append(asyncio.create_task(lilypond_generation(option[0][1], f'wr_option_{idx}', option[0][0][0], option[0][0][1])))
+        tasks_args.append((option[0][1], f'wr_option_{idx}', option[0][0][0], option[0][0][1]))
 
-    await asyncio.gather(*tasks)
+    with multiprocessing.Pool() as pool:
+        pool.starmap(lilypond_generation, tasks_args)
 
     # Add image paths to question_data
     question_data['question_image'] = f'compound_simple_time/temp/cropped_score_question_melody.png'
