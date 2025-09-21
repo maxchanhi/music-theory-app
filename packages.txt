@@ -1,4 +1,4 @@
 build-essential
 pkg-config
-lilypond
+lilypond==2.22.0
 fluidsynth
