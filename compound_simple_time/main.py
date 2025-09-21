@@ -8,7 +8,12 @@ from data_func import record_feedback
 import streamlit as st
 
 ss=st.session_state
+if 'submit_pressed_com' not in st.session_state:
+    st.session_state.submit_pressed_com = False
 
+if 'new_question_pressed_com' not in st.session_state:
+    st.session_state.new_question_pressed_com = False
+    
 def new_question_pressed():
     st.session_state.new_question_pressed_com = True
 
