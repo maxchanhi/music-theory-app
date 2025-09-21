@@ -3,7 +3,7 @@ from urls import disclaimer,rain_emoji
 import random
 import time
 import os
-from compound_simple_time.asynchronous import score_generation
+from compound_simple_time.asynchronous import score_generation, cleanup_temp_files
 from data_func import record_feedback
 import streamlit as st
 
@@ -36,6 +36,9 @@ def compound_simple_main():
 
     # Generate the first question if not exists
     if 'question_data_com' not in st.session_state:
+        # Clean up any existing temp files when entering the section
+        cleanup_temp_files()
+        
         # Ensure proper randomization for the first question
         random.seed(int(time.time() * 1000))
         
@@ -72,7 +75,9 @@ def compound_simple_main():
     pressed= st.session_state.submit_pressed_com
     col_1,col_2=st.columns([4,1])
     with col_1:
-        new_question_btn = st.button("New Question", on_click=new_question_pressed, disabled=not pressed)
+        # Disable "New Question" button if it was pressed OR if answer hasn't been checked yet
+        new_question_disabled = not pressed or st.session_state.new_question_pressed_com
+        new_question_btn = st.button("New Question", on_click=new_question_pressed, disabled=new_question_disabled)
     with col_2:
         check_ans_mm=st.button("Check Answer",on_click=submit_pressed,disabled=pressed)
 

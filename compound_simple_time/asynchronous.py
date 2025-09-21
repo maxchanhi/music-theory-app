@@ -2,6 +2,24 @@ import multiprocessing
 import subprocess
 from PIL import Image
 import os
+import glob
+
+def cleanup_temp_files():
+    """Clean up all temporary files in the temp directory and ensure directory exists"""
+    temp_dir = 'compound_simple_time/temp'
+    
+    # Create temp directory if it doesn't exist
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+    else:
+        # Clean up existing files in the temp directory
+        files = glob.glob(os.path.join(temp_dir, '*'))
+        for file in files:
+            try:
+                if os.path.isfile(file):
+                    os.remove(file)
+            except Exception as e:
+                print(f"Error removing file {file}: {e}")
 
 def format_melody(melody):
     formatted = []
@@ -69,6 +87,9 @@ def lilypond_generation(melody, name, uppertime, lowertime):
     return f'compound_simple_time/temp/cropped_score_{name}.png'
 
 def score_generation(question_data):
+    # Clean up old files before generating new ones
+    cleanup_temp_files()
+    
     tasks_args = []
     tasks_args.append((question_data['melody'][1], 'question_melody', question_data['melody'][0][0], question_data['melody'][0][1]))
     for idx, option in enumerate(question_data['options']):
