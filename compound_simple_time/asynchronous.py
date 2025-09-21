@@ -102,10 +102,13 @@ def score_generation(question_data):
     cleanup_temp_files()
 
     # Generate question melody image
+    melody = question_data['melody'][1]
+    uppertime, lowertime = question_data['melody'][0]
     lilypond_generation(
-        question_data['melody'][1],
-        question_data['melody'][0],
-        "question_melody"
+        melody,
+        "question_melody",
+        uppertime,
+        lowertime
     )
 
     # Generate images for each option and update the options list
@@ -114,9 +117,17 @@ def score_generation(question_data):
         time_sign = option[0]
         melody = option[1]
         
+        # Unpack the time signature
+        uppertime, lowertime = time_sign
+        
         # Generate the image for the option
         output_filename = f"option_{i}"
-        lilypond_generation(melody, time_sign, output_filename)
+        lilypond_generation(
+            melody, 
+            output_filename,
+            uppertime,
+            lowertime
+        )
         
         # The image path is now relative to the temp directory
         image_path = os.path.join(TEMP_DIR, f"cropped_score_{output_filename}.png")
@@ -128,9 +139,6 @@ def score_generation(question_data):
     question_data['options'] = updated_options
 
     # Add image paths to question_data
-    # Ensure these paths are also absolute or correctly relative to where they are used
     question_data['question_image'] = os.path.join(TEMP_DIR, 'cropped_score_question_melody.png')
-    for idx, option in enumerate(question_data['options']):
-        question_data['options'][idx] = (*option, os.path.join(TEMP_DIR, f'cropped_score_wr_option_{idx}.png'))
 
     return question_data

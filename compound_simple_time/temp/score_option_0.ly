@@ -10,7 +10,7 @@
     \fixed c' {
       \time 4/2
       \omit Score.BarLine
-      f2 \tuplet 3/2 { f2 e4 } \tuplet 3/2 { b4 b2 } g4 e4
+      \tuplet 3/2 { b2 e4 } \tuplet 3/2 { g4 a4 f4 } \tuplet 2/3 {g4. g8} e2
     }
     \layout {
       indent = 0\mm
