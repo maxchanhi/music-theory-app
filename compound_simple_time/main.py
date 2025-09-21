@@ -3,14 +3,22 @@ from urls import disclaimer,rain_emoji
 import random
 import time
 import os
-from compound_simple_time.asynchronous import score_generation, cleanup_temp_files
+from compound_simple_time.asynchronous import score_generation
 from data_func import record_feedback
 import streamlit as st
 
 ss=st.session_state
+if 'submit_pressed_com' not in st.session_state:
+    st.session_state.submit_pressed_com = False
+
+if 'new_question_pressed_com' not in st.session_state:
+    st.session_state.new_question_pressed_com = False
     
-# The new_question_pressed and submit_pressed functions are no longer needed
-# and will be removed.
+def new_question_pressed():
+    st.session_state.new_question_pressed_com = True
+
+def submit_pressed():
+    st.session_state.submit_pressed_com = True
 
 def select_option(idx):
     if st.session_state.option_selected is not None:
@@ -20,22 +28,14 @@ def select_option(idx):
     
 
 def compound_simple_main():
-    # Initialize ALL session state variables at the beginning of the function
-    if 'submit_pressed_com' not in st.session_state:
-        st.session_state.submit_pressed_com = False
-
-    if 'new_question_pressed_com' not in st.session_state:
-        st.session_state.new_question_pressed_com = False
-        
+    # Initialize session state variables
     if 'option_selected' not in st.session_state:
         st.session_state.option_selected = []
         ss["feedback_mm"]=[]
+        st.session_state.new_question_pressed_com = False
 
     # Generate the first question if not exists
     if 'question_data_com' not in st.session_state:
-        # Clean up any existing temp files when entering the section
-        cleanup_temp_files()
-        
         # Ensure proper randomization for the first question
         random.seed(int(time.time() * 1000))
         
@@ -46,16 +46,15 @@ def compound_simple_main():
     question_data = st.session_state.question_data_com
     st.title("Compound-simple-time Modulation Quiz")
     st.subheader(question_data['question'])
-    if question_data['question']:
-        st.image(os.path.join("compound_simple_time", "temp", "cropped_score_question_melody.png"), caption='Question')
+    
+    st.image("compound_simple_time/temp/cropped_score_question_melody.png", caption='Question')
 
     for idx, option_data in enumerate(question_data['options']):
-        image_path, option, reason = option_data
+        option, reason, image_path = option_data  # Unpack all three elements
         container = st.container()
         col1, col2 = container.columns([6, 1])
-        if image_path:
-            col1.image(image_path)
-
+        col1.image(image_path)  # Use the image path from the option data
+        
         if f"disabled_{idx}" not in st.session_state:
             st.session_state[f"disabled_{idx}"] = False
 
@@ -70,37 +69,34 @@ def compound_simple_main():
         # Store the reason in session state
         st.session_state[f"reason_{idx}"] = reason
 
-    col_1, col_2 = st.columns([4, 1])
+    pressed= st.session_state.submit_pressed_com
+    col_1,col_2=st.columns([4,1])
     with col_1:
-        new_question_btn = st.button("New Question", disabled=not st.session_state.submit_pressed_com)
+        new_question_btn = st.button("New Question", on_click=new_question_pressed, disabled=not pressed)
     with col_2:
-        check_ans_mm = st.button("Check Answer", disabled=st.session_state.submit_pressed_com)
+        check_ans_mm=st.button("Check Answer",on_click=submit_pressed,disabled=pressed)
 
-    if new_question_btn:
-        # Generate new question
+    # Handle new question logic ONLY when the button is actually clicked
+    if st.session_state.new_question_pressed_com:
+        # Generate new question synchronously
         random.seed(int(time.time() * 1000))
         st.session_state.question_data_com = main_generate()
         score_generation(st.session_state.question_data_com)
 
-        # Reset states for the new question
+        # Reset all states for the new question
         st.session_state.submit_pressed_com = False
+        st.session_state.new_question_pressed_com = False
         st.session_state.option_selected = []
+        # Reset disabled state for options
         for i in range(len(st.session_state.question_data_com['options'])):
             if f"disabled_{i}" in st.session_state:
                 del st.session_state[f"disabled_{i}"]
         st.rerun()
 
-    if check_ans_mm:
-        if st.session_state.option_selected is not None:
-            st.session_state.submit_pressed_com = True
-            st.rerun()
-        else:
-            st.warning("Please select an option first.")
-
-    if st.session_state.submit_pressed_com:
+    if check_ans_mm and st.session_state.option_selected is not None:
         correct_idx = None
         for idx, option_data in enumerate(question_data["options"]):
-            image_path, option, reason = option_data
+            option, reason, image_path = option_data
             if isinstance(option, list) and len(option) >= 2:
                 time_signature, melody = option[0], option[1]
             else:
@@ -126,11 +122,11 @@ def compound_simple_main():
                     ss["feedback_mm"].append(("Wrong", "No reason found for the selected option"))
         else:
             st.error("An error occurred: Could not find the correct answer in the options.")
-
-    if len(ss["feedback_mm"]) > 2 and ss.logged:
-        record_feedback("metric modulation", ss.feedback_mm)
+            
+    if len(ss["feedback_mm"])>2 and ss.logged:
+        record_feedback("metric modulation",ss.feedback_mm)
         st.write("Feedback recorded")
-        ss["feedback_mm"] = []
+        ss["feedback_mm"]=[]
 
     disclaimer()
 
