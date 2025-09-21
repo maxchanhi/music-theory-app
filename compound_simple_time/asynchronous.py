@@ -4,16 +4,19 @@ from PIL import Image
 import os
 import glob
 
+# Get the absolute path to the directory containing this script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMP_DIR = os.path.join(BASE_DIR, 'temp')
+
 def cleanup_temp_files():
     """Clean up all temporary files in the temp directory and ensure directory exists"""
-    temp_dir = 'compound_simple_time/temp'
     
     # Create temp directory if it doesn't exist
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
+    if not os.path.exists(TEMP_DIR):
+        os.makedirs(TEMP_DIR)
     else:
         # Clean up existing files in the temp directory
-        files = glob.glob(os.path.join(temp_dir, '*'))
+        files = glob.glob(os.path.join(TEMP_DIR, '*'))
         for file in files:
             try:
                 if os.path.isfile(file):
@@ -44,6 +47,9 @@ def remove_duplication(data=list()):
     return unique_list
 
 def lilypond_generation(melody, name, uppertime, lowertime):
+    # Use absolute paths for .ly file
+    ly_file_path = os.path.join(TEMP_DIR, f'score_{name}.ly')
+    
     lilypond_score = f"""
 \\version "2.22.0"  
 \\header {{
@@ -69,22 +75,28 @@ def lilypond_generation(melody, name, uppertime, lowertime):
 }}
 """
 
-    with open(f'compound_simple_time/temp/score_{name}.ly', 'w') as f:
+    with open(ly_file_path, 'w') as f:
         f.write(lilypond_score)
 
     # Generate PNG image and MIDI file
+    # Use absolute paths for output
+    output_base_path = os.path.join(TEMP_DIR, f'score_{name}')
     subprocess.run([
         'lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300',
-       f'--output=compound_simple_time/temp/score_{name}', f'compound_simple_time/temp/score_{name}.ly'
+       f'--output={output_base_path}', ly_file_path
     ])
 
-    with Image.open(f'compound_simple_time/temp/score_{name}.png') as img:
+    # Use absolute paths for image operations
+    png_file_path = f'{output_base_path}.png'
+    cropped_png_file_path = os.path.join(TEMP_DIR, f'cropped_score_{name}.png')
+
+    with Image.open(png_file_path) as img:
         width, height = img.size
         crop_rectangle = (0, 0, width, height)
         cropped_img = img.crop(crop_rectangle)
 
-        cropped_img.save(f'compound_simple_time/temp/cropped_score_{name}.png')
-    return f'compound_simple_time/temp/cropped_score_{name}.png'
+        cropped_img.save(cropped_png_file_path)
+    return cropped_png_file_path
 
 def score_generation(question_data):
     # Clean up old files before generating new ones
@@ -99,8 +111,9 @@ def score_generation(question_data):
         pool.starmap(lilypond_generation, tasks_args)
 
     # Add image paths to question_data
-    question_data['question_image'] = f'compound_simple_time/temp/cropped_score_question_melody.png'
+    # Ensure these paths are also absolute or correctly relative to where they are used
+    question_data['question_image'] = os.path.join(TEMP_DIR, 'cropped_score_question_melody.png')
     for idx, option in enumerate(question_data['options']):
-        question_data['options'][idx] = (*option, f'compound_simple_time/temp/cropped_score_wr_option_{idx}.png')
+        question_data['options'][idx] = (*option, os.path.join(TEMP_DIR, f'cropped_score_wr_option_{idx}.png'))
 
     return question_data
