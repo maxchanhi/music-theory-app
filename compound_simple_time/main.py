@@ -8,11 +8,6 @@ from data_func import record_feedback
 import streamlit as st
 
 ss=st.session_state
-if 'submit_pressed_com' not in st.session_state:
-    st.session_state.submit_pressed_com = False
-
-if 'new_question_pressed_com' not in st.session_state:
-    st.session_state.new_question_pressed_com = False
     
 def new_question_pressed():
     st.session_state.new_question_pressed_com = True
@@ -28,11 +23,16 @@ def select_option(idx):
     
 
 def compound_simple_main():
-    # Initialize session state variables
+    # Initialize ALL session state variables at the beginning of the function
+    if 'submit_pressed_com' not in st.session_state:
+        st.session_state.submit_pressed_com = False
+
+    if 'new_question_pressed_com' not in st.session_state:
+        st.session_state.new_question_pressed_com = False
+        
     if 'option_selected' not in st.session_state:
         st.session_state.option_selected = []
         ss["feedback_mm"]=[]
-        st.session_state.new_question_pressed_com = False
 
     # Generate the first question if not exists
     if 'question_data_com' not in st.session_state:
