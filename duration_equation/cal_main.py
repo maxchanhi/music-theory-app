@@ -8,21 +8,21 @@ from data_func import record_feedback
 def bn_callback():
     st.session_state.pressed_cd = True
 
-def generate_new_question(hard_mode, simple_dotted, double_dotted, question_history):
-    while True:
-        duration, dotted_variation = question_elements(hard_mode, simple_dotted, double_dotted)
-        small_dur, question_dur, question_dotted, dotted_time = generate_question(duration, dotted_variation)
-        correct = correct_ans(small_dur, question_dur, dotted_time)
-        new_question = (small_dur, question_dur, question_dotted, dotted_time, correct)
-        
-        if not question_history or new_question != question_history[-1][:5]:
-            return new_question
+def generate_new_question(hard_mode, simple_dotted, double_dotted, previous_question):
+    duration, dotted_variation = question_elements(hard_mode, simple_dotted, double_dotted)
+    small_dur, question_dur, question_dotted, dotted_time, new_question_tuple = generate_question(duration, dotted_variation, previous_question)
+    correct = correct_ans(small_dur, question_dur, dotted_time)
+    new_question = (small_dur, question_dur, question_dotted, dotted_time, correct)
+    return new_question, new_question_tuple
 
 def duration_cal_main():
     st.title("Music Duration Quiz")
-    
+
     if 'question_history_cd' not in st.session_state:
         st.session_state.question_history_cd = []
+    
+    if 'previous_question_cd' not in st.session_state:
+        st.session_state.previous_question_cd = None
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -33,9 +33,10 @@ def duration_cal_main():
         double_dotted = st.checkbox("Double dotted")
 
     if 'questioncd' not in st.session_state:
-        new_question = generate_new_question(hard_mode, simple_dotted, double_dotted, st.session_state.question_history_cd)
+        new_question, new_prev_q_tuple = generate_new_question(hard_mode, simple_dotted, double_dotted, st.session_state.previous_question_cd)
         st.session_state['questioncd'] = new_question[:4]
         st.session_state['correctcd'] = new_question[4]
+        st.session_state.previous_question_cd = new_prev_q_tuple
         st.session_state['pressed_cd'] = False
 
     small_dur, question_dur, question_dotted, dotted_time = st.session_state['questioncd']
@@ -59,11 +60,12 @@ def duration_cal_main():
 
     if next_question and st.session_state['pressed_cd']:
         st.session_state['pressed_cd'] = False
-        new_question = generate_new_question(hard_mode, simple_dotted, double_dotted, st.session_state.question_history_cd)
+        new_question, new_prev_q_tuple = generate_new_question(hard_mode, simple_dotted, double_dotted, st.session_state.previous_question_cd)
         st.session_state['questioncd'] = new_question[:4]
         st.session_state['correctcd'] = new_question[4]
+        st.session_state.previous_question_cd = new_prev_q_tuple
         st.rerun()
-    
+
     # Display question history
     if len(st.session_state.question_history_cd)>2 and st.session_state.logged:
         record_feedback("duration calculation",str(st.session_state.question_history_cd))

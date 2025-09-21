@@ -21,15 +21,19 @@ def question_elements(hard=bool,simple=bool,double_dotted=bool):
     
     return duration, dotted_vartion
 
-def generate_question(duration,dotted_vartion):
-    question_idx = randint(3, len(duration) - 1)  # Corrected the range to avoid IndexError
-    question_dur = duration[question_idx]
-    dotted_idx = randint(0,len(dotted_vartion)-1)
-    question_dotted = dotted_vartion[dotted_idx]
-    dotted_time = dotted_duration[dotted_idx]
-    small_idx = question_idx // randint(2, 4)
-    small_dur = duration[small_idx]
-    return small_dur, question_dur,question_dotted,dotted_time
+def generate_question(duration, dotted_vartion, previous_question=None):
+    while True:
+        question_idx = randint(3, len(duration) - 1)
+        question_dur = duration[question_idx]
+        dotted_idx = randint(0, len(dotted_vartion) - 1)
+        question_dotted = dotted_vartion[dotted_idx]
+        dotted_time = dotted_duration[dotted_idx]
+        small_idx = question_idx // randint(2, 4)
+        small_dur = duration[small_idx]
+    
+        current_question = (small_dur, question_dur, question_dotted)
+        if current_question != previous_question:
+            return small_dur, question_dur, question_dotted, dotted_time, current_question
 
 def user_input():
     user_ans = input('Enter your answer: ')
@@ -46,10 +50,22 @@ def check_ans(ans, correct):
         print("Wrong answer")
 
 def main():
-    small_dur, question_dur,dotted_time = generate_question()
-    correct = correct_ans(small_dur, question_dur,dotted_time)
+    duration, dotted_vartion = question_elements(hard=True, simple=True, double_dotted=True)
+    
+    # Generate first question
+    small_dur, question_dur, question_dotted, dotted_time, previous_question = generate_question(duration, dotted_vartion)
+    print(f"Question: How many {small_dur}s are in a {question_dotted}{question_dur}?")
+    correct = correct_ans(small_dur, question_dur, dotted_time)
     result = user_input()
     check_ans(result, correct)
+
+    # Generate next question, ensuring it's different
+    small_dur, question_dur, question_dotted, dotted_time, previous_question = generate_question(duration, dotted_vartion, previous_question)
+    print(f"Next Question: How many {small_dur}s are in a {question_dotted}{question_dur}?")
+    correct = correct_ans(small_dur, question_dur, dotted_time)
+    result = user_input()
+    check_ans(result, correct)
+
 
 if __name__ == "__main__":
     main()
