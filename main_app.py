@@ -104,7 +104,7 @@ def intro():
 page_names_to_funcs = {
     "—": intro,
     "Grouping and beaming": grouping_quiz_main,
-    "Simple-compound Modulation": compound_simple_main,
+    "Simple-compound Modulation": compound_simple_main, 
     "Duration calculation": duration_cal_main,
     "Calculation for time signature": main_ts,
     "Pitch Identification": pitch_main,

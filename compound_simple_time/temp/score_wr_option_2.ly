@@ -8,9 +8,9 @@
 
 \score {
     \fixed c' {
-      \time 3/4
+      \time 3/2
       \omit Score.BarLine
-      a8 a8 b4 b4 e8
+      a4 e2 f4 a4
     }
     \layout {
       indent = 0\mm

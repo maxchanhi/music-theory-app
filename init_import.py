@@ -1,5 +1,4 @@
 from instrument_knowledge_quiz.music_quiz import knowledgemain
-from compound_simple_time.main import compound_simple_main
 from interval.interval_quiz import interval_main
 from melody_key.find_key_main import melody_key_main
 from pitch_id.ranged_id import pitch_main
@@ -8,6 +7,7 @@ from inversion.main_iv import main_inversion
 from duration_equation.cal_main import duration_cal_main
 from duration_equation.time_main import main_ts
 from chromatic_scale.chromatic_main import chr_main
+from compound_simple_time.main import compound_simple_main
 from urls import fun_emoji_list,button_style
 from transposing.app import transposing_main
 from clef_minor.clef_minor_main import clef_main
