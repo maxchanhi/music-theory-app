@@ -50,10 +50,16 @@ def compound_simple_main():
     st.image("compound_simple_time/temp/cropped_score_question_melody.png", caption='Question')
 
     for idx, option_data in enumerate(question_data['options']):
-        option, reason, image_path = option_data  # Unpack all three elements
+        # Defensive unpack: support (option, reason) and (option, reason, image_path)
+        if len(option_data) == 3:
+            option, reason, image_path = option_data
+        else:
+            option, reason = option_data
+            image_path = None
         container = st.container()
         col1, col2 = container.columns([6, 1])
-        col1.image(image_path)  # Use the image path from the option data
+        if image_path:
+            col1.image(image_path)  # Use the image path from the option data if available
         
         if f"disabled_{idx}" not in st.session_state:
             st.session_state[f"disabled_{idx}"] = False
@@ -96,7 +102,13 @@ def compound_simple_main():
     if check_ans_mm and st.session_state.option_selected is not None:
         correct_idx = None
         for idx, option_data in enumerate(question_data["options"]):
-            option, reason, image_path = option_data
+            # Defensive unpack again for answer-checking
+            if len(option_data) == 3:
+                option, reason, image_path = option_data
+            else:
+                option, reason = option_data
+                image_path = None
+
             if isinstance(option, list) and len(option) >= 2:
                 time_signature, melody = option[0], option[1]
             else:
