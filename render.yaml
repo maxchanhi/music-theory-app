@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: music-theory-app
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "streamlit run main_app.py"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.13
