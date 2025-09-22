@@ -1,4 +1,10 @@
 import streamlit as st
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+invited = True if invite_code in os.getenv("Password") else False
 from datetime import datetime
 import uuid
 
