@@ -1,10 +1,10 @@
 services:
   - type: web
     name: music-theory-app
-    env: python
+    env: docker
     plan: free
-    buildCommand: "./build.sh"
-    startCommand: "streamlit run main_app.py"
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.10.13
+      - key: STREAMLIT_SERVER_PORT
+        value: 8501
