@@ -2,6 +2,9 @@ import subprocess
 from PIL import Image
 import os
 
+def remove_duplication(list1, list2):
+    return list(set(list1) - set(list2))
+
 def format_melody(melody):
     formatted = []
     for note in melody:
