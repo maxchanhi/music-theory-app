@@ -1,30 +1,41 @@
 from init_import import * 
 ss=st.session_state
+
 def intro():
     # Get database connection
     db = get_database()
-    users_collection = db['login']
+    users_collection = None
+    if db is None:
+        st.info("Database is unavailable at the moment. Registration and login are temporarily disabled.")
+    else:
+        users_collection = db['login']
             
     col1, col2 = st.columns([5,1])
     with col1:
         with st.popover("Sign Up"):
-            if not ss.logged:
-                register = sign_up(users_collection)
-                if register:
-                    ss.logged = True
-                    st.rerun()
-            elif ss.logged:
-                st.success("You are already logged in")
+            if users_collection is None:
+                st.warning("Sign up is disabled while the database is unavailable.")
+            else:
+                if not ss.logged:
+                    register = sign_up(users_collection)
+                    if register:
+                        ss.logged = True
+                        st.rerun()
+                elif ss.logged:
+                    st.success("You are already logged in")
 
     with col2:
         if not ss.logged:
             with st.popover("Log In"):
-                login = login_form()
-                if login:
-                    ss.logged = True
-                    st.rerun()
-                elif login==False:
-                    st.error("Incorrect username or password")
+                if users_collection is None:
+                    st.warning("Login is disabled while the database is unavailable.")
+                else:
+                    login = login_form()
+                    if login:
+                        ss.logged = True
+                        st.rerun()
+                    elif login==False:
+                        st.error("Incorrect username or password")
         else:
             if st.button("Log Out"):
                 ss.logged = False
