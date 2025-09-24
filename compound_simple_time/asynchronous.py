@@ -31,6 +31,9 @@ def remove_duplication(data=list()):
     return unique_list
   
 async def lilypond_generation(melody, name, uppertime, lowertime):
+    # Ensure temp directory exists
+    os.makedirs('compound_simple_time/temp', exist_ok=True)
+    
     lilypond_score = f"""
 \\version "2.22.0"  
 \\header {{
