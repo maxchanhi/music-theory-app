@@ -7,10 +7,10 @@
 
   \score {
     {
-      \clef "bass" 
-      \fixed c, c
-      \clef "bass"
-      \fixed c, b
+      \clef "treble" 
+      \fixed c'' c
+      \clef "treble"
+      \fixed c'' f
     }
     \layout {
       indent = 0\mm  % Remove indentation to avoid unnecessary space

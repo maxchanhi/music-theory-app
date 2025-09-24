@@ -52,7 +52,8 @@ def chr_main():
             with col1:
                 st.image(png_file)
             with col2:
-                if st.session_state.selected_image == png_file:
+                st.write("___")
+                if st.session_state.selected_image == png_file:    
                     st.button("Selected", disabled=True, key=png_file)
                 else:
                     if f"button_{png_file}" not in st.session_state:
