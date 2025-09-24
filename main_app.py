@@ -1,5 +1,5 @@
 from init_import import * 
-
+ss=st.session_state
 def intro():
     # Get database connection
     db = get_database()

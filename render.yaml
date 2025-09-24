@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: music-theory-app
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: STREAMLIT_SERVER_PORT
+        value: 8501

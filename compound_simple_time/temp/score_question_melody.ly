@@ -1,5 +1,4 @@
-
-\version "2.22.0"  
+\version "2.24.3"  
 \header {
   tagline = "" \language "english"
 }
@@ -8,9 +7,9 @@
 
 \score {
     \fixed c' {
-      \time 12/4
+      \time 4/4
       \omit Score.BarLine
-      b2 e4 g4 a4 f4 \tuplet 2/3 {g4. g8} e2.
+      \tuplet 3/2 {g8 b4} g4 e8. b16 b8 a8
     }
     \layout {
       indent = 0\mm

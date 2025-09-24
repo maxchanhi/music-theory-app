@@ -31,9 +31,13 @@ from note_story.main_story import story_main
 from interval.main_calculator import in_calculator_main
 from clef_minor.main_findkey import find_key_main
 from pymongo.server_api import ServerApi
-# Add this line near the other session state initialization
-ss = st.session_state
-MONGO_URI = st.secrets["MONGO_URI"]
+import pymongo
+import os
+from dotenv import load_dotenv
+ss=st.session_state
+load_dotenv()
+
+MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = 'users'
 
 client = MongoClient(MONGO_URI,

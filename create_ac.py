@@ -1,18 +1,24 @@
 import streamlit as st
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from datetime import datetime
 import uuid
 
 ss= st.session_state
 def sign_up(users_collection):
     invite_code = st.text_input("Invitation Code")
-    invited = True if invite_code in st.secrets["Password"] else False
+    passwords =  os.getenv("Password")
+    invited = bool(invite_code and invite_code in passwords)
     if invited:             
         user_name = st.text_input("Username")
         user_password = st.text_input("Password", type="password")
         email = st.text_input("Email")
         exam_date = st.date_input("Exam Date")
     submitted = st.button("Register", disabled= not invited)
-    
+
     if submitted:
         if user_name and user_password and email:
             user_id = str(uuid.uuid4())
