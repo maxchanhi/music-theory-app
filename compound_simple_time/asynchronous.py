@@ -63,7 +63,7 @@ def lilypond_generation(melody, name, uppertime, lowertime):
 
     with Image.open(png_path) as img:
         width, height = img.size
-        crop_rectangle = (0, 0, width, height//10)
+        crop_rectangle = (0, 0, width, height)
         cropped_img = img.crop(crop_rectangle)
 
         cropped_img.save(cropped_png_path)
