@@ -38,7 +38,7 @@ def chord_progression_main():
         st.stop()
     
     if ss["question_data"]:
-        st.image("melody_key/chord_progression/static/cropped_score_question.png", use_column_width=True)
+        st.image("melody_key/chord_progression/static/cropped_score_question.png", use_container_width=True)
         display_key = ss['question_data']['key_signature']
         display_opts = ss["question_data"]["dis_options"]
         user_ans = st.radio(f"Select the correct harmonic pattern in {display_key}:", display_opts, index=None)

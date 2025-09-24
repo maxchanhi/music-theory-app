@@ -29,7 +29,7 @@ def clef_main():
     # Display image and radio buttons if data_cm exists
     if st.session_state.data_cm:
         clef, starting_pitch, minor_type, user_options=st.session_state.data_cm
-        st.image("score_cm.png",use_column_width=True)
+        st.image("score_cm.png",use_container_width=True)
         if hint:
             col1, col2 = st.columns(2)
             with col2:

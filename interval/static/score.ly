@@ -10,7 +10,7 @@
       \clef "bass" 
       \fixed c, c
       \clef "bass"
-      \fixed c, g
+      \fixed c, b
     }
     \layout {
       indent = 0\mm  % Remove indentation to avoid unnecessary space
