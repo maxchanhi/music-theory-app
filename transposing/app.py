@@ -29,7 +29,7 @@ def transposing_main():
         st.write("This is the original melody:")
         original_img_path = "transposing/static/question.png"
         if os.path.exists(original_img_path):
-            st.image(original_img_path, width='stretch')
+            st.image(original_img_path, width='stretch')#updated
         else:
             st.error(f"Original melody image not found: {original_img_path}")
         
