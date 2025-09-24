@@ -45,6 +45,7 @@ def transposing_main():
                 else:
                     st.error(f"Image not found: {img_path}")
             with col2:
+                st.write("___")
                 if st.button(f"Option {idx + 1}", key=f"btn_{idx}", on_click=disable_option_tr, args=(idx,),
                              disabled=idx==st.session_state.dis_option_tr):
                     st.session_state.selected_answer_tr = idx
