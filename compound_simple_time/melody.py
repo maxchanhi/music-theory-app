@@ -6,6 +6,10 @@ def rhythm_generation(all_rhythm_list,number_of_beat,
                       lowertime):
   
     melody = []
+    """if number_of_beat == 4:
+        require_len = number_of_beat
+    else:
+        require_len = number_of_beat * 2"""
     while len(melody) < number_of_beat:
         melody.append(random.choice(all_rhythm_list))
     tuplet_check = single_check = muti_check = False
@@ -37,17 +41,23 @@ def random_insert_note(melody, pitch_list= ["e","f","g","a","b"]):
             updated_melody.append(' '.join(updated_notes))
     return updated_melody
 
-def tran_simple_compound(melody=[],setting="simple",pass_step = False,seed=random.randint(0, 2)):
+def tran_simple_compound(melody=[],setting="simple",pass_step = False,seed=None):
     new_melody = []
     pass_1 = pass_2 = pass_3 = False
+    reason = "Correct"
     if pass_step:
-        seed = random.randint(0, 2)
+        if seed is None:
+            seed = random.randint(0, 2)
+
         if seed == 0:
             pass_1 = True
+            reason = "Incorrect tuplet handling."
         elif seed == 1:
             pass_2 = True
+            reason = "Incorrect single note handling."
         elif seed == 2:
             pass_3 = True
+            reason = "Incorrect multi-note handling."
 
     if  "simple" in setting:  # translate to compound
         for note in melody:
@@ -59,9 +69,9 @@ def tran_simple_compound(melody=[],setting="simple",pass_step = False,seed=rando
                     new_melody.extend(tuplet_notes)
                 elif pass_1:
                     new_melody.append(note)
-            elif len(note) == 2:  # single note, e.g., 'a4'
+            elif ' ' not in note:  # single note
                 if not pass_2:
-                    new_melody.append(f'{note[0]}{int(note[1])}.')
+                    new_melody.append(f'{note}.')
                 elif pass_2:
                     new_melody.append(note)
             else:
@@ -79,9 +89,9 @@ def tran_simple_compound(melody=[],setting="simple",pass_step = False,seed=rando
                     new_melody.extend(tuplet_notes)
                 elif pass_1:
                     new_melody.append(note)
-            elif len(note) == 3:  # single note, e.g., 'a4.'
+            elif ' ' not in note:  # single note with dot
                 if not pass_2:
-                    new_melody.append(f'{note[0]}{int(note[1])}')
+                    new_melody.append(note.replace('.',''))
                 elif pass_2:
                     new_melody.append(note)
             else: #to triplet 'g4 e8', 'b8 g8 e8'
@@ -89,71 +99,74 @@ def tran_simple_compound(melody=[],setting="simple",pass_step = False,seed=rando
                     new_melody.append("\\tuplet 3/2 "+"{ "+note+" }")
                 elif pass_3:
                     new_melody.append(note)           
-    return  new_melody
+    return  new_melody, reason
 
 def main_generate():
     while True:
-        # Generate initial melody and time signature
         time_cat, numerator, denominator, rhythm_list = setting_generation()
-        rhythm_melody = rhythm_generation(rhythm_list, numerator, denominator)
-        melody = random_insert_note(rhythm_melody)
+        rhyhtmmelody = rhythm_generation(rhythm_list, numerator, denominator)
+        melody = random_insert_note(rhyhtmmelody)
         time_sign = correct_tran_time_sign(numerator, denominator, False)
-        
-        # Create original and translated melodies
         original_melody = [time_sign, melody]
-        translated_melody = [correct_tran_time_sign(numerator, denominator), 
-                             tran_simple_compound(melody, setting=time_cat)]
-        
-        # Generate wrong melodies with reasons
-        wrong_melodies = [
-            ([correct_tran_time_sign(numerator, denominator), 
-              tran_simple_compound(melody, setting=time_cat, pass_step=True, seed=1)],
-             "Failed to remove duplet when compound time modulates to simple time, or vice versa"),
-            ([correct_tran_time_sign(numerator, denominator), 
-              tran_simple_compound(melody, setting=time_cat, pass_step=True, seed=2)],
-             "Failed to identify the value of each beat"),
-            ([correct_tran_time_sign(numerator, denominator),
-              tran_simple_compound(melody, setting=time_cat, pass_step=True, seed=3)],
-             "Triplet or duplet did not apply during modulation")
+
+        translated_melody_data, correct_reason = tran_simple_compound(melody, setting=time_cat)
+        translated_melody = (correct_tran_time_sign(numerator, denominator), translated_melody_data)
+
+        wrong_melody_1_data, reason1 = tran_simple_compound(melody, setting=time_cat, pass_step=True, seed=0)
+        wrong_melody_1 = (correct_tran_time_sign(numerator, denominator), wrong_melody_1_data)
+
+        wrong_melody_2_data, reason2 = tran_simple_compound(melody, setting=time_cat, pass_step=True, seed=1)
+        wrong_melody_2 = (correct_tran_time_sign(numerator, denominator), wrong_melody_2_data)
+
+        wrong_melody_3_data, reason3 = tran_simple_compound(melody, setting=time_cat, pass_step=True, seed=2)
+        wrong_melody_3 = (correct_tran_time_sign(numerator, denominator), wrong_melody_3_data)
+
+        options = [
+            (wrong_melody_1, reason1),
+            (wrong_melody_2, reason2),
+            (wrong_melody_3, reason3)
         ]
-        
-        # Filter and create all_options
-        all_options = [(option, reason) for option, reason in wrong_melodies 
-                       if option != translated_melody and option != original_melody]
-        
-        # Handle equal time signatures
+        all_options = []
+        for option, reason in options:
+            if option[1] != translated_melody[1] and option[1] != original_melody[1]:
+                all_options.append((option, reason))
+
         if time_sign in equal_list:
-            equal_time = value_list[key_list.index(time_sign)] if time_sign in key_list else key_list[value_list.index(time_sign)]
-            equal_time_melody = [equal_time, translated_melody[1]]
-            wrong_equal_time_melody = [equal_time, tran_simple_compound(melody, setting=time_cat, pass_step=True)]
-            
+            random.shuffle(all_options)
+            if time_sign in key_list:
+                equal_time = value_list[key_list.index(time_sign)]
+            else:
+                equal_time = key_list[value_list.index(time_sign)]
+
+            equal_time_melody_data, _ = tran_simple_compound(melody, setting=time_cat)
+            equal_time_melody = (equal_time, equal_time_melody_data)
+
+
+            wrong_equal_time_melody_data, reason_eq_wrong = tran_simple_compound(melody, setting=time_cat, pass_step=True)
+            wrong_equal_time_melody = (equal_time, wrong_equal_time_melody_data)
+
             if len(all_options) >= 3:
                 all_options = all_options[:2]
-            all_options.append((equal_time_melody, "Time signature with different value of beat"))
-            all_options.append((wrong_equal_time_melody, "Time signature and metric modulation incorrect"))
-        
-        # Add translated melody (correct answer) to options
-        all_options.append((translated_melody, "Correct translation"))
-        
-        # Remove duplicates and shuffle
-        #all_options = remove_duplication(all_options)
-        random.shuffle(all_options)
-        
-        # Check if we have enough options and the correct answer is included
-        if len(all_options) >= 3 and any(option == translated_melody for option, _ in all_options):
+            all_options.append((equal_time_melody, "Equivalent time signature."))
+            all_options.append((wrong_equal_time_melody, f"Equivalent time signature with incorrect transformation: {reason_eq_wrong}"))
+
+
+        all_options.append((translated_melody, correct_reason))
+        all_options = remove_duplication(all_options)
+
+        if len(all_options) >= 3:
             break
-        
+
         print("Regenerating options...")
 
-    # Create and return question data
+    random.shuffle(all_options)
     question_data = {
         "question": "Which one is the correct metric modulation between simple time and compound time?",
         "melody": original_melody,
-        "options": [(option, reason) for option, reason in all_options],
+        "options": all_options,
         "answer": translated_melody
-}
+    }
     return question_data
-
 
 def wrong_halfen_double_time_sign(melody=list,time_cat=str,switch="halfen"): #4/4 2/2, 12/8 6/4
     if switch == "same":
