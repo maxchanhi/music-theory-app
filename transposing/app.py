@@ -41,7 +41,7 @@ def transposing_main():
             with col1:
                 img_path = f'transposing/{link}'
                 if os.path.exists(img_path):
-                    st.image(img_path, use_container_width=True)
+                    st.image(img_path, width='stretch')
                 else:
                     st.error(f"Image not found: {img_path}")
             with col2:

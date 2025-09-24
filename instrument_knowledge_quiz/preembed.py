@@ -100,3 +100,4 @@ def login_for_feedback():
 
 st.title("Music Knowledge QA System")
 login_for_feedback()
+st.image(image_path, width='stretch')
