@@ -3,6 +3,7 @@ from urls import disclaimer,rain_emoji
 import random
 import time
 import os
+import asyncio
 from compound_simple_time.asynchronous import score_generation
 from data_func import record_feedback
 import streamlit as st
@@ -40,7 +41,7 @@ def compound_simple_main():
         random.seed(int(time.time() * 1000))
         
         st.session_state.question_data_com = main_generate()
-        score_generation(st.session_state.question_data_com)
+        st.session_state.question_data_com = asyncio.run(score_generation(st.session_state.question_data_com))
         st.session_state.submit_pressed_com = False
 
     question_data = st.session_state.question_data_com
@@ -79,7 +80,7 @@ def compound_simple_main():
         st.session_state.new_question_pressed_com = False
         random.seed(int(time.time() * 1000))
         st.session_state.question_data_com = main_generate()
-        score_generation(st.session_state.question_data_com)
+        st.session_state.question_data_com = asyncio.run(score_generation(st.session_state.question_data_com))
 
         # Reset all states for the new question
         st.session_state.submit_pressed_com = False
@@ -112,7 +113,7 @@ def compound_simple_main():
                 option, reason = option_data
                 image_path = None
 
-            if isinstance(option, list) and len(option) >= 2:
+            if isinstance(option, (tuple, list)) and len(option) >= 2:
                 time_signature, melody = option[0], option[1]
             else:
                 st.warning(f"Unexpected option format at index {idx}: {option}")
