@@ -26,7 +26,7 @@ def remove_duplication(data=list()):
     return unique_list
 
 def lilypond_generation(melody, name, uppertime, lowertime):
-    lilypond_score = f"""
+    processed_score = f"""\
 \\version "2.24.3"  
 \\header {{
   tagline = "" \\language "english"
@@ -51,22 +51,31 @@ def lilypond_generation(melody, name, uppertime, lowertime):
 }}
 """
 
-    with open(f'compound_simple_time/temp/score_{name}.ly', 'w') as f:
-        f.write(lilypond_score)
+    temp_dir = 'compound_simple_time/temp'
+    os.makedirs(temp_dir, exist_ok=True)
+
+    ly_path = os.path.join(temp_dir, f'score_{name}.ly')
+    output_base = os.path.join(temp_dir, f'score_{name}')
+    png_path = os.path.join(temp_dir, f'score_{name}.png')
+    cropped_png_path = os.path.join(temp_dir, f'cropped_score_{name}.png')
+
+
+    with open(ly_path, 'w') as f:
+        f.write(processed_score)
 
     # Generate PNG image and MIDI file
     subprocess.run([
         'lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300',
-       f'--output=compound_simple_time/temp/score_{name}', f'compound_simple_time/temp/score_{name}.ly'
+       f'--output={output_base}', ly_path
     ])
 
-    with Image.open(f'compound_simple_time/temp/score_{name}.png') as img:
+    with Image.open(png_path) as img:
         width, height = img.size
         crop_rectangle = (0, 0, width, height//10)
         cropped_img = img.crop(crop_rectangle)
 
-        cropped_img.save(f'compound_simple_time/temp/cropped_score_{name}.png')
-    return f'compound_simple_time/temp/cropped_score_{name}.png'
+        cropped_img.save(cropped_png_path)
+    return cropped_png_path
 
 def score_generation(question_data):
     tasks_args = []
@@ -96,7 +105,9 @@ async def process_melody(melody_data, base_path, i=None):
         reason = ""
         filename = "question_melody"
 
-    lilypond_code = f"""
+    uppertime, lowertime = time_signature
+
+    processed_score = f"""\
     \\version "2.24.3"
     \\header {{
       tagline = "" \\language "english"
@@ -108,7 +119,7 @@ async def process_melody(melody_data, base_path, i=None):
         \\fixed c' {{
           \\time {uppertime}/{lowertime}
           \\omit Score.BarLine
-          {format_melody(melody)}
+          {format_melody(notes)}
         }}
         \\layout {{
           indent = 0\\mm
@@ -121,19 +132,25 @@ async def process_melody(melody_data, base_path, i=None):
     }}
     """
 
-    with open(f'compound_simple_time/temp/score_{name}.ly', 'w') as f:
-        f.write(lilypond_score)
+    os.makedirs(base_path, exist_ok=True)
+    ly_path = os.path.join(base_path, f"score_{filename}.ly")
+    output_base = os.path.join(base_path, f"score_{filename}")
+    png_path = os.path.join(base_path, f"score_{filename}.png")
+    cropped_png_path = os.path.join(base_path, f"cropped_score_{filename}.png")
+
+    with open(ly_path, 'w') as f:
+        f.write(processed_score)
 
     # Generate PNG image and MIDI file
     subprocess.run([
         'lilypond', '-dpreview', '-dbackend=eps', '--png', '-dresolution=300',
-       f'--output=compound_simple_time/temp/score_{name}', f'compound_simple_time/temp/score_{name}.ly'
+       f'--output={output_base}', ly_path
     ])
 
-    with Image.open(f'compound_simple_time/temp/score_{name}.png') as img:
+    with Image.open(png_path) as img:
         width, height = img.size
         crop_rectangle = (0, 0, width, height//10)
         cropped_img = img.crop(crop_rectangle)
 
-        cropped_img.save(f'compound_simple_time/temp/cropped_score_{name}.png')
-    return f'compound_simple_time/temp/cropped_score_{name}.png'
+        cropped_img.save(cropped_png_path)
+    return cropped_png_path

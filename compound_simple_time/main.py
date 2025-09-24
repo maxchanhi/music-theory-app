@@ -74,8 +74,25 @@ def compound_simple_main():
 
         # Store the reason in session state
         st.session_state[f"reason_{idx}"] = reason
+    if st.session_state.new_question_pressed_com:
+        # Generate new question synchronously
+        st.session_state.new_question_pressed_com = False
+        random.seed(int(time.time() * 1000))
+        st.session_state.question_data_com = main_generate()
+        score_generation(st.session_state.question_data_com)
 
+        # Reset all states for the new question
+        st.session_state.submit_pressed_com = False
+        
+        st.session_state.option_selected = []
+        # Reset disabled state for options
+        for i in range(len(st.session_state.question_data_com['options'])):
+            if f"disabled_{i}" in st.session_state:
+                del st.session_state[f"disabled_{i}"]
+        st.rerun()
     pressed= st.session_state.submit_pressed_com
+
+
     col_1,col_2=st.columns([4,1])
     with col_1:
         new_question_btn = st.button("New Question", on_click=new_question_pressed, disabled=not pressed)
@@ -83,21 +100,7 @@ def compound_simple_main():
         check_ans_mm=st.button("Check Answer",on_click=submit_pressed,disabled=pressed)
 
     # Handle new question logic ONLY when the button is actually clicked
-    if st.session_state.new_question_pressed_com:
-        # Generate new question synchronously
-        random.seed(int(time.time() * 1000))
-        st.session_state.question_data_com = main_generate()
-        score_generation(st.session_state.question_data_com)
-
-        # Reset all states for the new question
-        st.session_state.submit_pressed_com = False
-        st.session_state.new_question_pressed_com = False
-        st.session_state.option_selected = []
-        # Reset disabled state for options
-        for i in range(len(st.session_state.question_data_com['options'])):
-            if f"disabled_{i}" in st.session_state:
-                del st.session_state[f"disabled_{i}"]
-        st.rerun()
+    
 
     if check_ans_mm and st.session_state.option_selected is not None:
         correct_idx = None
