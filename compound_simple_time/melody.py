@@ -55,7 +55,7 @@ def tran_simple_compound(melody=[],setting="simple",pass_step = False,seed=rando
                 if not pass_1:
                     start_idx = note.find("{") + 1
                     end_idx = note.find("}")
-                    tuplet_notes = note[start_idx:end_idx].split("[]")
+                    tuplet_notes = note[start_idx:end_idx].split()
                     new_melody.extend(tuplet_notes)
                 elif pass_1:
                     new_melody.append(note)
