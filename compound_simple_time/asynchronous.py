@@ -1,4 +1,3 @@
-import multiprocessing
 import subprocess
 from PIL import Image
 import os
@@ -83,8 +82,8 @@ def score_generation(question_data):
     for idx, option in enumerate(question_data['options']):
         tasks_args.append((option[0][1], f'wr_option_{idx}', option[0][0][0], option[0][0][1]))
 
-    with multiprocessing.Pool() as pool:
-        pool.starmap(lilypond_generation, tasks_args)
+    for args in tasks_args:
+        lilypond_generation(*args)
 
     # Add image paths to question_data
     question_data['question_image'] = f'compound_simple_time/temp/cropped_score_question_melody.png'
