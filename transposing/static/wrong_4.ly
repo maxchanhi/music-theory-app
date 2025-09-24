@@ -7,7 +7,7 @@
             \clef treble
             \key f \major
             \time 3/4
-            b8  e'8  d'8  gf8  f'8  af8 
+            a8  df8  c'8  d8  g8  b8 
         }
         }
         #(set-global-staff-size 30)
