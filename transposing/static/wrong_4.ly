@@ -5,9 +5,9 @@
         \omit Staff.TimeSignature
         \fixed c' {
             \clef treble
-            \key b \major
+            \key e \major
             \time 3/4
-            c8  d8  gs8  af,8  gs8  f8 
+            fss'8  e'8  e'8  a8  g8  b8 
         }
         }
         #(set-global-staff-size 30)

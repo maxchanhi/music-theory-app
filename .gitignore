@@ -20,3 +20,5 @@ requirements_legency.txt
 
 # Virtual environment
 .venv/
+.streamlit/
+.DS_Store
