@@ -12,6 +12,8 @@ compound_simple_time/temp/
 *.png
 *.ly
 *.preview.png
+*.midi
+*.mp3
 .env
 # Old requirements file
 requirements_legency.txt
