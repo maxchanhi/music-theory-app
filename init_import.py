@@ -62,12 +62,29 @@ def test_db_connection():
 
 @st.cache_resource
 def get_database():
-    client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
-    return client[DB_NAME]
-test_db_connection()
+    try:
+        client = MongoClient(
+            MONGO_URI,
+            server_api=ServerApi('1'),
+            tlsCAFile=certifi.where(),
+        )
+        # Force a quick ping to validate connection early
+        client.admin.command('ping')
+        return client[DB_NAME]
+    except Exception as e:
+        # Do not break UI on DB issues; log and return None
+        print(f"DB connection failed: {e}")
+        return None
+# Do not run DB test during import to avoid breaking page load
+if __name__ == "__main__":
+    test_db_connection()
 
 def login_greeting():
     db = get_database()
+    if db is None:
+        # Database is temporarily unavailable; skip greeting/features gracefully
+        st.info("Database is unavailable at the moment. Login-related AI feedback is temporarily disabled.")
+        return
     users_collection = db['login']
 
     if "logged" not in ss:
@@ -87,25 +104,24 @@ def login_greeting():
             show_aifeedback = st.button("Get your AI feedback:")
             if show_aifeedback:
                 with st.spinner("Loading..."):
-                    feedback_record = get_feedback(userid=ss.user_info['user_id'])
-                    print(feedback_record)
-                    results = []
-                    for record in feedback_record:
-                        date = record['date'].strftime('%m-%d')
-                        subject = record['subject']
-                        details = record['details']
-                        results.append({
-                            'date': date,
-                            'subject': subject,
-                            'result': details
-                        })
-                    
-                    ai_analysis = get_mistral_analysis(results)
                     try:
+                        feedback_record = get_feedback(userid=ss.user_info['user_id'])
+                        print(feedback_record)
+                        results = []
+                        for record in feedback_record:
+                            date = record['date'].strftime('%m-%d')
+                            subject = record['subject']
+                            details = record['details']
+                            results.append({
+                                'date': date,
+                                'subject': subject,
+                                'result': details
+                            })
+                        ai_analysis = get_mistral_analysis(results)
                         ss.ai_feedback = ai_analysis
                         ss.last_ai_greeting = current_time
                     except Exception as e:
-                        print(f"Error: {e}")
+                        print(f"Error loading AI feedback: {e}")
                         st.warning("AI review is not available.")
                         
         if ss.ai_feedback:
