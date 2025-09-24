@@ -61,7 +61,13 @@ def lilypond_generation(melody, name, uppertime, lowertime):
     if not os.path.exists(png_path):
         raise RuntimeError(f"LilyPond failed to generate PNG file for {name}. Error: {result.stderr}")
 
-    return png_path
+    with Image.open(png_path) as img:
+        width, height = img.size
+        crop_rectangle = (0, 0, width, height)
+        cropped_img = img.crop(crop_rectangle)
+
+        cropped_img.save(cropped_png_path)
+    return cropped_png_path
 
 def score_generation(question_data):
     tasks_args = []
