@@ -146,9 +146,9 @@ def main():
         st.rerun()
     if page_selected != "—":
         if ss.logged:
-            st.success("You are logged in")
+            st.success("You have signed in")
         else:
-            st.warning("You are not logged in")
+            st.warning("You have not signed in")
         back_home()
         
     page_names_to_funcs[page_selected]()
