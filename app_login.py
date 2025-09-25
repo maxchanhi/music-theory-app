@@ -12,7 +12,7 @@ def login():
 
 def feedback_form():
     if 'user_info' not in st.session_state or st.session_state['user_info'] is None:
-        st.error("You are not logged in. Please log in to access this content.")
+        st.error("You have not logged in. Please log in to access this content.")
         return
 
     st.sidebar.title("Welcome")
