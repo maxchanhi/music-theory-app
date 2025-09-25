@@ -95,7 +95,7 @@ def login_greeting():
         ss.ai_feedback = None
 
     if not ss.logged:
-        st.warning("You are not logged in")
+        st.warning("You have not signed in.")
     elif ss.logged:
         user = ss.user_info['user_name']
         st.success(f"Hi, {user}")
