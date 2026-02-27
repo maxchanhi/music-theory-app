@@ -6,4 +6,4 @@ set -o errexit
 apt-get update && apt-get install lilypond
 
 # Install python dependencies
-pip install -r requirements.txt
+python3.13 -m pip install -r requirements.txt
