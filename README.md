@@ -1,12 +1,11 @@
 # Music Theory App
 
-This repository is now organized as a Node.js project. The previous Python Streamlit implementation has been moved to the legacy folder so the code is preserved while the Node.js structure takes over.
+This repository is now organized as a Node.js project. The previous Python Streamlit implementation will no longer be supported.
 
 ## Structure
 
 - `src/` Node.js application code
 - `public/` Static assets
-- `legacy_python/` Original Python implementation
 
 ## Run
 
