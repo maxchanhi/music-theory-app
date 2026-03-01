@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+const MongoStore = require('connect-mongo');
 const path = require("path");
 const connectDB = require('./config/database');
 const authRouter = require('./routes/auth');
@@ -37,8 +38,16 @@ const createApp = () => {
   app.use(session({
     secret: process.env.SESSION_SECRET || 'music-theory-secret-key',
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using https
+    saveUninitialized: false, // Changed to false for MongoStore optimization
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      collectionName: 'sessions',
+      ttl: 24 * 60 * 60 // 1 day
+    }),
+    cookie: { 
+      secure: process.env.NODE_ENV === 'production', 
+      maxAge: 24 * 60 * 60 * 1000 // 1 day
+    } 
   }));
 
   // Make user info available to all templates

@@ -1,0 +1,15 @@
+[build]
+  command = "npm install"
+  functions = "netlify/functions"
+  publish = "public"
+
+[dev]
+  command = "npm start"
+  port = 3000
+  targetPort = 3000
+  publish = "public"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/api"
+  status = 200
