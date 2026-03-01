@@ -132,11 +132,14 @@
                 <% } %>
             </div>
 
+            <script id="notes-data" type="application/json">
+                <%- JSON.stringify(data.vexFlowData.notes) %>
+            </script>
             <script>
                 const { Renderer, Stave, StaveNote, Accidental, Formatter } = Vex.Flow;
                 
                 // Data from server
-                const notesData = <%- JSON.stringify(data.vexFlowData.notes) %>;
+                const notesData = JSON.parse(document.getElementById('notes-data').textContent);
                 const clef = "<%= data.vexFlowData.clef %>";
                 
                 const container = document.getElementById("score-canvas");
@@ -153,7 +156,7 @@
                 
                 const notes = notesData.map(noteKey => {
                     if (!noteKey) return null;
-                    const [key, octave] = noteKey.split('/');
+                    const [key] = noteKey.split('/');
                     const note = new StaveNote({
                         clef: clef,
                         keys: [noteKey],
@@ -161,16 +164,14 @@
                         auto_stem: true
                     });
                     
-                    if (key.includes('#')) {
-                        note.addModifier(new Accidental("#"));
-                    } else if (key.includes('##')) {
+                    if (key.includes('##')) {
                         note.addModifier(new Accidental("##"));
+                    } else if (key.includes('#')) {
+                        note.addModifier(new Accidental("#"));
+                    } else if (key.includes('bb')) {
+                        note.addModifier(new Accidental("bb"));
                     } else if (key.includes('b')) {
-                        if (key.includes('bb')) {
-                            note.addModifier(new Accidental("bb"));
-                        } else {
-                            note.addModifier(new Accidental("b"));
-                        }
+                        note.addModifier(new Accidental("b"));
                     }
                     return note;
                 }).filter(n => n !== null);

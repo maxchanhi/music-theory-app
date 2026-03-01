@@ -118,6 +118,9 @@
     <% } %>
 
     <% if (data.options && data.options.length > 0) { %>
+        <script id="chromatic-data" type="application/json">
+            <%- JSON.stringify(data.options) %>
+        </script>
         <form action="/chromatic/check" method="POST" id="checkForm">
             <div class="options-grid">
                 <% data.options.forEach((opt, index) => { %>
@@ -141,6 +144,7 @@
             // Function to render music notation
             function renderScore(containerId, notesData) {
                 const container = document.getElementById(containerId);
+                if (!container) return;
                 container.innerHTML = ''; // Clear previous content
                 
                 // Calculate width based on number of notes
@@ -161,7 +165,7 @@
                 const notes = notesData.map(noteKey => {
                     if (!noteKey) return null; // Skip invalid notes
                     
-                    const [key, octave] = noteKey.split('/');
+                    const [key] = noteKey.split('/');
                     const note = new StaveNote({
                         clef: clef,
                         keys: [noteKey],
@@ -170,16 +174,14 @@
                     });
                     
                     // Add accidentals if present
-                    if (key.includes('#')) {
-                        note.addModifier(new Accidental("#"));
-                    } else if (key.includes('##')) {
+                    if (key.includes('##')) {
                         note.addModifier(new Accidental("##"));
+                    } else if (key.includes('#')) {
+                        note.addModifier(new Accidental("#"));
+                    } else if (key.includes('bb')) {
+                        note.addModifier(new Accidental("bb"));
                     } else if (key.includes('b')) {
-                         if (key.includes('bb')) {
-                            note.addModifier(new Accidental("bb"));
-                        } else {
-                            note.addModifier(new Accidental("b"));
-                        }
+                        note.addModifier(new Accidental("b"));
                     }
                     
                     return note;
@@ -191,9 +193,17 @@
             }
             
             // Render all options
-            <% data.options.forEach(opt => { %>
-                renderScore("canvas-<%= opt.id %>", <%- JSON.stringify(opt.notes) %>);
-            <% }); %>
+            const optionsDataElement = document.getElementById('chromatic-data');
+            if (optionsDataElement) {
+                try {
+                    const optionsData = JSON.parse(optionsDataElement.textContent);
+                    optionsData.forEach(opt => {
+                        renderScore("canvas-" + opt.id, opt.notes);
+                    });
+                } catch (e) {
+                    console.error("Error parsing options data", e);
+                }
+            }
 
             function selectOption(id) {
                 // Update UI
