@@ -138,7 +138,7 @@
                     </script>
                     
                     <script>
-                        const { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice } = Vex.Flow;
+                        const { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice, Fraction } = Vex.Flow;
                         
                         function parseLilypondNote(noteStr) {
                             // Format: pitch[accidental]duration[dots]
@@ -202,7 +202,7 @@
                             
                             return note;
                         }
-                        
+
                         function parseMelodyString(melodyArray) {
                             // melodyArray is array of strings.
                             // Each string can be a single note "g4", multiple notes "g8 a8", or tuplet "\tuplet 3/2 { ... }"
@@ -271,25 +271,33 @@
                             
                             const stave = new Stave(10, 10, width - 20);
                             stave.addClef("treble");
-                            stave.addTimeSignature(timeSignature);
+                            // timeSignature might be array [num, den] or string "num/den"
+                            // If array, convert to string
+                            let timeSigStr = timeSignature;
+                            if (Array.isArray(timeSignature)) {
+                                timeSigStr = timeSignature[0] + "/" + timeSignature[1];
+                            }
+                            stave.addTimeSignature(timeSigStr);
                             stave.setContext(context).draw();
                             
                             // Beam the notes automatically
+                            // Beams require notes to be part of a voice for auto-beaming in newer VexFlow? 
+                            // Or utilize Beam.generateBeams
                             const beams = Beam.generateBeams(notes, {
-                                groups: [new Vex.Flow.Fraction(3, 8)] // Default grouping, adjust if needed
+                                groups: [new Fraction(3, 8)] 
                             });
                             
-                            const voice = new Voice({num_beats: 4, beat_value: 4}); 
-                            // Creating a voice with explicit beat count is tricky if we don't know total duration.
-                            // VexFlow 4.x allows formatting without strict voice strictness if we disable it?
-                            // Actually, simpler approach:
+                            // Create a voice in 4/4
+                            const voice = new Voice({num_beats: 4, beat_value: 4});
+                            voice.setStrict(false); // IMPORTANT: Disable strict timing checks
+                            voice.addTickables(notes);
+
+                            new Formatter().joinVoices([voice]).format([voice], width - 50);
                             
-                            Formatter.FormatAndDraw(context, stave, notes);
+                            voice.draw(context, stave);
                             
-                            // Draw beams
                             beams.forEach(b => b.setContext(context).draw());
                             
-                            // Draw tuplets
                             tuplets.forEach(t => t.setContext(context).draw());
                         }
                         
