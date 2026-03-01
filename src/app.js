@@ -29,6 +29,13 @@ const createApp = () => {
   // Set up view engine
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'views'));
+  
+  // Explicitly require ejs to ensure it's bundled and available
+  try {
+    require('ejs');
+  } catch (e) {
+    console.error("EJS dependency check failed", e);
+  }
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
