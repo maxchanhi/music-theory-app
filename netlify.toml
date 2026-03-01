@@ -3,6 +3,10 @@
   functions = "netlify/functions"
   publish = "public"
 
+[functions]
+  external_node_modules = ["ejs"]
+  included_files = ["src/views/**/*.ejs"]
+
 [dev]
   command = "npm start"
   port = 8888
