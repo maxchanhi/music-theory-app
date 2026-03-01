@@ -7,7 +7,7 @@ const router = express.Router();
 const openai = new OpenAI({
     apiKey: process.env.DASHSCOPE_API_KEY,
     // Use the International endpoint (Singapore) as requested by user
-    baseURL: process.env.DASHSCOPE_BASE_URL || 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1'
+    baseURL: process.env.DASHSCOPE_BASE_URL
 });
 
 // Middleware to check if user is logged in
