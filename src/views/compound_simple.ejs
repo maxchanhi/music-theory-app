@@ -312,26 +312,28 @@
                         }
                         
                         // Initialize
-                        try {
-                            const dataElement = document.getElementById('vex-data');
-                            if (dataElement && dataElement.textContent) {
-                                const data = JSON.parse(dataElement.textContent);
-                                
-                                // Render Question
-                                if (data.question) {
-                                    renderScore("canvas-question", data.question.timeSignature, data.question.notes);
+                        window.addEventListener('DOMContentLoaded', () => {
+                            try {
+                                const dataElement = document.getElementById('vex-data');
+                                if (dataElement && dataElement.textContent) {
+                                    const data = JSON.parse(dataElement.textContent);
+                                    
+                                    // Render Question
+                                    if (data.question) {
+                                        renderScore("canvas-question", data.question.timeSignature, data.question.notes);
+                                    }
+                                    
+                                    // Render Options
+                                    if (data.options) {
+                                        data.options.forEach((opt, index) => {
+                                            renderScore("canvas-option-" + index, opt.timeSignature, opt.notes);
+                                        });
+                                    }
                                 }
-                                
-                                // Render Options
-                                if (data.options) {
-                                    data.options.forEach((opt, index) => {
-                                        renderScore("canvas-option-" + index, opt.timeSignature, opt.notes);
-                                    });
-                                }
+                            } catch (e) {
+                                console.error("Error rendering scores:", e);
                             }
-                        } catch (e) {
-                            console.error("Error rendering scores:", e);
-                        }
+                        });
                     </script>
 
                 <% } else { %>
