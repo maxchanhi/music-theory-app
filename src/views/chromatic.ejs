@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromatic Scale Identify</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .option-card {
+            border: 1px solid #ccc;
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .option-card.selected {
+            border: 2px solid #4CAF50;
+            background-color: #f0f8f0;
+        }
+        .option-card img {
+            max-width: 80%;
+            max-height: 80px;
+            object-fit: contain;
+        }
+        .option-card p {
+            margin: 0;
+            padding: 0 10px;
+            font-weight: bold;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        .button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+        .home-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header', { title: 'Chromatic Scale Identify', description: 'Practice identifying chromatic scales and their notations.' }) %>
+
+    <div class="header">
+        <% if (data.ascending !== null) { %>
+            <p>Direction: <%= data.ascending ? "Ascending" : "Descending" %></p>
+        <% } %>
+    </div>
+
+    <div class="controls">
+        <form action="/chromatic/generate" method="POST" style="display: inline;">
+            <label for="clef">Select Clef:</label>
+            <select name="clef" id="clef">
+                <option value="treble" <%= data.clef === 'treble' ? 'selected' : '' %>>Treble</option>
+                <option value="bass" <%= data.clef === 'bass' ? 'selected' : '' %>>Bass</option>
+                <option value="alto" <%= data.clef === 'alto' ? 'selected' : '' %>>Alto</option>
+                <option value="tenor" <%= data.clef === 'tenor' ? 'selected' : '' %>>Tenor</option>
+            </select>
+            <button type="submit" class="button">Generate New Question</button>
+        </form>
+    </div>
+
+    <% if (message) { %>
+        <div class="message <%= messageType %>">
+            <%= message %>
+        </div>
+    <% } %>
+
+    <% if (data.files && data.files.length > 0) { %>
+        <div class="options-grid">
+            <% data.files.forEach((file, idx) => { %>
+                <div class="option-card <%= data.selectedImage === file ? 'selected' : '' %>" 
+                     onclick="selectOption('<%= file %>')">
+                    <img src="/images/chromatic/<%= file %>?t=<%= Date.now() %>" alt="Option <%= idx + 1 %>">
+                    <p>Option <%= idx + 1 %></p>
+                </div>
+            <% }); %>
+        </div>
+
+        <div class="controls">
+            <form action="/chromatic/check" method="POST">
+                <button type="submit" class="button" <%= !data.selectedImage ? 'disabled' : '' %>>Check Answer</button>
+            </form>
+        </div>
+        
+        <form id="selectForm" action="/chromatic/select" method="POST" style="display: none;">
+            <input type="hidden" name="image" id="selectedImageInput">
+        </form>
+
+        <script>
+            function selectOption(image) {
+                document.getElementById('selectedImageInput').value = image;
+                document.getElementById('selectForm').submit();
+            }
+        </script>
+    <% } %>
+    
+    <div class="home-link">
+        <a href="/">Back to Home</a>
+    </div>
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

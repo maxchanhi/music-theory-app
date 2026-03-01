@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instrument Knowledge Quiz - Music Theory App</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .settings-panel {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .topic-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .topic-checkbox input {
+            margin-right: 8px;
+        }
+        .question-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .question-image {
+            max-width: 100%;
+            max-height: 300px;
+            margin: 20px auto;
+            display: block;
+            border: 1px solid #eee;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .option-label {
+            display: block;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        .option-label:hover {
+            border-color: #3498db;
+            background: #f8fbff;
+        }
+        .option-label.selected {
+            border-color: #3498db;
+            background: #ebf5fb;
+        }
+        .option-label.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+        .option-label.wrong {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .option-label.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .result-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .result-correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        .result-wrong {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .history-info {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <%- include('partials/header', { title: 'Instrument Knowledge Quiz', description: 'Test your knowledge on instruments, clefs, and terms.' }) %>
+
+        <main class="quiz-container">
+            <!-- Settings Panel -->
+            <div class="settings-panel">
+                <form action="/instrument_knowledge/generate" method="POST">
+                    <div class="settings-group">
+                        <label>Select Topics:</label>
+                        <div class="topics-grid">
+                        <% for (let i = 0; i < allTopics.length; i++) { %>
+                            <label class="topic-checkbox">
+                                <input type="checkbox" name="topics" value="<%= allTopics[i] %>" 
+                                    <%= selectedTopics.includes(allTopics[i]) ? 'checked' : '' %>>
+                                <%= allTopics[i] %>
+                            </label>
+                        <% } %>
+                    </div>
+                    <button type="submit" class="btn-secondary">Update Topics & New Question</button>
+                </form>
+            </div>
+
+            <!-- Question Area -->
+            <% if (question) { %>
+                <div class="question-card">
+                    <div class="topic-badge" style="display: inline-block; background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; margin-bottom: 10px;">
+                        Topic: <%= question.topic %>
+                    </div>
+                    
+                    <h2><%= question.question %></h2>
+                    
+                    <% if (question.pic_url) { %>
+                        <img src="<%= question.pic_url %>" alt="Question Image" class="question-image">
+                    <% } %>
+
+                    <% if (!submitted) { %>
+                        <form action="/instrument_knowledge/check" method="POST">
+                            <div class="options-grid">
+                                <% for (let i = 0; i < question.options.length; i++) { %>
+                                    <label class="option-label">
+                                        <input type="radio" name="answer" value="<%= question.options[i] %>" required>
+                                        <%= question.options[i] %>
+                                    </label>
+                                <% } %>
+                            </div>
+                            <button type="submit" class="btn-primary">Check Answer</button>
+                        </form>
+                    <% } else { %>
+                        <div class="options-grid">
+                            <% for (let i = 0; i < question.options.length; i++) { 
+                                let option = question.options[i];
+                                let className = 'option-label';
+                                let isChecked = (option === result.userAnswer);
+                                
+                                if (option === result.correctAnswer) {
+                                    className += ' correct';
+                                } else if (isChecked && !result.isCorrect) {
+                                    className += ' wrong';
+                                } else {
+                                    className += ' disabled';
+                                }
+                            %>
+                                <label class="<%= className %>">
+                                    <input type="radio" disabled <%= isChecked ? 'checked' : '' %>>
+                                    <%= option %>
+                                    <% if (option === result.correctAnswer) { %> ✅ <% } %>
+                                    <% if (isChecked && !result.isCorrect) { %> ❌ <% } %>
+                                </label>
+                            <% } %>
+                        </div>
+
+                        <div class="result-message <%= result.isCorrect ? 'result-correct' : 'result-wrong' %>">
+                            <% if (result.isCorrect) { %>
+                                🎉 Correct! Well done!
+                            <% } else { %>
+                                ❌ Incorrect. The correct answer is: <strong><%= result.correctAnswer %></strong>
+                            <% } %>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <form action="/instrument_knowledge/generate" method="POST" style="display: inline;">
+                                <button type="submit" class="btn-primary">Next Question</button>
+                            </form>
+                        </div>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <div class="question-card">
+                    <p>No question generated. Please select at least one topic.</p>
+                </div>
+            <% } %>
+
+            <!-- History / Footer -->
+            <div class="history-info">
+                Questions answered this session: <%= historyCount %>
+                <% if (historyCount > 5) { %>
+                    <p><em>AI Feedback would be available here (requires API key).</em></p>
+                <% } %>
+                <form action="/instrument_knowledge/reset" method="POST" style="display: inline;">
+                    <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; text-decoration: underline;">Reset Session</button>
+                </form>
+            </div>
+        </main>
+    </div>
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

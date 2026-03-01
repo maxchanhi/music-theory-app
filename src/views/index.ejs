@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Theory App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 40px;
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .nav-card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+            background-color: #f9f9f9;
+        }
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .nav-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .nav-card p {
+            color: #666;
+        }
+        .user-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+        }
+        .user-panel a {
+            text-decoration: none;
+            color: #3498db;
+            font-weight: bold;
+        }
+        .user-panel span {
+            margin-right: 10px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-panel">
+        <% if (user) { %>
+            <span>Welcome, <%= user.user_name %>!</span>
+            <a href="/chat" style="margin-right: 15px; color: #8e44ad;">🤖 AI Assistant</a>
+            <a href="/logout">Logout</a>
+        <% } else { %>
+            <a href="/login">Login</a>
+        <% } %>
+    </div>
+
+    <div class="header">
+        <h1>Welcome to Music Theory App</h1>
+        <p>Select a topic to practice</p>
+    </div>
+
+    <div class="nav-grid">
+        <a href="/chromatic" class="nav-card">
+            <h3>Chromatic Scale Identify</h3>
+            <p>Practice identifying chromatic scales and their notations.</p>
+        </a>
+        
+        <a href="/clef_minor" class="nav-card">
+            <h3>Clef & Minor Keys</h3>
+            <p>Identify the clef and minor key from the musical score.</p>
+        </a>
+        
+        <a href="/compound_simple" class="nav-card">
+            <h3>Compound & Simple Time</h3>
+            <p>Practice metric modulation between simple and compound time.</p>
+        </a>
+
+        <a href="/duration_equation" class="nav-card">
+            <h3>Duration Equation</h3>
+            <p>Calculate note durations and time signatures.</p>
+        </a>
+
+        <a href="/grouping_quiz" class="nav-card">
+            <h3>Grouping & Beaming Quiz</h3>
+            <p>Identify correct grouping and beaming in musical notation.</p>
+        </a>
+
+        <a href="/instrument_knowledge" class="nav-card">
+            <h3>Instrument Knowledge Quiz</h3>
+            <p>Test your knowledge on instruments, clefs, and terms.</p>
+        </a>
+        
+        <a href="/interval" class="nav-card">
+            <h3>Interval Quiz</h3>
+            <p>Identify the interval between two notes.</p>
+        </a>
+
+        <a href="/inversion" class="nav-card">
+            <h3>Inversion Quiz</h3>
+            <p>Identify the chord inversion (Root, 1st, 2nd).</p>
+        </a>
+
+        <a href="/melody_key" class="nav-card">
+            <h3>Melody Key</h3>
+            <p>Identify the key of a given melody.</p>
+        </a>
+
+        <a href="/pitch_id" class="nav-card">
+            <h3>Pitch Identification</h3>
+            <p>Identify musical notes on different clefs with various accidentals.</p>
+        </a>
+
+        <a href="/same_pitch" class="nav-card">
+            <h3>Same Pitch</h3>
+            <p>Identify two melodies that sound the same across different clefs.</p>
+        </a>
+
+        <a href="/transposing" class="nav-card">
+            <h3>Transposition Quiz</h3>
+            <p>Practice transposing music between different keys and clefs.</p>
+        </a>
+    </div>
+
+    <hr style="margin: 40px 0; border: 0; border-top: 2px solid #eee;">
+
+    <div class="nav-grid">
+        <a href="/support_me" class="nav-card" style="background-color: #fdf6e3;">
+            <h3>Support Me ☕️</h3>
+            <p>Support the development of this app.</p>
+        </a>
+
+        <a href="/about_me" class="nav-card" style="background-color: #e8f8f5;">
+            <h3>About Me 😄</h3>
+            <p>Learn more about the developer.</p>
+        </a>
+    </div>
+
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

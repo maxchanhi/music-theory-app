@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inversion Quiz</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .settings-bar {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        .question-header {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .score-container {
+            margin: 20px auto;
+            border: 1px solid #eee;
+            background: white;
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        select, button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+            min-width: 120px;
+        }
+        button:hover { background-color: #45a049; }
+        button.secondary { background-color: #2196F3; }
+        button.secondary:hover { background-color: #0b7dda; }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .success { background-color: #dff0d8; color: #3c763d; }
+        .error { background-color: #f2dede; color: #a94442; }
+        
+        .home-link { display: block; margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <%- include('partials/header', { title: 'Inversion Quiz', description: 'Identify the chord inversion (Root, 1st, 2nd).' }) %>
+
+    <div class="container">
+        <!-- Settings -->
+        <div class="settings-bar">
+            <form action="/inversion/generate" method="POST" style="display: flex; gap: 10px; align-items: center;">
+                <label for="clef">Select Clef:</label>
+                <select name="clef" id="clef">
+                    <option value="treble" <%= clef === 'treble' ? 'selected' : '' %>>Treble</option>
+                    <option value="bass" <%= clef === 'bass' ? 'selected' : '' %>>Bass</option>
+                    <option value="grand staff" <%= clef === 'grand' || clef === 'grand staff' ? 'selected' : '' %>>Grand Staff</option>
+                </select>
+                <button type="submit" class="secondary">New Question</button>
+            </form>
+        </div>
+
+        <% if (question) { %>
+            <div class="question-header">
+                What is this chord in <strong><%= question.keySign %></strong>?
+            </div>
+
+            <div id="score" class="score-container"
+                data-clef="<%= question.clef %>"
+                data-notes='<%- JSON.stringify(question.vexNotes) %>'
+            ></div>
+            
+            <% if (feedback) { %>
+                <div class="feedback <%= feedback.type %>">
+                    <%= feedback.text %>
+                </div>
+            <% } %>
+            
+            <form action="/inversion/check" method="POST">
+                <div class="controls">
+                    <div class="input-group">
+                        <label>Roman Numeral:</label>
+                        <select name="numeral" required>
+                            <% romanNumerial.forEach(rn => { %>
+                                <option value="<%= rn %>" <%= (lastAnswer && lastAnswer.numeral === rn) ? 'selected' : '' %>><%= rn %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Inversion Type:</label>
+                        <select name="inversion" required>
+                            <% inversionType.forEach(iv => { %>
+                                <option value="<%= iv %>" <%= (lastAnswer && lastAnswer.inversion === iv) ? 'selected' : '' %>><%= iv %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button type="submit" <%= feedback && feedback.isCorrect ? 'disabled' : '' %>>Check Answer</button>
+                </div>
+            </form>
+        <% } else { %>
+            <div class="error">Failed to generate question. Please try again.</div>
+        <% } %>
+    </div>
+    
+    <div class="home-link">
+        <a href="/">Back to Home</a>
+    </div>
+
+    <script>
+        // VexFlow Rendering
+        const scoreDiv = document.getElementById("score");
+        if (scoreDiv) {
+            const VF = Vex.Flow;
+            const renderer = new VF.Renderer(scoreDiv, VF.Renderer.Backends.SVG);
+            
+            // Get data from attributes
+            const clef = scoreDiv.dataset.clef;
+            const notesData = JSON.parse(scoreDiv.dataset.notes);
+            
+            // Configure size
+            // User requested to "crop" the image to only 1/3 of horizontal area.
+            // Reducing width from 500 to 180 and stave width from 400 to 150.
+            renderer.resize(180, 250);
+            const context = renderer.getContext();
+            
+            // Create a stave
+            const stave = new VF.Stave(10, 40, 150);
+            
+            // Handle Grand Staff differently
+            if (clef === 'grand') {
+                // For grand staff, we usually need two staves connected
+                // But our logic returns a single list of notes which might span across
+                // In the python code: "first note is always the bass... high note random"
+                // It seems to render on a single stave in some cases or just uses lilypond grand staff
+                // VexFlow Grand Staff requires two staves.
+                
+                // Let's create two staves
+                const staveTreble = new VF.Stave(10, 40, 150);
+                const staveBass = new VF.Stave(10, 150, 150);
+                
+                staveTreble.addClef("treble");
+                staveBass.addClef("bass");
+                
+                // Add connector
+                const connector = new VF.StaveConnector(staveTreble, staveBass);
+                connector.setType(VF.StaveConnector.type.BRACE);
+                connector.setContext(context);
+                connector.draw();
+                
+                const lineConnector = new VF.StaveConnector(staveTreble, staveBass);
+                lineConnector.setType(VF.StaveConnector.type.SINGLE);
+                lineConnector.setContext(context);
+                lineConnector.draw();
+                
+                staveTreble.setContext(context).draw();
+                staveBass.setContext(context).draw();
+                
+                // We need to distribute notes between staves based on pitch
+                // Middle C is C/4.
+                // Generally C/4 and above -> Treble, below -> Bass
+                // But usually chords are split logically.
+                // Let's try a simple split: if octave >= 4 -> treble, else bass
+                // This is a simplification.
+                
+                const trebleNotes = [];
+                const bassNotes = [];
+                
+                notesData.forEach(n => {
+                    // key format: "c/4"
+                    const octave = parseInt(n.key.split('/')[1]);
+                    // Check if it should go to treble or bass
+                    // Middle C (c/4) is often on both, but usually treble line 1 ledger
+                    if (octave >= 4) {
+                        trebleNotes.push(n);
+                    } else {
+                        bassNotes.push(n);
+                    }
+                });
+                
+                // If one voice is empty, add a rest? Or just empty voice?
+                // VexFlow voices need tickables.
+                
+                const voices = [];
+                
+                if (trebleNotes.length > 0) {
+                     const vfNotes = trebleNotes.map(n => {
+                        const note = new VF.StaveNote({ clef: "treble", keys: [n.key], duration: "w" });
+                        if (n.accidental) note.addModifier(new VF.Accidental(n.accidental));
+                        return note;
+                    });
+                    // Combine into a chord if multiple notes?
+                    // Wait, StaveNote takes an array of keys for a chord.
+                    // If we have multiple notes in treble, they should probably be a chord.
+                    // But they might have different durations? Here they are all "w" (whole notes)
+                    
+                    // Construct a single StaveNote for the chord
+                    const chordKeys = trebleNotes.map(n => n.key);
+                    const chordNote = new VF.StaveNote({ clef: "treble", keys: chordKeys, duration: "w" });
+                    trebleNotes.forEach((n, idx) => {
+                        if (n.accidental) chordNote.addModifier(new VF.Accidental(n.accidental), idx);
+                    });
+                    
+                    const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+                    voice.addTickables([chordNote]);
+                    voices.push(voice);
+                    
+                    new VF.Formatter().joinVoices([voice]).format([voice], 100);
+                    voice.draw(context, staveTreble);
+                } else {
+                    // Add a whole rest
+                     const rest = new VF.StaveNote({ clef: "treble", keys: ["b/4"], duration: "wr" });
+                     const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+                     voice.addTickables([rest]);
+                     new VF.Formatter().joinVoices([voice]).format([voice], 100);
+                     voice.draw(context, staveTreble);
+                }
+                
+                if (bassNotes.length > 0) {
+                    const chordKeys = bassNotes.map(n => n.key);
+                    const chordNote = new VF.StaveNote({ clef: "bass", keys: chordKeys, duration: "w" });
+                    bassNotes.forEach((n, idx) => {
+                        if (n.accidental) chordNote.addModifier(new VF.Accidental(n.accidental), idx);
+                    });
+                    
+                    const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+                    voice.addTickables([chordNote]);
+                    voices.push(voice); // Not strictly needed to push if we draw immediately
+                    
+                    new VF.Formatter().joinVoices([voice]).format([voice], 100);
+                    voice.draw(context, staveBass);
+                } else {
+                     const rest = new VF.StaveNote({ clef: "bass", keys: ["d/3"], duration: "wr" });
+                     const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+                     voice.addTickables([rest]);
+                     new VF.Formatter().joinVoices([voice]).format([voice], 100);
+                     voice.draw(context, staveBass);
+                }
+                
+            } else {
+                // Single Stave (Treble or Bass)
+                stave.addClef(clef);
+                stave.setContext(context).draw();
+                
+                // Combine notes into a chord
+                const keys = notesData.map(n => n.key);
+                const chordNote = new VF.StaveNote({ 
+                    clef: clef, 
+                    keys: keys, 
+                    duration: "w" 
+                });
+                
+                // Add accidentals
+                notesData.forEach((n, index) => {
+                    if (n.accidental) {
+                        chordNote.addModifier(new VF.Accidental(n.accidental), index);
+                    }
+                });
+                
+                const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+                voice.addTickables([chordNote]);
+                
+                new VF.Formatter().joinVoices([voice]).format([voice], 100);
+                voice.draw(context, stave);
+            }
+        }
+    </script>
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

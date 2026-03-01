@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interval Quiz</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container-flex {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .settings-panel {
+            flex: 1;
+            min-width: 250px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .quiz-panel {
+            flex: 2;
+            min-width: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1, h2 { color: #333; }
+        .score-container {
+            margin: 20px auto;
+            border: 1px solid #eee;
+            background: white;
+            min-height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        select, button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover { background-color: #45a049; }
+        button.secondary { background-color: #2196F3; }
+        button.secondary:hover { background-color: #0b7dda; }
+        
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background-color: #dff0d8; color: #3c763d; }
+        .error { background-color: #f2dede; color: #a94442; }
+        
+        .setting-group { margin-bottom: 15px; }
+        .setting-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .checkbox-group label { font-weight: normal; display: block; }
+        
+        .disabled { opacity: 0.5; pointer-events: none; }
+        
+        .home-link { display: block; margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <%- include('partials/header', { title: 'Interval Quiz', description: 'Identify the interval between two notes.' }) %>
+
+    <div class="container-flex">
+        <!-- Settings Panel -->
+        <div class="settings-panel">
+            <h2>Settings</h2>
+            <form action="/interval/generate" method="POST" id="settingsForm">
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" name="autoMode" id="autoMode" <%= settings.autoMode ? 'checked' : '' %> onchange="toggleSettings()">
+                        Auto Mode (Difficulty)
+                    </label>
+                </div>
+                
+                <div class="setting-group" id="difficultyGroup">
+                    <label for="difficulty">Difficulty:</label>
+                    <select name="difficulty" id="difficulty" style="width: 100%">
+                        <% difficulties.forEach(diff => { %>
+                            <option value="<%= diff %>" <%= settings.difficulty === diff ? 'selected' : '' %>><%= diff %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <div id="manualSettings" class="<%= settings.autoMode ? 'disabled' : '' %>">
+                    <div class="setting-group">
+                        <label>Clefs:</label>
+                        <div class="checkbox-group">
+                            <% allClefs.forEach(clef => { %>
+                                <label>
+                                    <input type="checkbox" name="clefs" value="<%= clef %>" <%= settings.clefs.includes(clef) ? 'checked' : '' %>>
+                                    <%= clef.charAt(0).toUpperCase() + clef.slice(1) %>
+                                </label>
+                            <% }); %>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Accidentals:</label>
+                        <div class="checkbox-group">
+                            <% allAccs.forEach(acc => { %>
+                                <label>
+                                    <input type="checkbox" name="accs" value="<%= acc %>" <%= settings.accs.includes(acc) ? 'checked' : '' %>>
+                                    <%= acc %>
+                                </label>
+                            <% }); %>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" name="sameClef" <%= settings.sameClef ? 'checked' : '' %>>
+                            Same Clef
+                        </label>
+                        <label>
+                            <input type="checkbox" name="compound" <%= settings.compound ? 'checked' : '' %>>
+                            Compound Interval
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="secondary" style="width: 100%">Apply Settings & New Question</button>
+            </form>
+        </div>
+
+        <!-- Quiz Panel -->
+        <div class="quiz-panel">
+            <% if (question) { %>
+                <div id="score" class="score-container"
+                    data-clef1="<%= question.clef1 %>"
+                    data-clef2="<%= question.clef2 %>"
+                    data-note1='<%- JSON.stringify(question.vexNote1) %>'
+                    data-note2='<%- JSON.stringify(question.vexNote2) %>'
+                ></div>
+                
+                <% if (feedback) { %>
+                    <div class="feedback <%= feedback.type %>">
+                        <%= feedback.text %>
+                    </div>
+                <% } %>
+                
+                <form action="/interval/check" method="POST">
+                    <div class="controls">
+                        <select name="quality" required>
+                            <% userQualities.forEach(q => { %>
+                                <option value="<%= q %>" <%= (lastAnswer && lastAnswer.quality === q) ? 'selected' : '' %>><%= q %></option>
+                            <% }); %>
+                        </select>
+                        
+                        <select name="interval" required>
+                            <% userIntervals.forEach(i => { %>
+                                <option value="<%= i %>" <%= (lastAnswer && lastAnswer.interval === i) ? 'selected' : '' %>><%= i %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    
+                    <div class="controls">
+                        <button type="submit">Check Answer</button>
+                        <button type="button" class="secondary" onclick="document.getElementById('settingsForm').submit()">New Question</button>
+                    </div>
+                </form>
+            <% } else { %>
+                <div class="error">Failed to generate question. Please try adjusting settings.</div>
+                <button onclick="document.getElementById('settingsForm').submit()">Retry</button>
+            <% } %>
+        </div>
+    </div>
+    
+    <div class="home-link">
+        <a href="/">Back to Home</a>
+    </div>
+
+    <script>
+        function toggleSettings() {
+            const autoMode = document.getElementById('autoMode').checked;
+            const manualSettings = document.getElementById('manualSettings');
+            const difficultyGroup = document.getElementById('difficultyGroup');
+            
+            if (autoMode) {
+                manualSettings.classList.add('disabled');
+                difficultyGroup.classList.remove('disabled');
+            } else {
+                manualSettings.classList.remove('disabled');
+                difficultyGroup.classList.add('disabled');
+            }
+        }
+        
+        // Initial run
+        toggleSettings();
+
+        // VexFlow Rendering
+        const scoreDiv = document.getElementById("score");
+        if (scoreDiv) {
+            const VF = Vex.Flow;
+            const renderer = new VF.Renderer(scoreDiv, VF.Renderer.Backends.SVG);
+            
+            // Get data from attributes
+            const clef1 = scoreDiv.dataset.clef1;
+            const clef2 = scoreDiv.dataset.clef2;
+            const note1Data = JSON.parse(scoreDiv.dataset.note1);
+            const note2Data = JSON.parse(scoreDiv.dataset.note2);
+            
+            // Configure size
+            renderer.resize(400, 200);
+            const context = renderer.getContext();
+            
+            // Create a stave
+            const stave1 = new VF.Stave(10, 40, 180);
+            stave1.addClef(clef1);
+            stave1.setContext(context).draw();
+            
+            const stave2 = new VF.Stave(stave1.width + 10, 40, 180);
+            stave2.addClef(clef2);
+            stave2.setContext(context).draw();
+            
+            // Notes
+            const note1 = new VF.StaveNote({ 
+                clef: clef1, 
+                keys: [note1Data.key], 
+                duration: "w" 
+            });
+            if (note1Data.accidental && note1Data.accidental !== 'n') {
+                note1.addModifier(new VF.Accidental(note1Data.accidental));
+            } else if (note1Data.accidental === 'n') {
+                 note1.addModifier(new VF.Accidental('n'));
+            }
+            
+            const note2 = new VF.StaveNote({ 
+                clef: clef2, 
+                keys: [note2Data.key], 
+                duration: "w" 
+            });
+            if (note2Data.accidental && note2Data.accidental !== 'n') {
+                note2.addModifier(new VF.Accidental(note2Data.accidental));
+            } else if (note2Data.accidental === 'n') {
+                note2.addModifier(new VF.Accidental('n'));
+            }
+            
+            // Voice
+            const voice1 = new VF.Voice({num_beats: 4,  beat_value: 4});
+            voice1.addTickables([note1]);
+            
+            const voice2 = new VF.Voice({num_beats: 4,  beat_value: 4});
+            voice2.addTickables([note2]);
+            
+            // Format and justify the notes
+            new VF.Formatter().joinVoices([voice1]).format([voice1], 150);
+            new VF.Formatter().joinVoices([voice2]).format([voice2], 150);
+            
+            // Render voice
+            voice1.draw(context, stave1);
+            voice2.draw(context, stave2);
+        }
+    </script>
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pitch Identification</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .settings-bar {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .score-container {
+            margin: 20px auto;
+            border: 1px solid #eee;
+            background: white;
+            min-height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        select, .controls button, .settings-bar button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .controls button, .settings-bar button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+            min-width: 120px;
+        }
+        .controls button:hover, .settings-bar button:hover { background-color: #45a049; }
+        button.secondary { background-color: #2196F3; }
+        button.secondary:hover { background-color: #1976D2; }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .feedback.success { background-color: #dff0d8; color: #3c763d; }
+        .feedback.error { background-color: #f2dede; color: #a94442; }
+        
+        .home-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <%- include('partials/header', { title: 'Pitch Identification', description: 'Identify musical notes on different clefs with various accidentals.' }) %>
+
+        <form action="/pitch_id/settings" method="POST" class="settings-bar">
+            <div class="input-group">
+                <label for="difficulty">Level:</label>
+                <select name="difficulty" id="difficulty" onchange="this.form.submit()">
+                    <% levels.forEach(lvl => { %>
+                        <option value="<%= lvl %>" <%= settings.difficulty === lvl ? 'selected' : '' %>><%= lvl.charAt(0).toUpperCase() + lvl.slice(1) %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>
+                    <input type="checkbox" name="useLedger" onchange="this.form.submit()" <%= settings.useLedger ? 'checked' : '' %>>
+                    Use Ledger Lines
+                </label>
+            </div>
+        </form>
+
+        <% if (question) { %>
+            <div id="score" class="score-container"></div>
+
+            <% if (feedback) { %>
+                <div class="feedback <%= feedback.type %>">
+                    <%= feedback.text %>
+                </div>
+            <% } %>
+
+            <form action="/pitch_id/check" method="POST" class="controls">
+                <div class="input-group">
+                    <select name="note" required>
+                        <option value="" disabled selected>Note</option>
+                        <% noteLetters.forEach(n => { %>
+                            <option value="<%= n %>" <%= (locals.lastAnswer && lastAnswer.note === n) ? 'selected' : '' %>><%= n %></option>
+                        <% }); %>
+                    </select>
+                    
+                    <select name="accidental" required>
+                        <option value="" disabled selected>Accidental</option>
+                        <% accidentalsList.forEach(acc => { %>
+                            <option value="<%= acc %>" <%= (locals.lastAnswer && lastAnswer.accidental === acc) ? 'selected' : '' %>><%= acc %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <button type="submit" <%= feedback && feedback.isCorrect ? 'disabled' : '' %>>Check Answer</button>
+            </form>
+            
+            <div class="controls">
+                <a href="/pitch_id">
+                    <button class="secondary">New Question</button>
+                </a>
+            </div>
+        <% } else { %>
+            <div class="error">Failed to generate question.</div>
+        <% } %>
+    </div>
+    
+    <div class="home-link">
+        <a href="/">Back to Home</a>
+    </div>
+
+    <% if (question) { %>
+    <script>
+        const VF = Vex.Flow;
+        const div = document.getElementById("score");
+        const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+        
+        // Resize
+        renderer.resize(120, 200);
+        const context = renderer.getContext();
+        
+        // Create stave
+        const stave = new VF.Stave(10, 40, 100);
+        const clef = "<%= question.clef %>";
+        stave.addClef(clef);
+        
+        stave.setContext(context).draw();
+        
+        // Create note
+        const key = "<%= question.vexKey %>";
+        const accidental = "<%= question.accidental %>";
+        
+        const note = new VF.StaveNote({
+            clef: clef,
+            keys: [key],
+            duration: "w",
+            auto_stem: true
+        });
+        
+        if (accidental && accidental !== 'n') {
+            note.addModifier(new VF.Accidental(accidental));
+        }
+        
+        // Create voice
+        const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+        voice.addTickables([note]);
+        
+        // Format and draw
+        new VF.Formatter().joinVoices([voice]).format([voice], 80);
+        voice.draw(context, stave);
+    </script>
+    <% } %>
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transposition Quiz</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .question-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .option-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        .option-card h4 {
+            margin: 5px 0;
+        }
+        .option-card p {
+            margin: 0;
+        }
+        .option-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
+        }
+        .option-card.selected {
+            border-color: #3498db;
+            background-color: #ebf5fb;
+        }
+        .option-card.correct {
+            border-color: #2ecc71;
+            background-color: #eafaf1;
+        }
+        .option-card.incorrect {
+            border-color: #e74c3c;
+            background-color: #fdedec;
+        }
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .feedback.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .feedback.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-primary { background-color: #3498db; }
+        .btn-primary:hover { background-color: #2980b9; }
+        .btn-secondary { background-color: #95a5a6; }
+        .btn-secondary:hover { background-color: #7f8c8d; }
+        .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <%- include('partials/header', { title: 'Transposition Quiz', description: 'Practice transposing music between different keys and clefs.' }) %>
+
+        <div class="question-section">
+            <h2 id="questionText">Transposition Question</h2>
+            <p>Key: <%= question.originalKey %></p>
+            <div id="original-melody" class="canvas-container"></div>
+            <h3>Transpose this melody <%= question.transposingBy %></h3>
+        </div>
+
+        <form id="quiz-form" action="/transposing/check" method="POST">
+            <input type="hidden" name="selectedOption" id="selected-option" value="<%= selectedOption !== null ? selectedOption : '' %>">
+            
+            <div class="options-grid">
+                <% question.options.forEach((opt, index) => { %>
+                    <div class="option-card <%= selectedOption == index ? (isCorrect ? 'correct' : 'incorrect') : '' %> <%= (selectedOption !== null && opt.type === 'correct') ? 'correct' : '' %>" 
+                         onclick="selectOption('<%= index %>')"
+                         id="option-<%= index %>">
+                        <h4>Option <%= index + 1 %></h4>
+                        <p>Key: <%= opt.key %></p>
+                        <div id="melody-<%= index %>" class="canvas-container"></div>
+                    </div>
+                <% }); %>
+            </div>
+
+            <% if (feedback) { %>
+                <div class="feedback <%= isCorrect ? 'success' : 'error' %>">
+                    <%= feedback %>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="window.location.href='/transposing?new=true'">Next Question</button>
+            <% } else { %>
+                <br>
+                <button type="submit" class="btn btn-primary" id="check-btn" disabled>Check Answer</button>
+            <% } %>
+        </form>
+    </div>
+
+    <script>
+        // Define variables in global scope for event handlers
+        let isAnswered = false;
+
+        try {
+            // VexFlow Setup
+            const originalMelodyData = JSON.parse(decodeURIComponent("<%- encodeURIComponent(JSON.stringify(question.originalVexData)) %>"));
+            const optionsData = JSON.parse(decodeURIComponent("<%- encodeURIComponent(JSON.stringify(question.options)) %>"));
+            isAnswered = JSON.parse("<%= selectedOption !== null %>");
+
+            console.log("Data loaded:", { originalMelodyData, optionsData, isAnswered });
+
+            function renderMelody(elementId, notesData, width = 350, height = 150) {
+                const div = document.getElementById(elementId);
+                if (!div) {
+                    console.error(`Element ${elementId} not found`);
+                    return;
+                }
+                div.innerHTML = '';
+                
+                const renderer = new Vex.Flow.Renderer(div, Vex.Flow.Renderer.Backends.SVG);
+                renderer.resize(width, height);
+                const context = renderer.getContext();
+                
+                // Create a stave
+                const stave = new Vex.Flow.Stave(10, 0, width - 20);
+                stave.addClef("treble");
+                stave.setContext(context).draw();
+                
+                // Create notes
+                const notes = notesData.map(n => {
+                    const note = new Vex.Flow.StaveNote({ 
+                        keys: [n.key], 
+                        duration: "q" 
+                    });
+                    
+                    if (n.accidental) {
+                        note.addModifier(new Vex.Flow.Accidental(n.accidental));
+                    }
+                    return note;
+                });
+                
+                // Create a voice in 4/4
+                const voice = new Vex.Flow.Voice({num_beats: notes.length, beat_value: 4});
+                voice.addTickables(notes);
+                
+                // Format and justify the notes to 300 pixels.
+                new Vex.Flow.Formatter().joinVoices([voice]).format([voice], width - 50);
+                
+                // Render voice
+                voice.draw(context, stave);
+            }
+
+            // Render Original Melody
+            renderMelody('original-melody', originalMelodyData, 500, 150);
+
+            // Render Options
+            optionsData.forEach((opt, index) => {
+                renderMelody(`melody-${index}`, opt.vexData, 400, 100);
+            });
+        } catch (err) {
+            console.error("Error rendering quiz:", err);
+            const container = document.querySelector('.quiz-container');
+            if (container) {
+                const errDiv = document.createElement('div');
+                errDiv.className = 'feedback error';
+                errDiv.innerText = 'Error loading quiz: ' + err.message;
+                container.prepend(errDiv);
+            }
+        }
+
+        function selectOption(index) {
+            if (isAnswered) return; // Note: isAnswered is defined in try block scope? No, let's fix scope.
+            
+            // Re-access isAnswered from global or safe way? 
+            // Better to define isAnswered globally or outside try block? 
+            // Or just check the hidden input value?
+            const alreadyAnswered = document.getElementById('selected-option').value !== '';
+            if (alreadyAnswered) return;
+
+            document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+            const selectedCard = document.getElementById(`option-${index}`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+                document.getElementById('selected-option').value = index;
+                document.getElementById('check-btn').disabled = false;
+            }
+        }
+    </script>
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

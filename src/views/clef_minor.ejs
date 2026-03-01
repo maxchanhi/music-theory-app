@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clef & Minor Keys - Music Theory App</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .btn { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn:hover { background-color: #0056b3; }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .controls { display: flex; gap: 20px; align-items: center; margin-bottom: 20px; }
+        .question-image { max-width: 100%; margin: 20px 0; border: 1px solid #eee; }
+        .options-container { display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; }
+        .radio-group { display: flex; flex-direction: column; gap: 10px; }
+        .radio-label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .result { padding: 15px; margin-top: 20px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <%- include('partials/header', { title: 'Clef & Minor Keys', description: 'Identify the clef and minor key from the musical score.' }) %>
+
+    <div class="card">
+        <form action="/clef_minor/generate" method="POST" class="controls">
+            <label>
+                Difficulty:
+                <select name="level" onchange="this.form.submit()">
+                    <option value="easy" <%= level === 'easy' ? 'selected' : '' %>>Easy</option>
+                    <option value="intermediate" <%= level === 'intermediate' ? 'selected' : '' %>>Intermediate</option>
+                    <option value="hard" <%= level === 'hard' ? 'selected' : '' %>>Hard</option>
+                </select>
+            </label>
+            <button type="submit" class="btn">Generate New Question</button>
+        </form>
+
+        <% if (question) { %>
+            <div class="question-area">
+                <img src="/images/clef_minor/score_cm.png?t=<%= Date.now() %>" alt="Minor Scale Score" class="question-image">
+                
+                <form action="/clef_minor/check" method="POST">
+                    <div class="options-container">
+                        <div>
+                            <h3>Select the Clef:</h3>
+                            <div class="radio-group">
+                                <% ['treble', 'alto', 'tenor', 'bass'].forEach(clef => { %>
+                                    <label class="radio-label">
+                                        <input type="radio" name="selectedClef" value="<%= clef %>" required
+                                            <%= result && result.selectedClef === clef ? 'checked' : '' %>>
+                                        <%= clef.charAt(0).toUpperCase() + clef.slice(1) %>
+                                    </label>
+                                <% }); %>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3>Select the Key:</h3>
+                            <div class="radio-group">
+                                <% question.userOptions.forEach(option => { %>
+                                    <label class="radio-label">
+                                        <input type="radio" name="selectedOption" value="<%= option %>" required
+                                            <%= result && result.selectedOption === option ? 'checked' : '' %>>
+                                        <% 
+                                            // Format the display string: "A harmonic minor"
+                                            const parts = option.split(' ');
+                                            const pitch = displayNote(parts[0]);
+                                            const type = parts.slice(1).join(' '); // "harmonic minor"
+                                            const displayStr = `${pitch} ${type}`;
+                                        %>
+                                        <%= displayStr %>
+                                    </label>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-secondary" <%= result && result.isCorrect ? 'disabled' : '' %>>Check Answer</button>
+                </form>
+
+                <% if (result) { %>
+                    <div class="result <%= result.isCorrect ? 'success' : 'error' %>">
+                        <%= result.message %>
+                    </div>
+                <% } %>
+            </div>
+        <% } else { %>
+            <p>Click "Generate New Question" to start!</p>
+        <% } %>
+    </div>
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

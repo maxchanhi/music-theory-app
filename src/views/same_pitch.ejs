@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Same Pitch Quiz</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .option-card {
+            display: flex;
+            align-items: center;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .option-card:hover {
+            background-color: #f5f5f5;
+        }
+        .option-card.selected {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+        .option-checkbox {
+            margin-right: 20px;
+            transform: scale(1.5);
+        }
+        .score-container {
+            flex-grow: 1;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            background-color: #4CAF50;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        button.secondary {
+            background-color: #2196F3;
+        }
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .feedback.success { background-color: #dff0d8; color: #3c763d; }
+        .feedback.error { background-color: #f2dede; color: #a94442; }
+        .home-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <%- include('partials/header', { title: 'Same Pitch Quiz', description: 'Identify two melodies that sound the same across different clefs.' }) %>
+
+        <form action="/same_pitch/check" method="POST" id="quizForm">
+            <div class="options-container">
+                <% question.options.forEach((opt, index) => { %>
+                    <label class="option-card" id="card-<%= index %>">
+                        <input type="checkbox" name="selectedIndices[]" value="<%= index %>" class="option-checkbox" 
+                            <%= (locals.selectedIndices && selectedIndices.includes(index)) ? 'checked' : '' %>
+                            onchange="updateSelection(this)">
+                        <span>Option <%= index + 1 %></span>
+                        <div id="score-<%= index %>" class="score-container"></div>
+                    </label>
+                <% }); %>
+            </div>
+
+            <% if (locals.feedback) { %>
+                <div class="feedback <%= feedback.type %>">
+                    <%= feedback.text %>
+                </div>
+            <% } %>
+
+            <div class="controls">
+                <% if (locals.feedback) { %>
+                    <a href="/same_pitch">
+                        <button type="button" class="secondary">New Question</button>
+                    </a>
+                <% } else { %>
+                    <button type="submit" id="checkBtn" disabled>Check Answer</button>
+                <% } %>
+            </div>
+        </form>
+    </div>
+    
+    <div class="home-link">
+        <a href="/">Back to Home</a>
+    </div>
+
+    <script>
+        // Client-side validation to allow only 2 selections
+        function updateSelection(checkbox) {
+            const checkboxes = document.querySelectorAll('input[name="selectedIndices[]"]:checked');
+            const checkBtn = document.getElementById('checkBtn');
+            
+            // If user tries to select more than 2, uncheck the oldest one?
+            // Or just disable others?
+            // Let's just limit to 2.
+            if (checkboxes.length > 2) {
+                checkbox.checked = false;
+                return;
+            }
+            
+            // Highlight selected cards
+            document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+            checkboxes.forEach(cb => {
+                document.getElementById('card-' + cb.value).classList.add('selected');
+            });
+            
+            // Enable button only if exactly 2 are selected
+            if (checkBtn) {
+                checkBtn.disabled = checkboxes.length !== 2;
+            }
+        }
+        
+        // Initial highlight
+        updateSelection({}); // Just run to set initial state
+
+        // VexFlow Rendering
+        const VF = Vex.Flow;
+        const options = JSON.parse('<%- JSON.stringify(question.options) %>');
+        
+        options.forEach((opt, index) => {
+            const div = document.getElementById("score-" + index);
+            const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+            
+            renderer.resize(350, 120);
+            const context = renderer.getContext();
+            
+            // Create stave
+            const stave = new VF.Stave(10, 10, 330);
+            stave.addClef(opt.clef);
+            stave.setContext(context).draw();
+            
+            // Create notes
+            const notes = opt.keys.map(key => {
+                return new VF.StaveNote({
+                    clef: opt.clef,
+                    keys: [key],
+                    duration: "q", // quarter notes
+                    auto_stem: true
+                });
+            });
+            
+            // Create voice
+            const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+            voice.addTickables(notes);
+            
+            // Format and draw
+            new VF.Formatter().joinVoices([voice]).format([voice], 280);
+            voice.draw(context, stave);
+        });
+    </script>
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

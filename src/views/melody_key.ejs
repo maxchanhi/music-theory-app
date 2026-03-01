@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melody Key Quiz</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .settings-bar {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .question-header {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .score-container {
+            margin: 20px auto;
+            border: 1px solid #eee;
+            background: white;
+            min-height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+        }
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .option-card {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .option-card:hover {
+            background: #e0e0e0;
+        }
+        .option-card.selected {
+            border-color: #2196F3;
+            background: #e3f2fd;
+        }
+        .option-card input {
+            display: none;
+        }
+        
+        select, button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+            min-width: 120px;
+        }
+        button:hover { background-color: #45a049; }
+        button.secondary { background-color: #2196F3; }
+        button.secondary:hover { background-color: #0b7dda; }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .success { background-color: #dff0d8; color: #3c763d; }
+        .error { background-color: #f2dede; color: #a94442; }
+        
+        .play-btn {
+            background-color: #ff9800;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .play-btn:hover { background-color: #e68900; }
+        
+        .home-link { display: block; margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <%- include('partials/header', { title: 'Melody Key Quiz', description: 'Identify the key of a given melody.' }) %>
+
+    <div class="container">
+        <!-- Settings -->
+        <div class="settings-bar">
+            <form action="/melody_key/generate" method="POST" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <label for="difficulty">Difficulty:</label>
+                <select name="difficulty" id="difficulty">
+                    <% difficulties.forEach(diff => { %>
+                        <option value="<%= diff %>" <%= difficulty === diff ? 'selected' : '' %>><%= diff %></option>
+                    <% }); %>
+                </select>
+                <button type="submit" class="secondary">New Question</button>
+            </form>
+        </div>
+
+        <% if (question) { %>
+            <div class="question-header">
+                What key is the score in?
+            </div>
+            
+            <div class="controls">
+                <button type="button" class="play-btn" id="playBtn">
+                    <span>▶</span> Play Melody
+                </button>
+            </div>
+
+            <div id="score" class="score-container"
+                data-notes='<%- JSON.stringify(question.vexFlowNotes) %>'
+                data-tone-notes='<%- JSON.stringify(question.toneNotes) %>'
+            ></div>
+            
+            <% if (feedback) { %>
+                <div class="feedback <%= feedback.type %>">
+                    <%= feedback.text %>
+                </div>
+            <% } %>
+            
+            <form action="/melody_key/check" method="POST" id="quizForm">
+                <div class="options-grid">
+                    <% question.options.forEach((opt, idx) => { %>
+                        <label class="option-card <%= (lastAnswer === opt) ? 'selected' : '' %>">
+                            <input type="radio" name="answer" value="<%= opt %>" required <%= (lastAnswer === opt) ? 'checked' : '' %> onchange="selectOption(this)">
+                            <%= opt %>
+                        </label>
+                    <% }); %>
+                </div>
+                
+                <div class="controls">
+                    <button type="submit" <%= feedback && feedback.isCorrect ? 'disabled' : '' %>>Check Answer</button>
+                </div>
+            </form>
+        <% } else { %>
+            <div class="error">Failed to generate question. Please try again.</div>
+        <% } %>
+    </div>
+    
+    <div class="home-link">
+        <a href="/">Back to Home</a>
+    </div>
+
+    <script>
+        // Option selection styling
+        function selectOption(radio) {
+            document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+            if (radio.checked) {
+                radio.closest('.option-card').classList.add('selected');
+            }
+        }
+
+        // Tone.js Playback
+        const playBtn = document.getElementById('playBtn');
+        const scoreDiv = document.getElementById("score");
+        let isPlaying = false;
+        
+        if (playBtn && scoreDiv) {
+            const toneNotes = JSON.parse(scoreDiv.dataset.toneNotes);
+            
+            playBtn.addEventListener('click', async () => {
+                if (isPlaying) {
+                    Tone.Transport.stop();
+                    isPlaying = false;
+                    playBtn.innerHTML = '<span>▶</span> Play Melody';
+                    return;
+                }
+                
+                await Tone.start();
+                
+                const synth = new Tone.Synth().toDestination();
+                
+                // Cancel previous
+                Tone.Transport.cancel();
+                
+                let now = Tone.now();
+                let accumulatedTime = 0;
+                
+                // Create a part or just schedule
+                toneNotes.forEach(note => {
+                    // note.duration is "4n", "8n" etc.
+                    // We need to convert notation to seconds or schedule relative
+                    // Tone.Transport.schedule
+                    
+                    const durationSeconds = Tone.Time(note.duration).toSeconds();
+                    synth.triggerAttackRelease(note.pitch, note.duration, now + accumulatedTime);
+                    accumulatedTime += durationSeconds;
+                });
+                
+                isPlaying = true;
+                playBtn.innerHTML = '<span>⏹</span> Stop';
+                
+                // Reset button after playback
+                setTimeout(() => {
+                    isPlaying = false;
+                    playBtn.innerHTML = '<span>▶</span> Play Melody';
+                }, accumulatedTime * 1000 + 500);
+            });
+        }
+
+        // VexFlow Rendering
+        if (scoreDiv) {
+            const VF = Vex.Flow;
+            const renderer = new VF.Renderer(scoreDiv, VF.Renderer.Backends.SVG);
+            
+            // Get data
+            const notesData = JSON.parse(scoreDiv.dataset.notes);
+            
+            // Configure size - dynamic width based on note count
+            const width = Math.max(500, notesData.length * 40 + 50);
+            renderer.resize(width, 200);
+            const context = renderer.getContext();
+            
+            // Create a stave
+            const stave = new VF.Stave(10, 40, width - 20);
+            stave.addClef("treble");
+            // Add key signature?
+            // The quiz is to IDENTIFY the key, so showing the key signature would give it away immediately!
+            // We should NOT add key signature.
+            // But we MUST show accidentals on notes if they deviate from C major (or just always show accidentals).
+            // Our logic `mapToVexFlow` adds accidentals explicitly if present in the pitch string.
+            // So we are good.
+            
+            stave.setContext(context).draw();
+            
+            // Create notes
+            const notes = notesData.map(n => {
+                const note = new VF.StaveNote({ 
+                    clef: "treble", 
+                    keys: n.keys, 
+                    duration: n.duration 
+                });
+                
+                if (n.accidental) {
+                    note.addModifier(new VF.Accidental(n.accidental));
+                }
+                
+                if (n.isDotted) {
+                    note.addDot(0); // Add dot to first key (index 0)
+                }
+                
+                return note;
+            });
+            
+            // Auto beaming
+            const beams = VF.Beam.generateBeams(notes);
+            
+            const voice = new VF.Voice({num_beats: 4 * 4, beat_value: 4}); // Assume enough beats
+            // Actually we need to calculate total beats or set flexible mode
+            // Set mode to soft
+            voice.setMode(VF.Voice.Mode.SOFT);
+            voice.addTickables(notes);
+            
+            // Calculate available width inside the stave
+            // stave.getNoteStartX() gives the x-position where notes can start (after clef/key sig)
+            // stave.getWidth() gives the total width of the stave
+            // stave.getX() gives the starting x-position of the stave
+            // So available width = (stave.getX() + stave.getWidth()) - stave.getNoteStartX()
+            // We subtract a small padding (e.g. 10) to avoid touching the end barline
+            const availableWidth = (stave.getX() + stave.getWidth()) - stave.getNoteStartX() - 10;
+            
+            new VF.Formatter().joinVoices([voice]).format([voice], availableWidth);
+            
+            voice.draw(context, stave);
+            beams.forEach(b => b.setContext(context).draw());
+        }
+    </script>
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!-- Only render if user is logged in -->
+<% if (typeof user !== 'undefined' && user) { %>
+    <!-- Add Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        .ai-chat-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            min-height: 60px;
+            border-radius: 50%;
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            transition: transform 0.2s, background-color 0.2s;
+            padding: 0;
+        }
+
+        .ai-chat-btn:hover {
+            transform: scale(1.1);
+            background-color: #732d91;
+        }
+
+        .ai-chat-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 380px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            font-family: Arial, sans-serif;
+        }
+
+        .ai-chat-header {
+            background-color: #8e44ad;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .ai-chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: #f9f9f9;
+        }
+
+        .ai-message {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            line-height: 1.5;
+            font-size: 14px;
+            word-wrap: break-word;
+            text-align: left;
+        }
+
+        .ai-message.user {
+            align-self: flex-end;
+            background-color: #8e44ad;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .ai-message.ai {
+            align-self: flex-start;
+            background-color: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 2px;
+        }
+
+        /* Markdown Styles for AI responses */
+        .ai-message.ai h1, .ai-message.ai h2, .ai-message.ai h3 {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+        .ai-message.ai p {
+            margin: 5px 0;
+        }
+        .ai-message.ai code {
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .ai-message.ai pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .ai-message.ai pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        .ai-message.ai ul, .ai-message.ai ol {
+            padding-left: 20px;
+            margin: 5px 0;
+        }
+
+        .ai-chat-input-area {
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .ai-chat-send {
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .ai-chat-send:hover {
+            background-color: #732d91;
+        }
+        
+        .ai-chat-send:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .ai-loading {
+            align-self: center;
+            color: #999;
+            font-style: italic;
+            font-size: 12px;
+            display: none;
+            margin: 5px 0;
+        }
+    </style>
+
+    <!-- Floating Button -->
+    <button class="ai-chat-btn" onclick="toggleChat()" title="Ask AI Assistant">
+        🤖
+    </button>
+
+    <!-- Chat Interface -->
+    <div class="ai-chat-container" id="aiChatContainer">
+        <div class="ai-chat-header">
+            <span>AI Music Assistant</span>
+            <button class="ai-chat-close" onclick="toggleChat()">×</button>
+        </div>
+        
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="ai-message ai">
+                Hello <%= user.user_name %>! I'm your AI music theory assistant. How can I help you today?
+            </div>
+        </div>
+        
+        <div class="ai-loading" id="aiLoading">Thinking...</div>
+        
+        <div class="ai-chat-input-area">
+            <input type="text" class="ai-chat-input" id="aiMessageInput" placeholder="Ask a question..." autocomplete="off">
+            <button class="ai-chat-send" onclick="sendAIMessage()" id="aiSendButton">➤</button>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('aiChatContainer');
+        const aiMessageInput = document.getElementById('aiMessageInput');
+        const aiChatMessages = document.getElementById('aiChatMessages');
+        const aiSendButton = document.getElementById('aiSendButton');
+        const aiLoading = document.getElementById('aiLoading');
+        let isChatOpen = false;
+
+        function toggleChat() {
+            isChatOpen = !isChatOpen;
+            chatContainer.style.display = isChatOpen ? 'flex' : 'none';
+            if (isChatOpen) {
+                setTimeout(() => aiMessageInput.focus(), 100);
+            }
+        }
+
+        aiMessageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendAIMessage();
+        });
+
+        async function sendAIMessage() {
+            const text = aiMessageInput.value.trim();
+            if (!text) return;
+
+            // Add user message
+            appendAIMessage(text, 'user');
+            aiMessageInput.value = '';
+            aiMessageInput.disabled = true;
+            aiSendButton.disabled = true;
+            aiLoading.style.display = 'block';
+
+            try {
+                const response = await fetch('/chat/api/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    appendAIMessage('Error: ' + data.error, 'ai');
+                } else {
+                    appendAIMessage(data.reply, 'ai');
+                }
+            } catch (error) {
+                appendAIMessage('Sorry, something went wrong. Please try again.', 'ai');
+            } finally {
+                aiMessageInput.disabled = false;
+                aiSendButton.disabled = false;
+                aiMessageInput.focus();
+                aiLoading.style.display = 'none';
+            }
+        }
+
+        function appendAIMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `ai-message ${sender}`;
+            
+            if (sender === 'ai') {
+                // Parse Markdown for AI responses
+                div.innerHTML = marked.parse(text);
+            } else {
+                div.textContent = text;
+            }
+            
+            aiChatMessages.appendChild(div);
+            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        }
+    </script>
+<% } %>

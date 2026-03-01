@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Me</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 40px;
+        }
+        .content-section {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            text-align: left;
+        }
+        .column {
+            padding: 10px;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2980b9;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-btn:hover {
+            background-color: #7f8c8d;
+        }
+        .coffee-btn {
+            display: inline-block;
+            background-color: #FFDD00;
+            color: #000000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        .coffee-btn:hover {
+            transform: translateY(-2px);
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        @media (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="back-btn">← Back to Home</a>
+        <h1>Buy me a coffee ☕️🎻</h1>
+        <p>Making this app is not easy. Your support is appreciated. It does not have to be financially. Your feedback is also crucial.</p>
+        <p><strong>Email and Paypal email:</strong> chakhangc@yahoo.com.hk</p>
+    </div>
+
+    <div class="content-section">
+        <h2>Payment in Hong Kong</h2>
+        <div class="grid-container">
+            <div class="column">
+                <h3>PayMe</h3>
+                <p><a href="https://payme.hsbc/maxxxx1" target="_blank">https://payme.hsbc/maxxxx1</a></p>
+            </div>
+            <div class="column">
+                <img src="/images/hkqr_code.jpeg" alt="Alipay QR Code">
+            </div>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>Worldwide Support</h2>
+        <div class="grid-container">
+            <div class="column">
+                <h3>Buy Me A Coffee</h3>
+                <a href="https://www.buymeacoffee.com/maxchanhi" target="_blank" class="coffee-btn">
+                    ☕ Buy me a coffee
+                </a>
+                <p>⬆️ Click me!</p>
+                <p><strong>Paypal email:</strong> chakhangc@yahoo.com.hk</p>
+            </div>
+            <div class="column">
+                <img src="/images/paypal_code.jpeg" alt="Paypal QR Code">
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/ai_chat') %>
+</body>
+</html>

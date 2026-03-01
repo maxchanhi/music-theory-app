@@ -1,0 +1,77 @@
+const express = require("express");
+const session = require("express-session");
+const path = require("path");
+const connectDB = require('./config/database');
+const authRouter = require('./routes/auth');
+const chatRouter = require('./routes/chat');
+const chromaticRouter = require('./routes/chromatic');
+const clefMinorRouter = require('./routes/clef_minor');
+const compoundSimpleRouter = require('./routes/compound_simple');
+const durationEquationRouter = require('./routes/duration_equation');
+const groupingQuizRouter = require('./routes/grouping_quiz');
+const instrumentKnowledgeRouter = require('./routes/instrument_knowledge');
+const intervalRouter = require('./routes/interval');
+const inversionRouter = require('./routes/inversion');
+const melodyKeyRouter = require('./routes/melody_key');
+const pitchIdRouter = require('./routes/pitch_id');
+const samePitchRouter = require('./routes/same_pitch');
+const transposingRouter = require('./routes/transposing');
+const pagesRouter = require('./routes/pages');
+
+const createApp = () => {
+  // Connect to Database
+  connectDB();
+
+  const app = express();
+  const publicPath = path.join(__dirname, "..", "public");
+
+  // Set up view engine
+  app.set('view engine', 'ejs');
+  app.set('views', path.join(__dirname, 'views'));
+
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.static(publicPath));
+  
+  // Session configuration
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'music-theory-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true if using https
+  }));
+
+  // Make user info available to all templates
+  app.use((req, res, next) => {
+    res.locals.user = req.session.userInfo || null;
+    next();
+  });
+  
+  app.get("/health", (req, res) => {
+    res.status(200).json({ status: "ok" });
+  });
+
+  app.get("/", (req, res) => {
+    res.render('index');
+  });
+
+  app.use('/', authRouter);
+  app.use('/chat', chatRouter);
+  app.use('/chromatic', chromaticRouter);
+  app.use('/clef_minor', clefMinorRouter);
+  app.use('/compound_simple', compoundSimpleRouter);
+  app.use('/duration_equation', durationEquationRouter);
+  app.use('/grouping_quiz', groupingQuizRouter);
+  app.use('/instrument_knowledge', instrumentKnowledgeRouter);
+  app.use('/interval', intervalRouter);
+  app.use('/inversion', inversionRouter);
+  app.use('/melody_key', melodyKeyRouter);
+  app.use('/pitch_id', pitchIdRouter);
+  app.use('/same_pitch', samePitchRouter);
+  app.use('/transposing', transposingRouter);
+  app.use('/', pagesRouter);
+
+  return app;
+};
+
+module.exports = { createApp };

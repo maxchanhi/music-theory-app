@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grouping & Beaming Quiz - Music Theory App</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .question-image {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .radio-label {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        .radio-label:hover {
+            border-color: #3498db;
+            background-color: #f8fbff;
+        }
+        .radio-label input {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+        .result-message {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1.2em;
+        }
+        .result-correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result-wrong {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .result-dim {
+            opacity: 0.7;
+        }
+        .controls {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <%- include('partials/header', { title: 'Grouping & Beaming Quiz', description: 'Identify correct grouping and beaming in musical notation.' }) %>
+
+        <main class="quiz-container">
+            <% if (question) { %>
+                <div class="card">
+                    <h2>Identify the Notation Issue</h2>
+                    <img src="<%= question.imagePath %>" alt="Music Notation Question" class="question-image">
+                    
+                    <% if (!submitted) { %>
+                        <form action="/grouping_quiz/check" method="POST">
+                            <div class="options-grid">
+                                <% categories.forEach(function (category) { %>
+                                    <label class="radio-label">
+                                        <input type="radio" name="answer" value="<%= category %>" required>
+                                        <%= category %>
+                                    </label>
+                                <% }); %>
+                            </div>
+                            <div class="controls">
+                                <button type="submit" class="btn">Check Answer</button>
+                            </div>
+                        </form>
+                    <% } else { %>
+                        <div class="options-grid">
+                            <% for (var i = 0; i < categoriesData.length; i += 1) { var cat = categoriesData[i]; %>
+                                <label class="<%= cat.className %>">
+                                    <input type="radio" disabled <%= cat.checked ? 'checked' : '' %>>
+                                    <%= cat.name %>
+                                    <% if (cat.isCorrectAnswer) { %> ✅ <% } %>
+                                    <% if (cat.isWrongAnswer) { %> ❌ <% } %>
+                                </label>
+                            <% } %>
+                        </div>
+
+                        <div class="result-message <%= result.isCorrect ? 'result-correct' : 'result-wrong' %>">
+                            <% if (result.isCorrect) { %>
+                                <strong>Correct!</strong> Well done! 🎉
+                            <% } else { %>
+                                <strong>Incorrect.</strong> The correct answer was "<%= result.correctAnswer %>".
+                            <% } %>
+                            <% if (result.explanation) { %>
+                                <p><%= result.explanation %></p>
+                            <% } %>
+                        </div>
+
+                        <div class="controls">
+                            <form action="/grouping_quiz/generate" method="POST">
+                                <button type="submit" class="btn">Next Question</button>
+                            </form>
+                        </div>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <div class="card">
+                    <p>No questions available. Please check if images are correctly installed.</p>
+                    <form action="/grouping_quiz/generate" method="POST">
+                        <button type="submit" class="btn">Try Again</button>
+                    </form>
+                </div>
+            <% } %>
+        </main>
+    </div>
+    <%- include('partials/ai_chat') %>
+</body>
+</html>
