@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compound & Simple Time - Music Theory App</title>
-    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <!-- Use standard UMD build for browser support -->
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/vexflow.js"></script>
     <link rel="stylesheet" href="/css/style.css">
     <style>
         .option-container {
@@ -141,16 +142,20 @@
                         
                         function parseLilypondNote(noteStr) {
                             // Format: pitch[accidental]duration[dots]
-                            // Examples: g4, a8., fis4, bes2
+                            // Examples: g4, a8., fis4, bes2, c'4
                             
-                            // Regex to capture parts
-                            const match = noteStr.match(/^([a-g])(is|es|s|f)?(\d+)(\.*)$/);
-                            if (!match) return null;
+                            // More robust regex to capture parts including octaves (') and commas (,)
+                            const match = noteStr.match(/^([a-gA-G])(is|es|s|f|flat|sharp)?(\d+)(\.*)(['+,]*)$/);
+                            if (!match) {
+                                console.warn("Failed to parse note:", noteStr);
+                                return null;
+                            }
                             
-                            const step = match[1];
+                            const step = match[1].toLowerCase();
                             const acc = match[2];
                             const durationVal = match[3];
                             const dots = match[4];
+                            const octaveMod = match[5]; // Capture octave markers
                             
                             // Map LilyPond duration to VexFlow duration
                             let duration = "q";
@@ -167,11 +172,18 @@
                             
                             // Map accidental
                             let accidental = null;
-                            if (acc === "is" || acc === "s") accidental = "#";
-                            else if (acc === "es" || acc === "f") accidental = "b";
+                            if (acc === "is" || acc === "s" || acc === "sharp") accidental = "#";
+                            else if (acc === "es" || acc === "f" || acc === "flat") accidental = "b";
                             
-                            // Default octave 4
-                            const octave = 4;
+                            // Calculate octave based on modifiers
+                            let octave = 4; // Default C4
+                            if (octaveMod) {
+                                for (let char of octaveMod) {
+                                    if (char === "'") octave++;
+                                    if (char === ",") octave--;
+                                }
+                            }
+                            
                             const key = `${step}/${octave}`;
                             
                             const note = new StaveNote({
@@ -198,8 +210,13 @@
                             let notes = [];
                             let tuplets = [];
                             
+                            if (!Array.isArray(melodyArray)) {
+                                console.error("melodyArray is not an array:", melodyArray);
+                                return { notes: [], tuplets: [] };
+                            }
+
                             melodyArray.forEach(segment => {
-                                segment = segment.trim();
+                                segment = String(segment).trim();
                                 if (!segment) return;
                                 
                                 if (segment.startsWith("\\tuplet")) {
@@ -220,6 +237,8 @@
                                                 notes_occupied: notesOccupied
                                             }));
                                         }
+                                    } else {
+                                        console.warn("Failed to parse tuplet:", segment);
                                     }
                                 } else {
                                     // Split by space for multiple notes
