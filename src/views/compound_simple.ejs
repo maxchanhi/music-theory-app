@@ -287,12 +287,22 @@
                                 groups: [new Fraction(3, 8)] 
                             });
                             
-                            // Create a voice in 4/4
-                            const voice = new Voice({num_beats: 4, beat_value: 4});
+                            // Create a voice matching the time signature
+                            const timeParts = timeSigStr.split('/');
+                            const voice = new Voice({
+                                num_beats: parseInt(timeParts[0]), 
+                                beat_value: parseInt(timeParts[1])
+                            });
                             voice.setStrict(false); // IMPORTANT: Disable strict timing checks
                             voice.addTickables(notes);
 
-                            new Formatter().joinVoices([voice]).format([voice], width - 50);
+                            // Format notes
+                            const formatter = new Formatter();
+                            formatter.joinVoices([voice]);
+                            
+                            // Calculate width dynamically
+                            const totalWidth = width - 50;
+                            formatter.format([voice], totalWidth);
                             
                             voice.draw(context, stave);
                             
@@ -303,16 +313,22 @@
                         
                         // Initialize
                         try {
-                            const data = JSON.parse(document.getElementById('vex-data').textContent);
-                            
-                            // Render Question
-                            renderScore("canvas-question", data.question.timeSignature, data.question.notes);
-                            
-                            // Render Options
-                            data.options.forEach((opt, index) => {
-                                renderScore("canvas-option-" + index, opt.timeSignature, opt.notes);
-                            });
-                            
+                            const dataElement = document.getElementById('vex-data');
+                            if (dataElement && dataElement.textContent) {
+                                const data = JSON.parse(dataElement.textContent);
+                                
+                                // Render Question
+                                if (data.question) {
+                                    renderScore("canvas-question", data.question.timeSignature, data.question.notes);
+                                }
+                                
+                                // Render Options
+                                if (data.options) {
+                                    data.options.forEach((opt, index) => {
+                                        renderScore("canvas-option-" + index, opt.timeSignature, opt.notes);
+                                    });
+                                }
+                            }
                         } catch (e) {
                             console.error("Error rendering scores:", e);
                         }
