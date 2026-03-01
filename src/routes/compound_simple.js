@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { generateQuestionData } = require('../logic/compound_simple');
-const { generateQuestionImages } = require('../logic/compound_simple_generation');
+const { generateQuestionData: generateLogicData } = require('../logic/compound_simple');
+const { generateQuestionData: generateVexData } = require('../logic/compound_simple_generation');
 const { Feedback } = require('../logic/feedback');
 
 router.get('/', async (req, res) => {
@@ -9,6 +9,7 @@ router.get('/', async (req, res) => {
     if (!req.session.compoundSimple) {
         req.session.compoundSimple = {
             currentQuestion: null,
+            vexData: null,
             submitted: false,
             selectedOption: null,
             isCorrect: false,
@@ -17,12 +18,16 @@ router.get('/', async (req, res) => {
     }
 
     if (!req.session.compoundSimple.currentQuestion) {
-        req.session.compoundSimple.currentQuestion = generateQuestionData();
-        await generateQuestionImages(req.session.compoundSimple.currentQuestion);
+        const questionData = generateLogicData();
+        const vexData = generateVexData(questionData);
+        
+        req.session.compoundSimple.currentQuestion = questionData;
+        req.session.compoundSimple.vexData = vexData;
     }
     
     res.render('compound_simple', {
         question: req.session.compoundSimple.currentQuestion,
+        vexData: req.session.compoundSimple.vexData,
         submitted: req.session.compoundSimple.submitted,
         selectedOption: req.session.compoundSimple.selectedOption,
         isCorrect: req.session.compoundSimple.isCorrect,
@@ -36,13 +41,15 @@ router.post('/generate', async (req, res) => {
             req.session.compoundSimple = {};
         }
         
-        req.session.compoundSimple.currentQuestion = generateQuestionData();
+        const questionData = generateLogicData();
+        const vexData = generateVexData(questionData);
+        
+        req.session.compoundSimple.currentQuestion = questionData;
+        req.session.compoundSimple.vexData = vexData;
         req.session.compoundSimple.submitted = false;
         req.session.compoundSimple.selectedOption = null;
         req.session.compoundSimple.isCorrect = false;
         req.session.compoundSimple.correctIndex = -1;
-        
-        await generateQuestionImages(req.session.compoundSimple.currentQuestion);
         
         res.redirect('/compound_simple');
     } catch (error) {

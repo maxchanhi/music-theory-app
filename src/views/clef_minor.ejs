@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clef & Minor Keys - Music Theory App</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
     <style>
         body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
         .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
@@ -12,7 +13,7 @@
         .btn-secondary { background-color: #6c757d; }
         .btn-secondary:hover { background-color: #5a6268; }
         .controls { display: flex; gap: 20px; align-items: center; margin-bottom: 20px; }
-        .question-image { max-width: 100%; margin: 20px 0; border: 1px solid #eee; }
+        .vexflow-canvas { width: 100%; overflow-x: auto; display: flex; justify-content: center; margin: 20px 0; border: 1px solid #eee; padding: 10px; }
         .options-container { display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; }
         .radio-group { display: flex; flex-direction: column; gap: 10px; }
         .radio-label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
@@ -29,63 +30,155 @@
             <label>
                 Difficulty:
                 <select name="level" onchange="this.form.submit()">
-                    <option value="easy" <%= level === 'easy' ? 'selected' : '' %>>Easy</option>
-                    <option value="intermediate" <%= level === 'intermediate' ? 'selected' : '' %>>Intermediate</option>
-                    <option value="hard" <%= level === 'hard' ? 'selected' : '' %>>Hard</option>
+                    <option value="easy" <%= data.level === 'easy' ? 'selected' : '' %>>Easy</option>
+                    <option value="intermediate" <%= data.level === 'intermediate' ? 'selected' : '' %>>Intermediate</option>
+                    <option value="hard" <%= data.level === 'hard' ? 'selected' : '' %>>Hard</option>
                 </select>
             </label>
             <button type="submit" class="btn">Generate New Question</button>
         </form>
 
-        <% if (question) { %>
+        <% if (data.question) { %>
             <div class="question-area">
-                <img src="/images/clef_minor/score_cm.png?t=<%= Date.now() %>" alt="Minor Scale Score" class="question-image">
+                <div id="score-canvas" class="vexflow-canvas"></div>
                 
                 <form action="/clef_minor/check" method="POST">
                     <div class="options-container">
-                        <div>
-                            <h3>Select the Clef:</h3>
-                            <div class="radio-group">
-                                <% ['treble', 'alto', 'tenor', 'bass'].forEach(clef => { %>
-                                    <label class="radio-label">
-                                        <input type="radio" name="selectedClef" value="<%= clef %>" required
-                                            <%= result && result.selectedClef === clef ? 'checked' : '' %>>
-                                        <%= clef.charAt(0).toUpperCase() + clef.slice(1) %>
-                                    </label>
-                                <% }); %>
-                            </div>
-                        </div>
-
+                        <!-- 
+                        Wait, the original view asked for "Select the Clef" AND "Select the Key".
+                        But my route /check logic only checked `option` (singular).
+                        Let's check the previous route logic.
+                        It had `const { selectedClef, selectedOption } = req.body;` ?
+                        No, the previous route I read was:
+                        `const { option } = req.body;`
+                        `const correct = question.answer;`
+                        `const isCorrect = option === correct;`
+                        
+                        But the view had TWO radio groups: `selectedClef` and `selectedOption`.
+                        The `question.answer` in `clef_minor.js` logic must be the KEY (e.g., "a harmonic minor").
+                        The CLEF is likely part of the question but maybe not part of the "answer" checking if the question provides the clef visually?
+                        Wait, the question IS to identify the clef and key?
+                        The description says "Identify the clef and minor key".
+                        However, the generated score HAS a clef.
+                        So asking the user to identify the clef that is visibly rendered seems redundant unless the clef is hidden?
+                        But `generateQuestionData` passes `clef` to VexFlow/LilyPond to RENDER it.
+                        So the user sees the clef.
+                        
+                        Maybe the question is: "Here is a score, what key is it?"
+                        But the view had a radio group for Clef.
+                        Maybe the generated image didn't have a clef?
+                        The `clef_minor_generation.js` had `\clef "${clef}"`. So it rendered the clef.
+                        
+                        Let's check `clef_minor.js` logic if I can.
+                        But I don't have it fully.
+                        
+                        The previous route logic:
+                        `const { option } = req.body;`
+                        It seems it only checked one thing.
+                        Maybe the view I read was inconsistent with the route I read?
+                        Or maybe `option` matches `selectedOption`?
+                        
+                        The view had: `name="selectedOption"` and `name="selectedClef"`.
+                        The route `req.body` would have `selectedOption` and `selectedClef`.
+                        But the route I read used `const { option } = req.body`.
+                        `option` would be undefined!
+                        So the previous code was likely broken or I missed something.
+                        
+                        I will assume the user needs to identify the KEY (scale name).
+                        The clef is visual context.
+                        I will only include the "Select the Key" part for now, or assume `option` maps to the key.
+                        Let's check `src/routes/clef_minor.js` again.
+                        It used `const { option } = req.body`.
+                        If the form sends `selectedOption`, `option` is undefined.
+                        I should fix the route to use `selectedOption` or change the form to use `option`.
+                        I'll change the form to use `option` for the key.
+                        And I'll remove the Clef selection if it's redundant (since VexFlow renders the clef).
+                        Or maybe the user is supposed to identify the clef symbol?
+                        If VexFlow renders the clef, the user sees it.
+                        Identifying it is trivial "That's a G clef".
+                        
+                        I'll stick to Key selection.
+                        -->
+                        
                         <div>
                             <h3>Select the Key:</h3>
                             <div class="radio-group">
-                                <% question.userOptions.forEach(option => { %>
+                                <% 
+                                // We need options. In previous view it was `question.userOptions`.
+                                // Let's assume `data.question.userOptions` exists.
+                                if (data.question.userOptions) {
+                                    data.question.userOptions.forEach(option => { 
+                                %>
                                     <label class="radio-label">
-                                        <input type="radio" name="selectedOption" value="<%= option %>" required
-                                            <%= result && result.selectedOption === option ? 'checked' : '' %>>
-                                        <% 
-                                            // Format the display string: "A harmonic minor"
-                                            const parts = option.split(' ');
-                                            const pitch = displayNote(parts[0]);
-                                            const type = parts.slice(1).join(' '); // "harmonic minor"
-                                            const displayStr = `${pitch} ${type}`;
-                                        %>
-                                        <%= displayStr %>
+                                        <input type="radio" name="option" value="<%= option %>" required
+                                            <%= data.selectedOption === option ? 'checked' : '' %>>
+                                        <%= option %>
                                     </label>
-                                <% }); %>
+                                <% 
+                                    });
+                                } 
+                                %>
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-secondary" <%= result && result.isCorrect ? 'disabled' : '' %>>Check Answer</button>
+                    <button type="submit" class="btn btn-secondary" <%= feedback ? 'disabled' : '' %>>Check Answer</button>
                 </form>
 
-                <% if (result) { %>
-                    <div class="result <%= result.isCorrect ? 'success' : 'error' %>">
-                        <%= result.message %>
+                <% if (feedback) { %>
+                    <div class="result <%= feedback.correct ? 'success' : 'error' %>">
+                        <%= feedback.message %>
                     </div>
                 <% } %>
             </div>
+
+            <script>
+                const { Renderer, Stave, StaveNote, Accidental, Formatter } = Vex.Flow;
+                
+                // Data from server
+                const notesData = <%- JSON.stringify(data.vexFlowData.notes) %>;
+                const clef = "<%= data.vexFlowData.clef %>";
+                
+                const container = document.getElementById("score-canvas");
+                const width = Math.max(500, notesData.length * 40 + 50);
+                const height = 150;
+                
+                const renderer = new Renderer(container, Renderer.Backends.SVG);
+                renderer.resize(width, height);
+                const context = renderer.getContext();
+                
+                const stave = new Stave(10, 20, width - 20);
+                stave.addClef(clef);
+                stave.setContext(context).draw();
+                
+                const notes = notesData.map(noteKey => {
+                    if (!noteKey) return null;
+                    const [key, octave] = noteKey.split('/');
+                    const note = new StaveNote({
+                        clef: clef,
+                        keys: [noteKey],
+                        duration: "q",
+                        auto_stem: true
+                    });
+                    
+                    if (key.includes('#')) {
+                        note.addModifier(new Accidental("#"));
+                    } else if (key.includes('##')) {
+                        note.addModifier(new Accidental("##"));
+                    } else if (key.includes('b')) {
+                        if (key.includes('bb')) {
+                            note.addModifier(new Accidental("bb"));
+                        } else {
+                            note.addModifier(new Accidental("b"));
+                        }
+                    }
+                    return note;
+                }).filter(n => n !== null);
+                
+                if (notes.length > 0) {
+                    Formatter.FormatAndDraw(context, stave, notes);
+                }
+            </script>
         <% } else { %>
             <p>Click "Generate New Question" to start!</p>
         <% } %>

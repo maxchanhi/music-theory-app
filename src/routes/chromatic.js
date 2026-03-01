@@ -2,18 +2,7 @@ const express = require('express');
 const router = express.Router();
 const chromaticLogic = require('../logic/chromatic');
 const chromaticGen = require('../logic/chromatic_generation');
-const path = require('path');
-
-// State management (per session in a real app, but here global for simplicity/demo)
-// In a real production app, use express-session or similar.
-let sessionData = {
-    chromaticScale: null,
-    wrongOptions: null,
-    ascending: null,
-    files: [],
-    selectedImage: null,
-    clef: 'treble'
-};
+const { Feedback } = require('../logic/feedback');
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -23,38 +12,76 @@ function shuffleArray(array) {
 }
 
 router.get('/', (req, res) => {
+    // Initialize session data if not exists
+    if (!req.session.chromatic) {
+        req.session.chromatic = {
+            chromaticScale: null,
+            wrongOptions: null,
+            ascending: null,
+            files: [],
+            selectedImage: null,
+            clef: 'treble',
+            vexFlowData: null,
+            options: [] // To store shuffled options with their data
+        };
+    }
+
     res.render('chromatic', { 
-        data: sessionData,
+        data: req.session.chromatic,
         message: null,
-        messageType: null
+        messageType: null,
+        feedback: null
     });
 });
 
 router.post('/generate', async (req, res) => {
     try {
         const clef = req.body.clef || 'treble';
-        sessionData.clef = clef;
-        sessionData.ascending = Math.random() < 0.5;
+        const ascending = Math.random() < 0.5;
         
-        sessionData.chromaticScale = chromaticLogic.generateChromaticScale(sessionData.ascending);
-        sessionData.wrongOptions = chromaticLogic.generateWrongOptions(sessionData.chromaticScale, sessionData.ascending);
+        const chromaticScale = chromaticLogic.generateChromaticScale(ascending);
+        const wrongOptions = chromaticLogic.generateWrongOptions(chromaticScale, ascending);
         
-        // Generate images
-        await chromaticGen.generateQuestionImages(
-            sessionData.chromaticScale, 
-            sessionData.wrongOptions, 
-            sessionData.ascending, 
-            sessionData.clef
+        // Generate VexFlow data instead of images
+        const questionData = chromaticGen.generateQuestionData(
+            chromaticScale, 
+            wrongOptions, 
+            ascending, 
+            clef
         );
         
-        // Prepare file list for display
-        sessionData.files = ["Correct.png"];
-        for(let i=0; i<sessionData.wrongOptions.length; i++) {
-            sessionData.files.push(`wrong_${i}.png`);
-        }
-        shuffleArray(sessionData.files);
+        // Prepare options for display
+        // We need to mix correct and wrong answers but keep track of which is which
+        const options = [];
         
-        sessionData.selectedImage = null;
+        // Add correct option
+        options.push({
+            id: 'correct',
+            notes: questionData.correct,
+            isCorrect: true
+        });
+        
+        // Add wrong options
+        questionData.wrongs.forEach((wrongNotes, index) => {
+            options.push({
+                id: `wrong_${index}`,
+                notes: wrongNotes,
+                isCorrect: false
+            });
+        });
+        
+        shuffleArray(options);
+        
+        // Store in session
+        req.session.chromatic = {
+            chromaticScale,
+            wrongOptions,
+            ascending,
+            clef,
+            vexFlowData: questionData,
+            options,
+            selectedImage: null
+        };
         
         res.redirect('/chromatic');
     } catch (err) {
@@ -64,27 +91,28 @@ router.post('/generate', async (req, res) => {
 });
 
 router.post('/select', (req, res) => {
-    sessionData.selectedImage = req.body.image;
+    if (req.session.chromatic) {
+        req.session.chromatic.selectedImage = req.body.image;
+    }
     res.redirect('/chromatic');
 });
 
-const { Feedback } = require('../logic/feedback');
-
 router.post('/check', async (req, res) => {
-    const { option } = req.body;
-    const { question } = req.session.chromatic;
+    const { option } = req.body; // This will be the index or ID of the selected option
+    const sessionData = req.session.chromatic;
     
-    if (!question) return res.redirect('/chromatic');
+    if (!sessionData) return res.redirect('/chromatic');
     
-    const correct = question.answer;
-    const isCorrect = option === correct;
+    // Find the selected option in the shuffled array
+    const selectedOpt = sessionData.options.find(opt => opt.id === option);
+    const isCorrect = selectedOpt && selectedOpt.isCorrect;
     
     if (!isCorrect && req.session.userInfo) {
         try {
             const feedback = new Feedback({
                 user_id: req.session.userInfo.user_id,
                 subject: "chromatic scale",
-                details: `[('Wrong', 'User selected ${option}, correct answer was ${correct}')]`
+                details: `[('Wrong', 'User selected ${option}, correct answer was correct')]`
             });
             await feedback.save();
         } catch (err) {
@@ -93,10 +121,10 @@ router.post('/check', async (req, res) => {
     }
 
     res.render('chromatic', {
-        data: question,
+        data: sessionData,
         feedback: {
             correct: isCorrect,
-            message: isCorrect ? 'Correct!' : `Incorrect. The correct answer was ${correct}.`
+            message: isCorrect ? 'Correct!' : 'Incorrect. Try again!'
         }
     });
 });

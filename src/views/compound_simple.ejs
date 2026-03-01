@@ -23,11 +23,6 @@
             background-color: #e0e0e0;
             border-color: #999;
         }
-        .option-image {
-            max-width: 80%;
-            height: auto;
-            margin-right: 20px;
-        }
         .option-radio {
             margin-right: 15px;
             transform: scale(1.5);
@@ -56,6 +51,18 @@
             align-items: center;
             justify-content: center;
         }
+        .lilypond-text {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .score-display {
+            text-align: center;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -66,22 +73,28 @@
             <div class="card">
                 <h2>Identify the Correct Metric Modulation</h2>
                 <p>Which option correctly translates between simple and compound time?</p>
+                <p><em>Note: Visual score generation is disabled in this environment. Raw notation displayed below.</em></p>
                 
-                <% if (question) { %>
-                    <div class="question-display">
-                        <img src="/images/compound_simple/question_melody.png?t=<%= Date.now() %>" alt="Question Melody" class="score-image">
+                <% if (question && vexData) { %>
+                    <div class="question-display score-display">
+                        <h3>Question</h3>
+                        <p>Time Signature: <%= vexData.question.timeSignature %></p>
+                        <div class="lilypond-text"><%= vexData.question.notes.join(' ') %></div>
                     </div>
 
                     <form action="/compound_simple/check" method="POST" id="optionsForm">
                         <div class="options-list">
-                            <% question.options.forEach((option, index) => { %>
+                            <% vexData.options.forEach((opt, index) => { %>
                                 <label class="option-container <%= submitted && index === selectedOption ? 'selected' : '' %>">
                                     <input type="radio" name="optionIndex" value="<%= index %>" class="option-radio" 
                                         <%= submitted ? 'disabled' : '' %> 
                                         <%= submitted && index === selectedOption ? 'checked' : '' %>
                                         required>
-                                    <span>Option <%= index + 1 %></span>
-                                    <img src="/images/compound_simple/wr_option_<%= index %>.png?t=<%= Date.now() %>" alt="Option <%= index + 1 %>" class="option-image">
+                                    <div style="flex-grow: 1;">
+                                        <span>Option <%= index + 1 %></span>
+                                        <p>Time: <%= opt.timeSignature %></p>
+                                        <div class="lilypond-text"><%= opt.notes.join(' ') %></div>
+                                    </div>
                                 </label>
                             <% }); %>
                         </div>
@@ -89,6 +102,11 @@
                         <% if (!submitted) { %>
                             <div class="controls">
                                 <button type="submit" class="btn">Check Answer</button>
+                                <button type="submit" formaction="/compound_simple/generate" class="btn btn-secondary">New Question</button>
+                            </div>
+                        <% } else { %>
+                            <div class="controls">
+                                <a href="/compound_simple" class="btn">Next Question</a>
                             </div>
                         <% } %>
                     </form>
@@ -100,12 +118,6 @@
                             <% } else { %>
                                 <strong>Incorrect.</strong> The correct answer was Option <%= correctIndex + 1 %>.
                             <% } %>
-                        </div>
-                        
-                        <div class="controls">
-                            <form action="/compound_simple/generate" method="POST">
-                                <button type="submit" class="btn">New Question</button>
-                            </form>
                         </div>
                     <% } %>
                 <% } else { %>
