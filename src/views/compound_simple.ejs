@@ -72,6 +72,9 @@
             display: flex;
             justify-content: center;
             min-height: 120px;
+            border: 1px solid #eee;
+            margin: 10px 0;
+            padding: 10px;
         }
     </style>
 </head>
@@ -138,9 +141,19 @@
                     </script>
                     
                     <script>
+                        console.log('VexFlow script starting...');
+                        
+                        // Check if VexFlow is loaded
+                        if (typeof Vex === 'undefined' || !Vex.Flow) {
+                            console.error('VexFlow library not loaded!');
+                            return;
+                        }
+                        
                         const { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice, Fraction } = Vex.Flow;
+                        console.log('VexFlow components loaded:', { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice, Fraction });
                         
                         function parseLilypondNote(noteStr) {
+                            console.log('Parsing note:', noteStr);
                             // Format: pitch[accidental]duration[dots]
                             // Examples: g4, a8., fis4, bes2, c'4
                             
@@ -156,6 +169,8 @@
                             const durationVal = match[3];
                             const dots = match[4];
                             const octaveMod = match[5]; // Capture octave markers
+                            
+                            console.log('Note parts:', { step, acc, durationVal, dots, octaveMod });
                             
                             // Map LilyPond duration to VexFlow duration
                             let duration = "q";
@@ -185,25 +200,33 @@
                             }
                             
                             const key = `${step}/${octave}`;
+                            console.log('Creating note with key:', key, 'duration:', duration);
                             
-                            const note = new StaveNote({
-                                keys: [key],
-                                duration: duration,
-                                auto_stem: true
-                            });
-                            
-                            if (accidental) {
-                                note.addModifier(new Accidental(accidental));
+                            try {
+                                const note = new StaveNote({
+                                    keys: [key],
+                                    duration: duration,
+                                    auto_stem: true
+                                });
+                                
+                                if (accidental) {
+                                    note.addModifier(new Accidental(accidental));
+                                }
+                                
+                                if (dots && dots.length > 0) {
+                                    note.addDot(0);
+                                }
+                                
+                                console.log('Note created successfully:', note);
+                                return note;
+                            } catch (e) {
+                                console.error('Error creating StaveNote:', e);
+                                return null;
                             }
-                            
-                            if (dots && dots.length > 0) {
-                                note.addDot(0);
-                            }
-                            
-                            return note;
                         }
 
                         function parseMelodyString(melodyArray) {
+                            console.log('Parsing melody array:', melodyArray);
                             // melodyArray is array of strings.
                             // Each string can be a single note "g4", multiple notes "g8 a8", or tuplet "\tuplet 3/2 { ... }"
                             
@@ -215,11 +238,13 @@
                                 return { notes: [], tuplets: [] };
                             }
 
-                            melodyArray.forEach(segment => {
+                            melodyArray.forEach((segment, segIndex) => {
+                                console.log(`Processing segment ${segIndex}:`, segment);
                                 segment = String(segment).trim();
                                 if (!segment) return;
                                 
                                 if (segment.startsWith("\\tuplet")) {
+                                    console.log('Found tuplet:', segment);
                                     // Parse tuplet: \tuplet 3/2 { a8 b8 c8 }
                                     const match = segment.match(/\\tuplet\s+(\d+)\/(\d+)\s*\{(.*)\}/);
                                     if (match) {
@@ -227,108 +252,176 @@
                                         const notesOccupied = parseInt(match[2]); // e.g. 2
                                         const content = match[3].trim();
                                         
+                                        console.log('Tuplet parsed:', { numNotes, notesOccupied, content });
+                                        
                                         const tupletNoteStrs = content.split(/\s+/);
+                                        console.log('Tuplet note strings:', tupletNoteStrs);
                                         const tupletNotes = tupletNoteStrs.map(s => parseLilypondNote(s)).filter(n => n);
+                                        
+                                        console.log('Tuplet notes created:', tupletNotes);
                                         
                                         if (tupletNotes.length > 0) {
                                             notes.push(...tupletNotes);
-                                            tuplets.push(new Tuplet(tupletNotes, {
-                                                num_notes: numNotes,
-                                                notes_occupied: notesOccupied
-                                            }));
+                                            try {
+                                                const tuplet = new Tuplet(tupletNotes, {
+                                                    num_notes: numNotes,
+                                                    notes_occupied: notesOccupied
+                                                });
+                                                console.log('Tuplet created:', tuplet);
+                                                tuplets.push(tuplet);
+                                            } catch (e) {
+                                                console.error('Error creating Tuplet:', e);
+                                            }
                                         }
                                     } else {
                                         console.warn("Failed to parse tuplet:", segment);
                                     }
                                 } else {
                                     // Split by space for multiple notes
+                                    console.log('Processing regular notes:', segment);
                                     const noteStrs = segment.split(/\s+/);
+                                    console.log('Note strings:', noteStrs);
                                     noteStrs.forEach(s => {
                                         const note = parseLilypondNote(s);
-                                        if (note) notes.push(note);
+                                        if (note) {
+                                            console.log('Adding note:', note);
+                                            notes.push(note);
+                                        }
                                     });
                                 }
                             });
                             
+                            console.log('Final parsed result:', { notes, tuplets });
                             return { notes, tuplets };
                         }
                         
                         function renderScore(containerId, timeSignature, melodyArray) {
+                            console.log(`Rendering score in container: ${containerId}, timeSignature: ${timeSignature}, melody:`, melodyArray);
+                            
                             const container = document.getElementById(containerId);
-                            if (!container) return;
+                            if (!container) {
+                                console.error(`Container not found: ${containerId}`);
+                                return;
+                            }
+                            console.log(`Found container: ${containerId}`, container);
+                            
                             container.innerHTML = '';
                             
                             const { notes, tuplets } = parseMelodyString(melodyArray);
-                            if (notes.length === 0) return;
+                            console.log(`Parsed ${notes.length} notes and ${tuplets.length} tuplets`);
+                            
+                            if (notes.length === 0) {
+                                console.warn('No notes to render');
+                                container.innerHTML = '<p style="color: red;">No notes to display</p>';
+                                return;
+                            }
                             
                             // Calculate width
                             const width = Math.max(400, notes.length * 40 + 50);
                             const height = 120;
                             
-                            const renderer = new Renderer(container, Renderer.Backends.SVG);
-                            renderer.resize(width, height);
-                            const context = renderer.getContext();
+                            console.log(`Creating renderer with width: ${width}, height: ${height}`);
                             
-                            const stave = new Stave(10, 10, width - 20);
-                            stave.addClef("treble");
-                            // timeSignature might be array [num, den] or string "num/den"
-                            // If array, convert to string
-                            let timeSigStr = timeSignature;
-                            if (Array.isArray(timeSignature)) {
-                                timeSigStr = timeSignature[0] + "/" + timeSignature[1];
-                            }
-                            stave.addTimeSignature(timeSigStr);
-                            stave.setContext(context).draw();
-                            
-                            // Beam the notes automatically
-                            // Beams require notes to be part of a voice for auto-beaming in newer VexFlow? 
-                            // Or utilize Beam.generateBeams
-                            const beams = Beam.generateBeams(notes, {
-                                groups: [new Fraction(3, 8)] 
-                            });
-                            
-                            // Create a voice matching the time signature
-                            const timeParts = timeSigStr.split('/');
-                            const voice = new Voice({
-                                num_beats: parseInt(timeParts[0]), 
-                                beat_value: parseInt(timeParts[1])
-                            });
-                            voice.setStrict(false); // IMPORTANT: Disable strict timing checks
-                            voice.addTickables(notes);
+                            try {
+                                const renderer = new Renderer(container, Renderer.Backends.SVG);
+                                renderer.resize(width, height);
+                                const context = renderer.getContext();
+                                console.log('Renderer and context created successfully');
+                                
+                                const stave = new Stave(10, 10, width - 20);
+                                stave.addClef("treble");
+                                
+                                // timeSignature might be array [num, den] or string "num/den"
+                                // If array, convert to string
+                                let timeSigStr = timeSignature;
+                                if (Array.isArray(timeSignature)) {
+                                    timeSigStr = timeSignature[0] + "/" + timeSignature[1];
+                                }
+                                console.log('Adding time signature:', timeSigStr);
+                                stave.addTimeSignature(timeSigStr);
+                                stave.setContext(context).draw();
+                                console.log('Stave drawn successfully');
+                                
+                                // Beam the notes automatically
+                                console.log('Generating beams...');
+                                const beams = Beam.generateBeams(notes, {
+                                    groups: [new Fraction(3, 8)] 
+                                });
+                                console.log('Beams generated:', beams);
+                                
+                                // Create a voice matching the time signature
+                                const timeParts = timeSigStr.split('/');
+                                console.log('Time signature parts:', timeParts);
+                                const voice = new Voice({
+                                    num_beats: parseInt(timeParts[0]), 
+                                    beat_value: parseInt(timeParts[1])
+                                });
+                                voice.setStrict(false); // IMPORTANT: Disable strict timing checks
+                                console.log('Voice created, adding tickables...');
+                                voice.addTickables(notes);
+                                console.log('Tickables added to voice');
 
-                            // Format notes
-                            const formatter = new Formatter();
-                            formatter.joinVoices([voice]);
-                            
-                            // Calculate width dynamically
-                            const totalWidth = width - 50;
-                            formatter.format([voice], totalWidth);
-                            
-                            voice.draw(context, stave);
-                            
-                            beams.forEach(b => b.setContext(context).draw());
-                            
-                            tuplets.forEach(t => t.setContext(context).draw());
+                                // Format notes
+                                console.log('Formatting notes...');
+                                const formatter = new Formatter();
+                                formatter.joinVoices([voice]);
+                                
+                                // Calculate width dynamically
+                                const totalWidth = width - 50;
+                                console.log('Formatting with width:', totalWidth);
+                                formatter.format([voice], totalWidth);
+                                console.log('Formatting complete');
+                                
+                                console.log('Drawing voice...');
+                                voice.draw(context, stave);
+                                console.log('Voice drawn successfully');
+                                
+                                console.log('Drawing beams...');
+                                beams.forEach((b, i) => {
+                                    console.log(`Drawing beam ${i}:`, b);
+                                    b.setContext(context).draw();
+                                });
+                                
+                                console.log('Drawing tuplets...');
+                                tuplets.forEach((t, i) => {
+                                    console.log(`Drawing tuplet ${i}:`, t);
+                                    t.setContext(context).draw();
+                                });
+                                
+                                console.log(`Score rendering complete for ${containerId}`);
+                                
+                            } catch (e) {
+                                console.error(`Error rendering score in ${containerId}:`, e);
+                                container.innerHTML = `<p style="color: red;">Error rendering: ${e.message}</p>`;
+                            }
                         }
                         
                         // Initialize
                         window.addEventListener('DOMContentLoaded', () => {
+                            console.log('DOMContentLoaded event fired');
                             try {
                                 const dataElement = document.getElementById('vex-data');
                                 if (dataElement && dataElement.textContent) {
+                                    console.log('Found vex-data element');
                                     const data = JSON.parse(dataElement.textContent);
+                                    console.log('Parsed data:', data);
                                     
                                     // Render Question
                                     if (data.question) {
+                                        console.log('Rendering question...');
                                         renderScore("canvas-question", data.question.timeSignature, data.question.notes);
                                     }
                                     
                                     // Render Options
                                     if (data.options) {
+                                        console.log('Rendering options...');
                                         data.options.forEach((opt, index) => {
+                                            console.log(`Rendering option ${index}:`, opt);
                                             renderScore("canvas-option-" + index, opt.timeSignature, opt.notes);
                                         });
                                     }
+                                } else {
+                                    console.error('vex-data element not found or empty');
                                 }
                             } catch (e) {
                                 console.error("Error rendering scores:", e);
