@@ -94,7 +94,6 @@
                 <% if (question && vexData) { %>
                     <div class="question-display score-display">
                         <h3>Question</h3>
-                        <p>Time Signature: <%= vexData.question.timeSignature %></p>
                         <div id="canvas-question" class="vexflow-canvas"></div>
                         <div class="lilypond-text"><%= vexData.question.notes.join(' ') %></div>
                     </div>
@@ -109,7 +108,6 @@
                                         required>
                                     <div style="flex-grow: 1;">
                                         <span>Option <%= index + 1 %></span>
-                                        <p>Time: <%= opt.timeSignature %></p>
                                         <div id="canvas-option-<%= index %>" class="vexflow-canvas"></div>
                                         <div class="lilypond-text"><%= opt.notes.join(' ') %></div>
                                     </div>
