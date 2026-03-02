@@ -51,13 +51,18 @@ function generateQuestionData() {
     const targetCat = `${targetCatPrefix} ${catType}`;
     
     const targetTimeSignList = TIME_SIGN_CAT[targetCat];
-    // Filter for same totalBeat
-    const matchingTargetSigns = targetTimeSignList.filter(s => s[1] === totalBeat);
+    const targetTimeSignData = targetTimeSignList[Math.floor(Math.random() * targetTimeSignList.length)];
+    // Calculate correct target time signature based on simple <-> compound rule
+    // Simple -> Compound: num * 3, den * 2
+    // Compound -> Simple: num / 3, den / 2
+    
     let correctTimeSig;
-    if (matchingTargetSigns.length > 0) {
-        correctTimeSig = matchingTargetSigns[Math.floor(Math.random() * matchingTargetSigns.length)][0];
+    const [qNum, qDen] = timeSignature.split('/').map(Number);
+    
+    if (isSimple) {
+        correctTimeSig = `${qNum * 3}/${qDen * 2}`;
     } else {
-        correctTimeSig = targetTimeSignList[Math.floor(Math.random() * targetTimeSignList.length)][0];
+        correctTimeSig = `${qNum / 3}/${qDen / 2}`;
     }
 
     const correctMelodyRhythm = tranSimpleCompound(melodyRhythm, timeSignCat, false);

@@ -8,13 +8,13 @@ RHYTHM_SETTING = {
             "4 8", "8 4", "\\tuplet 2/3 {8. 16}"]
 }
 
-TIME_SIGN_CAT = { #(time sign, total of beat value)
-    "simple duple": [("2/2",4), ("2/4",2), ("2/8",1)],
+TIME_SIGN_CAT = { #(time sign, total of value)
+    "simple duple": [("2/2",4), ("2/4",2)],
     "simple triple": [("3/2",6), ("3/4",3), ("3/8",1.5)],
-    "simple quadruple": [("4/4",4), ("4/2",8), ("4/8",2)],
-    "compound duple": [("6/2",6), ("6/4",3), ("6/8",1.5), ("6/16",0.75)],
-    "compound triple": [ ("9/4",4.5), ("9/8",2.25)],
-    "compound quadruple": [("12/4",6), ("12/8",3)]
+    "simple quadruple": [("4/4",4), ("4/2",8)],
+    "compound duple": [("6/2",12), ("6/4",6), ("6/8",3), ("6/16",1.5)],
+    "compound triple": [ ("9/4",9), ("9/8",4.5)],
+    "compound quadruple": [("12/4",12), ("12/8",6)]
 }
 #1. Pick the time signature category
 time_sign_cat, time_sign_list = random.choice(list(TIME_SIGN_CAT.items()))
@@ -39,15 +39,27 @@ print(melody)
 simple_or_compound = "simple" if "simple" in time_sign_cat else "compound" 
 
 # Define target category mapping
-cat_type = time_sign_cat.split(" ")[1] # duple, triple, quadruple
-target_cat_prefix = "compound" if simple_or_compound == "simple" else "simple"
-target_cat = f"{target_cat_prefix} {cat_type}"
+def get_target_time_signature(source_time_str):
+    num, den = map(int, source_time_str.split('/'))
+    # If simple (den = 2, 4, 8, 16 and not compound logic), convert to compound
+    # Heuristic: if category says "simple", use *3/2 rule.
+    # We have time_sign_cat string available.
+    
+    if "simple" in time_sign_cat:
+        # Simple to Compound: num * 3, den * 2
+        target_num = num * 3
+        target_den = den * 2
+    else:
+        # Compound to Simple: num / 3, den / 2
+        target_num = int(num / 3)
+        target_den = int(den / 2)
+    
+    return f"{target_num}/{target_den}"
 
-# Pick a target time signature
-target_time_sign_list = TIME_SIGN_CAT[target_cat]
-target_time_sign = random.choice(target_time_sign_list)
+target_time_str = get_target_time_signature(time_sign[0])
+target_time_sign = (target_time_str, total_beat) # Assuming total beat matches for now, or we can recalculate/lookup
 
-print(f"Target category: {target_cat}, Target time signature: {target_time_sign[0]}")
+print(f"Target category: Derived, Target time signature: {target_time_sign[0]}")
 
 def translate_melody(melody, source_type):
     translated = []
