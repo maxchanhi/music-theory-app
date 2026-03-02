@@ -8,13 +8,13 @@ const RHYTHM_SETTING = {
     "compound": ["4.", "\\tuplet 2/3 {8 8}", "8 8 8", "4 8", "8 4", "\\tuplet 2/3 {8. 16}"]
 };
 
-const TIME_SIGN_CAT = {
-    "simple duple": [["2/2", 4], ["2/4", 2], ["2/8", 1]],
-    "simple triple": [["3/2", 6], ["3/4", 3], ["3/8", 1.5]],
-    "simple quadruple": [["4/4", 4], ["4/2", 8], ["4/8", 2]],
-    "compound duple": [["6/2", 6], ["6/4", 3], ["6/8", 1.5], ["6/16", 0.75]],
-    "compound triple": [["9/4", 4.5], ["9/8", 2.25]],
-    "compound quadruple": [["12/4", 6], ["12/8", 3]]
+const TIME_SIGN_CAT = { 
+    "simple duple": [["2/2",4], ["2/4",2]],
+    "simple triple": [["3/2",6], ["3/4",3], ["3/8",1.5]],
+    "simple quadruple": [["4/4",4], ["4/2",8]],
+    "compound duple": [["6/4",6], ["6/8",3], ["6/16",1.5]],
+    "compound triple": [ ["9/4",9], ["9/8",4.5]],
+    "compound quadruple": [ ["12/8",6]]
 };
 
 function generateQuestionData() {
