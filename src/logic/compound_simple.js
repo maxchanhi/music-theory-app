@@ -29,14 +29,24 @@ function generateQuestionData() {
     // 2. Pick the rhythm setting as the question
     let melodyRhythm = [];
     let beat = 0;
+    let lastRhythm = null;
+
     while (beat < totalBeat) {
         if (timeSignCat.includes("simple")) {
-            const rhythm = RHYTHM_SETTING["simple"][Math.floor(Math.random() * RHYTHM_SETTING["simple"].length)];
+            let availableRhythms = RHYTHM_SETTING["simple"].filter(r => r !== lastRhythm);
+            if (availableRhythms.length === 0) availableRhythms = RHYTHM_SETTING["simple"];
+            
+            const rhythm = availableRhythms[Math.floor(Math.random() * availableRhythms.length)];
             melodyRhythm.push(rhythm);
+            lastRhythm = rhythm;
             beat += 1;
         } else {
-            const rhythm = RHYTHM_SETTING["compound"][Math.floor(Math.random() * RHYTHM_SETTING["compound"].length)];
+            let availableRhythms = RHYTHM_SETTING["compound"].filter(r => r !== lastRhythm);
+            if (availableRhythms.length === 0) availableRhythms = RHYTHM_SETTING["compound"];
+            
+            const rhythm = availableRhythms[Math.floor(Math.random() * availableRhythms.length)];
             melodyRhythm.push(rhythm);
+            lastRhythm = rhythm;
             beat += 1.5;
         }
     }

@@ -25,14 +25,25 @@ print("total_beat", total_beat)
 #2. Pick the rhythm setting as the quesiton
 melody = []
 beat = 0
+last_rhythm = None
+
 while beat < total_beat:
     if "simple" in time_sign_cat:
-        rhythm = random.choice(RHYTHM_SETTING["simple"])
+        available_rhythms = [r for r in RHYTHM_SETTING["simple"] if r != last_rhythm]
+        # Fallback if filtered list is empty (unlikely with this dataset but good practice)
+        if not available_rhythms: available_rhythms = RHYTHM_SETTING["simple"]
+        
+        rhythm = random.choice(available_rhythms)
         melody.append(rhythm)
+        last_rhythm = rhythm
         beat += 1
     else:
-        rhythm = random.choice(RHYTHM_SETTING["compound"])
+        available_rhythms = [r for r in RHYTHM_SETTING["compound"] if r != last_rhythm]
+        if not available_rhythms: available_rhythms = RHYTHM_SETTING["compound"]
+        
+        rhythm = random.choice(available_rhythms)
         melody.append(rhythm)
+        last_rhythm = rhythm
         beat += 1.5
 print(melody)
 #3. Generate correct answer
