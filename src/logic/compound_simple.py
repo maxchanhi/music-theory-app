@@ -8,13 +8,13 @@ RHYTHM_SETTING = {
             "4 8", "8 4", "\\tuplet 2/3 {8. 16}"]
 }
 
-TIME_SIGN_CAT = { #(time sign, number of beats)
-    "simple duple": [("2/2", 2), ("2/4", 2), ("2/8", 2)],
-    "simple triple": [("3/2", 3), ("3/4", 3), ("3/8", 3)],
-    "simple quadruple": [("4/4", 4), ("4/2", 4), ("4/8", 4)],
-    "compound duple": [("6/4", 2), ("6/8", 2), ("6/16", 2)],
-    "compound triple": [("9/4", 3), ("9/8", 3), ("9/16", 3)],
-    "compound quadruple": [("12/4", 4), ("12/8", 4), ("12/16", 4)]
+TIME_SIGN_CAT = { #(time sign, total of beat value)
+    "simple duple": [("2/2",4), ("2/4",2), ("2/8",1)],
+    "simple triple": [("3/2",6), ("3/4",3), ("3/8",1.5)],
+    "simple quadruple": [("4/4",4), ("4/2",8), ("4/8",2)],
+    "compound duple": [("6/2",6), ("6/4",3), ("6/8",1.5), ("6/16",0.75)],
+    "compound triple": [ ("9/4",4.5), ("9/8",2.25)],
+    "compound quadruple": [("12/4",6), ("12/8",3)]
 }
 #1. Pick the time signature category
 time_sign_cat, time_sign_list = random.choice(list(TIME_SIGN_CAT.items()))
@@ -43,14 +43,9 @@ cat_type = time_sign_cat.split(" ")[1] # duple, triple, quadruple
 target_cat_prefix = "compound" if simple_or_compound == "simple" else "simple"
 target_cat = f"{target_cat_prefix} {cat_type}"
 
-# Pick a target time signature with the same number of beats
+# Pick a target time signature
 target_time_sign_list = TIME_SIGN_CAT[target_cat]
-# Filter for same total_beat
-matching_target_signs = [sign for sign, beat in target_time_sign_list if beat == total_beat]
-if not matching_target_signs:
-    target_time_sign = random.choice(target_time_sign_list)
-else:
-    target_time_sign = (random.choice(matching_target_signs), total_beat)
+target_time_sign = random.choice(target_time_sign_list)
 
 print(f"Target category: {target_cat}, Target time signature: {target_time_sign[0]}")
 
