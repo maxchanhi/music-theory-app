@@ -67,6 +67,14 @@ router.post('/check', async (req, res) => {
     
     const question = sessionData.question;
     const correct = question.answer;
+    
+    // Safety check for undefined answer
+    if (!correct) {
+        console.error("Correct answer is undefined in session data:", question);
+        // Force regeneration or show error
+        return res.redirect('/clef_minor');
+    }
+    
     const isCorrect = option === correct;
     
     if (!isCorrect && req.session.userInfo) {
