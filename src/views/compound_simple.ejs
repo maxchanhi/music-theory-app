@@ -152,8 +152,8 @@
                             return;
                         }
                         
-                        const { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice, Fraction } = Vex.Flow;
-                        console.log('VexFlow components loaded:', { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice, Fraction });
+                        const { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice, Fraction, Dot } = Vex.Flow;
+                        console.log('VexFlow components loaded:', { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice, Fraction, Dot });
                         
                         function parseLilypondNote(noteStr) {
                             // Format: pitch[accidental]duration[dots]
@@ -213,7 +213,9 @@
                                 }
                                 
                                 if (dots && dots.length > 0) {
-                                    note.addDot(0);
+                                    Dot.buildAndAttach([note], {
+                                        all: true
+                                    });
                                 }
                                 
                                 return note;
@@ -349,13 +351,17 @@
                                 voice.setStrict(false); // IMPORTANT: Disable strict timing checks
                                 voice.addTickables(notes);
 
-                                // Format notes
+                                // Format notes to fit within the stave width
                                 const formatter = new Formatter();
                                 formatter.joinVoices([voice]);
                                 
-                                // Calculate width dynamically
-                                const totalWidth = width - 50;
-                                formatter.format([voice], totalWidth);
+                                // Calculate available width for notes (stave width - padding - clef/time sig width)
+                                // Standard padding and offset
+                                const startX = stave.getNoteStartX(); 
+                                const endX = stave.getNoteEndX();
+                                const availableWidth = endX - startX;
+                                
+                                formatter.format([voice], availableWidth);
                                 
                                 voice.draw(context, stave);
                                 
