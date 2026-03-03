@@ -330,28 +330,12 @@
                                 // Beam the notes automatically
                                 let beams = [];
                                 try {
-                                    // Determine beam grouping based on time signature
+                                    // Use VexFlow's getDefaultBeamGroups for the specific time signature
                                     const timeParts = timeSigStr.split('/');
-                                    const num = parseInt(timeParts[0]);
-                                    const den = parseInt(timeParts[1]);
+                                    const defaultGroups = Beam.getDefaultBeamGroups(timeSigStr);
                                     
-                                    let beamGroups = [];
-                                    
-                                    // Compound Time Logic (6/8, 9/8, 12/8) -> Group by 3/8 (dotted quarter)
-                                    if (den === 8 && num % 3 === 0) {
-                                        beamGroups = [new Fraction(3, 8)];
-                                    } 
-                                    // Simple Time Logic (2/4, 3/4, 4/4) -> Group by 1/4 (quarter note)
-                                    else if (den === 4) {
-                                        beamGroups = [new Fraction(1, 4)];
-                                    }
-                                    // Other cases (e.g. 2/2) -> Default VexFlow behavior or specific handling
-                                    else {
-                                        beamGroups = [new Fraction(1, 2)];
-                                    }
-
                                     beams = Beam.generateBeams(notes, {
-                                        groups: beamGroups
+                                        groups: defaultGroups
                                     });
                                 } catch (e) {
                                     console.warn("Auto-beaming failed, trying default:", e);
