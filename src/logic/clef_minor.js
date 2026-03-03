@@ -126,49 +126,44 @@ function addOctaveIndicators(tonic, clef) {
     // 3. Determine Base Octave for Clef
     // We want the scale to be centered in the staff.
     // Treble: C4-C5 (c' - c'')
-    // Bass: C2-C3 (c, - c)
-    // Alto: F3-F4
-    // Tenor: D3-D4
+    // Bass: C2-C3 (c, - c) or C3-C4
+    // Alto: F3-F4 or C4-C5
+    // Tenor: D3-D4 or A3-A4
     
-    let baseOctaveShift = 0; // 0 means ' (4th octave)
+    let baseOctaveShift = 0; 
+    const pitchVal = "cdefgab".indexOf(tonic[0]);
     
     if (clef === 'treble') {
-        // e.g. A minor: A4-A5 (a' - a''). 
-        // If tonic is 'a', we want 'a\'' (A4).
-        // If tonic is 'c', we want 'c\'' (C4) or 'c\'\'' (C5).
-        // Let's aim for the tonic to be between C4 and C5.
-        // default pitch is 3rd octave (c, d, e...). ' is 4th.
-        
-        // Map 'c'..'b' to 0..6
-        const pitchVal = "cdefgab".indexOf(tonic[0]);
-        if (pitchVal >= 5) { // a, b
-             // a' is A4. 
-             baseOctaveShift = 1; // '
-        } else {
-             // c, d, e, f, g
-             // c' is C4.
-             baseOctaveShift = 1; // '
-        }
+        // Range: C4 (c') to A5/B5
+        // Start everything in 4th octave (c')
+        baseOctaveShift = 1; 
     } else if (clef === 'bass') {
-        // Aim for C2-C3 range.
-        // c, is C3. c,, is C2.
-        // standard notes are C3.
-        // We want comma (,) or double comma (,,).
-        // Let's set base to -1 (,)
+        // Range: E2 (e,) to C4 (c')
+        // C, D, E -> Start at C3 (c) [0] or C2 (c,) [-1]?
+        // C3 starts 2nd space. Goes to C4 (1 ledger line above). Good.
+        // F, G, A, B -> Start at F2 (f,) [-1]. F2 is below staff. F3 is 4th line. Good.
         
-        const pitchVal = "cdefgab".indexOf(tonic[0]);
-        if (pitchVal >= 3) { // f, g, a, b
-            baseOctaveShift = -1; // , (F2, G2...)
-        } else {
-            baseOctaveShift = 0; // standard (C3, D3...)
+        if (pitchVal <= 2) { // c, d, e
+            baseOctaveShift = 0; // C3, D3, E3 start
+        } else { // f, g, a, b
+            baseOctaveShift = -1; // F2, G2, A2, B2 start
         }
-        
-        // Adjust lower
-        baseOctaveShift -= 1;
     } else if (clef === 'alto') {
-        baseOctaveShift = 0;
+        // C4 is middle line.
+        // F3 (f) to G4 (g').
+        if (pitchVal <= 2) { // c, d, e
+            baseOctaveShift = 1; // C4 start
+        } else { // f, g, a, b
+            baseOctaveShift = 0; // F3 start
+        }
     } else if (clef === 'tenor') {
-        baseOctaveShift = -1; 
+        // C4 is 4th line.
+        // A2 (a,) to B3 (b).
+        if (pitchVal <= 4) { // c, d, e, f, g
+            baseOctaveShift = 0; // C3 start
+        } else { // a, b
+            baseOctaveShift = -1; // A2 start
+        }
     }
 
     // 4. Apply octaves
