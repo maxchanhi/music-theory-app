@@ -60,13 +60,24 @@ router.post('/generate', async (req, res) => {
 });
 
 router.post('/check', async (req, res) => {
+    console.log("Check answer request received", req.body);
     const { option } = req.body;
     const sessionData = req.session.clefMinor;
     
-    if (!sessionData || !sessionData.question) return res.redirect('/clef_minor');
+    if (!sessionData) {
+        console.log("No session data found");
+        return res.redirect('/clef_minor');
+    }
+    if (!sessionData.question) {
+        console.log("No question in session data");
+        return res.redirect('/clef_minor');
+    }
     
     const question = sessionData.question;
     const correct = question.answer;
+    
+    console.log("User option:", option);
+    console.log("Correct answer:", correct);
     
     // Safety check for undefined answer
     if (!correct) {
@@ -76,6 +87,7 @@ router.post('/check', async (req, res) => {
     }
     
     const isCorrect = option === correct;
+    console.log("Is correct?", isCorrect);
     
     if (!isCorrect && req.session.userInfo) {
         try {

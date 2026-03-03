@@ -44,68 +44,10 @@
                 
                 <form action="/clef_minor/check" method="POST">
                     <div class="options-container">
-                        <!-- 
-                        Wait, the original view asked for "Select the Clef" AND "Select the Key".
-                        But my route /check logic only checked `option` (singular).
-                        Let's check the previous route logic.
-                        It had `const { selectedClef, selectedOption } = req.body;` ?
-                        No, the previous route I read was:
-                        `const { option } = req.body;`
-                        `const correct = question.answer;`
-                        `const isCorrect = option === correct;`
-                        
-                        But the view had TWO radio groups: `selectedClef` and `selectedOption`.
-                        The `question.answer` in `clef_minor.js` logic must be the KEY (e.g., "a harmonic minor").
-                        The CLEF is likely part of the question but maybe not part of the "answer" checking if the question provides the clef visually?
-                        Wait, the question IS to identify the clef and key?
-                        The description says "Identify the clef and minor key".
-                        However, the generated score HAS a clef.
-                        So asking the user to identify the clef that is visibly rendered seems redundant unless the clef is hidden?
-                        But `generateQuestionData` passes `clef` to VexFlow/LilyPond to RENDER it.
-                        So the user sees the clef.
-                        
-                        Maybe the question is: "Here is a score, what key is it?"
-                        But the view had a radio group for Clef.
-                        Maybe the generated image didn't have a clef?
-                        The `clef_minor_generation.js` had `\clef "${clef}"`. So it rendered the clef.
-                        
-                        Let's check `clef_minor.js` logic if I can.
-                        But I don't have it fully.
-                        
-                        The previous route logic:
-                        `const { option } = req.body;`
-                        It seems it only checked one thing.
-                        Maybe the view I read was inconsistent with the route I read?
-                        Or maybe `option` matches `selectedOption`?
-                        
-                        The view had: `name="selectedOption"` and `name="selectedClef"`.
-                        The route `req.body` would have `selectedOption` and `selectedClef`.
-                        But the route I read used `const { option } = req.body`.
-                        `option` would be undefined!
-                        So the previous code was likely broken or I missed something.
-                        
-                        I will assume the user needs to identify the KEY (scale name).
-                        The clef is visual context.
-                        I will only include the "Select the Key" part for now, or assume `option` maps to the key.
-                        Let's check `src/routes/clef_minor.js` again.
-                        It used `const { option } = req.body`.
-                        If the form sends `selectedOption`, `option` is undefined.
-                        I should fix the route to use `selectedOption` or change the form to use `option`.
-                        I'll change the form to use `option` for the key.
-                        And I'll remove the Clef selection if it's redundant (since VexFlow renders the clef).
-                        Or maybe the user is supposed to identify the clef symbol?
-                        If VexFlow renders the clef, the user sees it.
-                        Identifying it is trivial "That's a G clef".
-                        
-                        I'll stick to Key selection.
-                        -->
-                        
                         <div>
                             <h3>Select the Key:</h3>
                             <div class="radio-group">
                                 <% 
-                                // We need options. In previous view it was `question.userOptions`.
-                                // Let's assume `data.question.userOptions` exists.
                                 if (data.question.userOptions) {
                                     data.question.userOptions.forEach(option => { 
                                 %>
