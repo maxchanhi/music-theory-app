@@ -30,36 +30,12 @@ for (const [key, scale] of Object.entries(harmonic_ascending)) {
     } else if (sixth.endsWith('f')) {
         sixth = sixth.slice(0, -1);
     }
-
-    // Modify 7th note (same logic as 6th usually, but here it seems we just take the 7th from harmonic which is already raised?)
-    // Wait, harmonic minor has raised 7th. Melodic ascending has raised 6th AND 7th.
-    // In harmonic_ascending map above, the 7th IS already raised (e.g., 'gs' for 'a' minor).
-    // So for melodic ascending, we just need to raise the 6th based on the harmonic scale?
-    // Let's check Python code:
-    // scale[5][0] + 's' if scale[5][-1] != 's' and scale[5][-1] != 'f' else 
-    // scale[5][0] if scale[5][-1] == 'f' else scale[5]
-    // And it keeps scale[6] (7th) as is.
-    // Yes, because harmonic already has raised 7th.
     
     melodic_ascending[key] = scale.slice(0, 5).concat([sixth, seventh]);
 }
 
 const melodic_descending = {};
 for (const [key, scale] of Object.entries(melodic_ascending)) {
-    // Melodic descending is natural minor (flattened 6th and 7th relative to major, or just natural minor)
-    // Python code: scale[:5] + ... wait.
-    // Python code for melodic_descending:
-    // key: [scale[0]] + scale[:0:-1] for key, scale in melodic_ascending.items()
-    // WAIT. The Python code says `melodic_descending` is just the reverse of `melodic_ascending`.
-    // THAT IS INCORRECT MUSIC THEORY. Melodic minor descends as Natural Minor.
-    // BUT I must follow the Python code's logic to replicate the app's behavior, unless I want to fix the bug.
-    // User asked to "translate", so I should probably replicate logic but maybe add a comment.
-    // Let's look closer at `minor_scale.py`:
-    // melodic_descending = { key: [scale[0]] + scale[:0:-1] for key, scale in melodic_ascending.items() }
-    // This effectively reverses the melodic ascending scale.
-    // So if A Melodic Asc is A B C D E F# G#, Descending would be A G# F# E D C B A.
-    // This is "Jazz Melodic Minor". Classical Melodic Minor descends as Natural Minor.
-    // Given the app seems simple, I'll stick to the Python implementation for now to ensure parity.
     melodic_descending[key] = [scale[0], ...scale.slice(1).reverse()];
 }
 
@@ -78,7 +54,7 @@ function getRandomElement(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function addOctaveIndicators(tonic) {
+function addOctaveIndicators(tonic, clef) {
     const minorType = getRandomElement(minor_types);
     let minorScale;
 
@@ -90,49 +66,121 @@ function addOctaveIndicators(tonic) {
     const ascending = minorType.includes("ascending");
     const descending = minorType.includes("descending");
 
-    // Find index of 'c' to handle octave breaks
+    // Base octave adjustment
+    // Start by ensuring the relative octaves are correct (scale continuity)
     const cIndex = minorScale.findIndex(note => note.startsWith('c'));
-
+    
     if (ascending) {
-        if (cIndex >= 2) {
+        // e.g. A B C ... -> a b c'
+        if (cIndex >= 0) {
             for (let i = cIndex; i < minorScale.length; i++) {
-                minorScale[i] += "'";
-            }
-        } else if (cIndex === 1) {
-            minorScale[0] += ',';
-        }
-
-        let lastNote = minorScale[0];
-        // In Python: if ',' in last_note: append(last_note.replace(',', '')) else: append(last_note + "'")
-        // This adds the octave note at the end
-        if (lastNote.includes(',')) {
-            minorScale.push(lastNote.replace(',', ''));
-        } else {
-            minorScale.push(lastNote + "'");
-        }
-    }
-
-    if (descending) {
-        if (cIndex >= 2) {
-            for (let i = cIndex + 1; i < minorScale.length; i++) {
-                minorScale[i] += ",";
-            }
-        } else {
-            for (let i = 0; i <= cIndex; i++) {
                 minorScale[i] += "'";
             }
         }
         
-        let firstNote = minorScale[0];
-        // This adds the octave note at the end (which is the bottom tonic for descending)
-        if (firstNote.includes("'")) {
-            minorScale.push(firstNote.replace("'", ""));
-        } else {
-            minorScale.push(firstNote + ",");
+        // Add octave note at end
+        let lastNote = minorScale[0];
+        // If lastNote (tonic) has comma, remove it for the octave up. If it has ', add ''. 
+        // But here we are working with base notes (no octave marks yet except what we just added).
+        // Actually, we should strip existing octave markers to be safe before adding, 
+        // but our arrays are clean.
+        
+        // Logic: if the first note didn't get a ' (because cIndex > 0), then the octave up gets a '.
+        // If the first note got a ' (because it IS c), then octave up gets ''.
+        
+        // Let's simplify: construct the scale with proper relative octaves first.
+    }
+    
+    // REWRITE: Construct absolute pitch chain first, then shift for clef.
+    // 1. Clean scale (remove any stray marks if any)
+    minorScale = minorScale.map(n => n.replace(/['+,]/g, ''));
+    
+    // 2. Build relative octave sequence (0 = base octave, 1 = next up)
+    let octaveOffsets = [0];
+    let currentOctave = 0;
+    for (let i = 0; i < minorScale.length - 1; i++) {
+        // If current note is B and next is C, octave increases
+        const curr = minorScale[i][0]; // 'b'
+        const next = minorScale[i+1][0]; // 'c'
+        if (curr === 'b' && next === 'c') {
+            currentOctave++;
+        } else if (curr === 'c' && next === 'b') { // Descending break
+            currentOctave--;
         }
+        octaveOffsets.push(currentOctave);
+    }
+    
+    // Add the final tonic octave (8th note)
+    // For ascending, it should be +1 octave from start?
+    // Wait, the arrays are 7 notes long. We need to add the 8th note.
+    const root = minorScale[0];
+    minorScale.push(root);
+    
+    // Calculate octave for 8th note
+    const prev = minorScale[minorScale.length - 2][0];
+    const last = minorScale[minorScale.length - 1][0];
+    if (prev === 'b' && last === 'c') currentOctave++;
+    else if (prev === 'c' && last === 'b') currentOctave--;
+    octaveOffsets.push(currentOctave);
+
+    // 3. Determine Base Octave for Clef
+    // We want the scale to be centered in the staff.
+    // Treble: C4-C5 (c' - c'')
+    // Bass: C2-C3 (c, - c)
+    // Alto: F3-F4
+    // Tenor: D3-D4
+    
+    let baseOctaveShift = 0; // 0 means ' (4th octave)
+    
+    if (clef === 'treble') {
+        // e.g. A minor: A4-A5 (a' - a''). 
+        // If tonic is 'a', we want 'a\'' (A4).
+        // If tonic is 'c', we want 'c\'' (C4) or 'c\'\'' (C5).
+        // Let's aim for the tonic to be between C4 and C5.
+        // default pitch is 3rd octave (c, d, e...). ' is 4th.
+        
+        // Map 'c'..'b' to 0..6
+        const pitchVal = "cdefgab".indexOf(tonic[0]);
+        if (pitchVal >= 5) { // a, b
+             // a' is A4. 
+             baseOctaveShift = 1; // '
+        } else {
+             // c, d, e, f, g
+             // c' is C4.
+             baseOctaveShift = 1; // '
+        }
+    } else if (clef === 'bass') {
+        // Aim for C2-C3 range.
+        // c, is C3. c,, is C2.
+        // standard notes are C3.
+        // We want comma (,) or double comma (,,).
+        // Let's set base to -1 (,)
+        
+        const pitchVal = "cdefgab".indexOf(tonic[0]);
+        if (pitchVal >= 3) { // f, g, a, b
+            baseOctaveShift = -1; // , (F2, G2...)
+        } else {
+            baseOctaveShift = 0; // standard (C3, D3...)
+        }
+        
+        // Adjust lower
+        baseOctaveShift -= 1;
+    } else if (clef === 'alto') {
+        baseOctaveShift = 0;
+    } else if (clef === 'tenor') {
+        baseOctaveShift = -1; 
     }
 
-    return { minorType, minorScale };
+    // 4. Apply octaves
+    const finalScale = minorScale.map((n, i) => {
+        let oct = octaveOffsets[i] + baseOctaveShift;
+        let suffix = "";
+        while (oct > 0) { suffix += "'"; oct--; }
+        while (oct < 0) { suffix += ","; oct++; }
+        return n + suffix;
+    });
+
+    return { minorType, minorScale: finalScale };
 }
 
 function pickClefRange() {
@@ -140,6 +188,7 @@ function pickClefRange() {
     const clef = getRandomElement(clefs);
     let fixedPitch;
 
+    // Fixed pitch for VexFlow stave connector if needed, or just visual reference
     if (clef === 'treble') fixedPitch = "c''";
     else if (clef === 'alto') fixedPitch = "c'";
     else if (clef === 'tenor') fixedPitch = "c";
@@ -149,29 +198,18 @@ function pickClefRange() {
 }
 
 function optionGeneration(startingPitch, ansDir, optionList) {
-    let userOptions = [`${startingPitch} ${ansDir.split(' ')[0]} minor`];
+    let userOptions = [`${displayNote(startingPitch)} ${ansDir.split(' ')[0]} minor`];
     
-    // Safety check to prevent infinite loop if optionList is too small
+    // Safety check to prevent infinite loop
     let maxAttempts = 100;
     
     while (userOptions.length < 4 && maxAttempts > 0) {
         maxAttempts--;
-        const newOption = getRandomElement(optionList);
+        const newOptionPitch = getRandomElement(optionList);
         const newDir = getRandomElement(minor_types);
-        const minorType = newDir.split(' ')[0]; // e.g. "harmonic" from "harmonic ascending"
+        const minorType = newDir.split(' ')[0]; 
         
-        if (optionList.length > 8) {
-            const idx1 = key_list.indexOf(startingPitch);
-            const idx2 = key_list.indexOf(newOption);
-            if (idx1 !== -1 && idx2 !== -1) {
-                const distance = Math.abs(idx1 - idx2);
-                if (distance <= 1 || distance >= key_list.length - 1) {
-                    continue;
-                }
-            }
-        }
-        
-        const option = `${newOption} ${minorType} minor`;
+        const option = `${displayNote(newOptionPitch)} ${minorType} minor`;
         if (!userOptions.includes(option)) {
             userOptions.push(option);
         }
@@ -188,11 +226,12 @@ function optionGeneration(startingPitch, ansDir, optionList) {
 
 function displayNote(note) {
     if (!note) return "";
-    if (note.length === 2) {
-        if (note[1] === 'f') return note[0].toUpperCase() + "-flat";
-        if (note[1] === 's') return note[0].toUpperCase() + "-sharp";
+    let cleanNote = note.replace(/['+,]/g, ''); // Remove octave markers
+    if (cleanNote.length >= 2) {
+        if (cleanNote.endsWith('f')) return cleanNote[0].toUpperCase() + "-flat";
+        if (cleanNote.endsWith('s')) return cleanNote[0].toUpperCase() + "-sharp";
     }
-    return note.toUpperCase();
+    return cleanNote.toUpperCase();
 }
 
 function generateQuestionData(level = "easy") {
@@ -203,9 +242,10 @@ function generateQuestionData(level = "easy") {
 
     const startingPitch = getRandomElement(optionList);
     const { clef, fixedPitch } = pickClefRange();
-    const { minorType, minorScale } = addOctaveIndicators(startingPitch);
+    const { minorType, minorScale } = addOctaveIndicators(startingPitch, clef);
     
     const userOptions = optionGeneration(startingPitch, minorType, optionList);
+    const answer = `${displayNote(startingPitch)} ${minorType.split(' ')[0]} minor`;
 
     return {
         clef,
@@ -213,7 +253,8 @@ function generateQuestionData(level = "easy") {
         minorType,
         minorScale,
         fixedPitch,
-        userOptions
+        userOptions,
+        answer
     };
 }
 
