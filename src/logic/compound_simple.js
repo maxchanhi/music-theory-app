@@ -10,9 +10,9 @@ const RHYTHM_SETTING = {
 
 const TIME_SIGN_CAT = { 
     "simple duple": [["2/2",4], ["2/4",2]],
-    "simple triple": [["3/2",6], ["3/4",3], ["3/8",1.5]],
+    "simple triple": [["3/2",6], ["3/4",3]],
     "simple quadruple": [["4/4",4], ["4/2",8]],
-    "compound duple": [["6/4",6], ["6/8",3], ["6/16",1.5]],
+    "compound duple": [["6/4",6], ["6/8",3]],
     "compound triple": [ ["9/4",9], ["9/8",4.5]],
     "compound quadruple": [ ["12/8",6]]
 };
@@ -134,6 +134,9 @@ function addPitches(rhythmList) {
             const endIdx = segment.indexOf("}");
             const prefix = segment.substring(0, startIdx);
             const content = segment.substring(startIdx, endIdx).trim();
+            // Split by spaces, but preserve dotted notes if they are single tokens in the string
+            // e.g. "8. 16" -> ["8.", "16"]
+            // "8 8 8" -> ["8", "8", "8"]
             const notes = content.split(/\s+/);
             const pitchedNotes = notes.map(n => {
                 const p = PITCH_LIST[Math.floor(Math.random() * PITCH_LIST.length)];
