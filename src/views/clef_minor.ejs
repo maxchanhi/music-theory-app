@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Clef & Minor Keys - Music Theory App</title>
     <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
     <style>
@@ -37,6 +40,18 @@
             </label>
             <button type="submit" class="btn">Generate New Question</button>
         </form>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const timestamp = urlParams.get('t');
+                if (timestamp) {
+                    // Clean the URL without reloading
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    console.log('Page loaded with fresh data (timestamp:', timestamp + ')');
+                }
+            });
+        </script>
 
         <% if (data.question) { %>
             <div class="question-area">
@@ -74,54 +89,86 @@
                 <% } %>
             </div>
 
+            <% if (data.vexFlowData && data.vexFlowData.notes) { %>
             <script id="notes-data" type="application/json">
                 <%- JSON.stringify(data.vexFlowData.notes) %>
             </script>
             <script>
-                const { Renderer, Stave, StaveNote, Accidental, Formatter } = Vex.Flow;
-                
-                // Data from server
-                const notesData = JSON.parse(document.getElementById('notes-data').textContent);
-                const clef = "<%= data.vexFlowData.clef %>";
-                
-                const container = document.getElementById("score-canvas");
-                const width = Math.max(500, notesData.length * 40 + 50);
-                const height = 150;
-                
-                const renderer = new Renderer(container, Renderer.Backends.SVG);
-                renderer.resize(width, height);
-                const context = renderer.getContext();
-                
-                const stave = new Stave(10, 20, width - 20);
-                stave.addClef(clef);
-                stave.setContext(context).draw();
-                
-                const notes = notesData.map(noteKey => {
-                    if (!noteKey) return null;
-                    const [key] = noteKey.split('/');
-                    const note = new StaveNote({
-                        clef: clef,
-                        keys: [noteKey],
-                        duration: "q",
-                        auto_stem: true
-                    });
+                try {
+                    const { Renderer, Stave, StaveNote, Accidental, Formatter } = Vex.Flow;
                     
-                    if (key.includes('##')) {
-                        note.addModifier(new Accidental("##"));
-                    } else if (key.includes('#')) {
-                        note.addModifier(new Accidental("#"));
-                    } else if (key.includes('bb')) {
-                        note.addModifier(new Accidental("bb"));
-                    } else if (key.includes('b')) {
-                        note.addModifier(new Accidental("b"));
+                    // Data from server
+                    const notesDataRaw = document.getElementById('notes-data').textContent;
+                    console.log("Raw Notes Data:", notesDataRaw);
+                    const notesData = JSON.parse(notesDataRaw);
+                    console.log("Parsed Notes Data:", notesData);
+                    
+                    const clef = "<%= data.vexFlowData.clef %>";
+                    console.log("Clef:", clef);
+                    
+                    const container = document.getElementById("score-canvas");
+
+                    // Clear any existing SVG to prevent duplicate rendering
+                    container.innerHTML = '';
+
+                    const width = Math.max(500, notesData.length * 40 + 50);
+                    const height = 150;
+
+                    const renderer = new Renderer(container, Renderer.Backends.SVG);
+                    renderer.resize(width, height);
+                    const context = renderer.getContext();
+
+                    const stave = new Stave(10, 20, width - 20);
+                    stave.addClef(clef);
+                    stave.setContext(context).draw();
+
+                    const notes = notesData.map(noteKey => {
+                        if (!noteKey) return null;
+                        const [key] = noteKey.split('/');
+
+                        // Parse the note to extract accidental
+                        // Format: note + accidental (e.g., 'b', 'b#', 'bb', 'c', 'c#', 'cb')
+                        let accidental = null;
+                        // Match double accidentals first, then single
+                        const noteMatch = key.match(/^([a-g])(##|bb|#|b)?$/);
+                        if (noteMatch) {
+                            const acc = noteMatch[2];
+                            if (acc === '#') accidental = "#";
+                            else if (acc === 'b') accidental = "b";
+                            else if (acc === '##') accidental = "##";
+                            else if (acc === 'bb') {
+                                // 'bb' means flat if note is 'b', otherwise double-flat
+                                accidental = noteMatch[1] === 'b' ? "b" : "bb";
+                            }
+                        }
+
+                        const note = new StaveNote({
+                            clef: clef,
+                            keys: [noteKey],
+                            duration: "q",
+                            auto_stem: true
+                        });
+
+                        if (accidental) {
+                            note.addModifier(new Accidental(accidental));
+                        }
+                        return note;
+                    }).filter(n => n !== null);
+
+                    if (notes.length > 0) {
+                        Formatter.FormatAndDraw(context, stave, notes);
+                        console.log("Score rendered successfully");
+                    } else {
+                        console.warn("No notes to render");
+                        container.innerHTML = '<p>Error: No notes to display</p>';
                     }
-                    return note;
-                }).filter(n => n !== null);
-                
-                if (notes.length > 0) {
-                    Formatter.FormatAndDraw(context, stave, notes);
+                } catch (e) {
+                    console.error("VexFlow Rendering Error:", e);
+                    const container = document.getElementById("score-canvas");
+                    if (container) container.innerHTML = `<p style="color:red">Error rendering score: ${e.message}</p>`;
                 }
             </script>
+            <% } %>
         <% } else { %>
             <p>Click "Generate New Question" to start!</p>
         <% } %>

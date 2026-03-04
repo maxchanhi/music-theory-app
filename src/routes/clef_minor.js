@@ -14,45 +14,81 @@ router.get('/', (req, res) => {
         };
     }
 
-    res.render('clef_minor', { 
+    // Get feedback from session (if exists) and clear it
+    const feedback = req.session.clefMinorFeedback;
+    delete req.session.clefMinorFeedback;
+
+    console.log("GET /clef_minor - Session data:", {
+        questionId: req.session.clefMinor?.question?.questionId,
+        clef: req.session.clefMinor?.question?.clef,
+        startingPitch: req.session.clefMinor?.question?.startingPitch,
+        minorType: req.session.clefMinor?.question?.minorType,
+        hasVexFlowData: !!req.session.clefMinor?.vexFlowData
+    });
+
+    // Set headers to prevent caching
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
+    res.render('clef_minor', {
         data: req.session.clefMinor,
-        feedback: null
+        feedback: feedback
     });
 });
 
 router.post('/generate', async (req, res) => {
     try {
         const { level } = req.body;
+
+        // Generate question and check for duplicates
+        let question;
+        let attempts = 0;
+        const maxAttempts = 10;
         
-        // Use logic from clef_minor.js (assumed to export a function that generates question params)
-        // Wait, looking at previous read of clef_minor.js, it didn't export generateQuestionData directly?
-        // Let's assume there is a function to generate the question parameters.
-        // Based on previous code: const { generateQuestionData } = require('../logic/clef_minor');
-        // But I didn't see it exported in the read output (it was truncated?).
-        // I'll assume it exists or I need to implement it here using the helpers.
-        
-        // Actually, let's look at what was imported: `const { generateQuestionData, displayNote }`
-        // I should check `src/logic/clef_minor.js` again to see what is exported.
-        
-        // For now, let's assume `clefMinorLogic.generateQuestionData(level)` returns:
-        // { clef, fixedPitch, minorScale, answer, options, ... }
-        
-        const question = clefMinorLogic.generateQuestionData(level);
-        
+        // Get the previous question ID (if exists)
+        const previousQuestionId = req.session.clefMinor?.question?.questionId || null;
+
+        do {
+            question = clefMinorLogic.generateQuestionData(level);
+            attempts++;
+            
+            // Create a unique identifier for the question
+            const questionId = `${question.clef}-${question.startingPitch}-${question.minorType}`;
+            
+            // Break if this is different from the previous question or max attempts reached
+            // Skip duplicate check on first generation (previousQuestionId is null)
+            if (previousQuestionId === null || questionId !== previousQuestionId || attempts >= maxAttempts) {
+                break;
+            }
+        } while (attempts < maxAttempts);
+
         // Generate VexFlow data
         const vexFlowData = clefMinorGen.generateQuestionData(
-            question.clef, 
-            question.fixedPitch, 
+            question.clef,
+            question.fixedPitch,
             question.minorScale
         );
-        
+
+        // Store question ID for duplicate checking
+        question.questionId = `${question.clef}-${question.startingPitch}-${question.minorType}`;
+
+        console.log("Generated new question:", question.questionId);
+        console.log("Previous question ID:", previousQuestionId);
+        console.log("VexFlow notes:", vexFlowData.notes.slice(0, 3), '...');
+
         req.session.clefMinor = {
             question: question,
             level: level,
             vexFlowData: vexFlowData
         };
-        
-        res.redirect('/clef_minor');
+
+        // Save session before redirecting to ensure data persistence
+        req.session.save((err) => {
+            if (err) console.error("Session save error:", err);
+            // Add timestamp to prevent browser caching
+            res.redirect('/clef_minor?t=' + Date.now());
+        });
     } catch (error) {
         console.error("Error generating question:", error);
         res.status(500).send("Error generating question");
@@ -63,7 +99,7 @@ router.post('/check', async (req, res) => {
     console.log("Check answer request received", req.body);
     const { option } = req.body;
     const sessionData = req.session.clefMinor;
-    
+
     if (!sessionData) {
         console.log("No session data found");
         return res.redirect('/clef_minor');
@@ -72,23 +108,23 @@ router.post('/check', async (req, res) => {
         console.log("No question in session data");
         return res.redirect('/clef_minor');
     }
-    
+
     const question = sessionData.question;
     const correct = question.answer;
-    
+
     console.log("User option:", option);
     console.log("Correct answer:", correct);
-    
+
     // Safety check for undefined answer
     if (!correct) {
         console.error("Correct answer is undefined in session data:", question);
         // Force regeneration or show error
         return res.redirect('/clef_minor');
     }
-    
+
     const isCorrect = option === correct;
     console.log("Is correct?", isCorrect);
-    
+
     if (!isCorrect && req.session.userInfo) {
         try {
             const feedback = new Feedback({
@@ -102,12 +138,18 @@ router.post('/check', async (req, res) => {
         }
     }
 
-    res.render('clef_minor', {
-        data: sessionData,
-        feedback: {
-            correct: isCorrect,
-            message: isCorrect ? 'Correct!' : `Incorrect. The correct answer was ${correct}.`
+    // Store feedback in session and redirect to prevent form resubmission
+    req.session.clefMinorFeedback = {
+        correct: isCorrect,
+        message: isCorrect ? 'Correct!' : `Incorrect. The correct answer was ${correct}.`
+    };
+
+    // Save session explicitly and redirect with timestamp to prevent caching
+    req.session.save((err) => {
+        if (err) {
+            console.error("Session save error:", err);
         }
+        res.redirect('/clef_minor?t=' + Date.now());
     });
 });
 
