@@ -41,6 +41,9 @@ const createApp = () => {
   app.use(express.urlencoded({ extended: true }));
   app.use(express.static(publicPath));
   
+  // Serve VexFlow from node_modules
+  app.use('/scripts/vexflow', express.static(path.join(__dirname, '..', 'node_modules', 'vexflow', 'build', 'cjs')));
+  
   // Session configuration
   app.use(session({
     secret: process.env.SESSION_SECRET || 'music-theory-secret-key',
