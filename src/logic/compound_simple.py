@@ -12,9 +12,9 @@ TIME_SIGN_CAT = { #(time sign, total of value)
     "simple duple": [("2/2",4), ("2/4",2)],
     "simple triple": [("3/2",6), ("3/4",3), ("3/8",1.5)],
     "simple quadruple": [("4/4",4), ("4/2",8)],
-    "compound duple": [("6/2",12), ("6/4",6), ("6/8",3), ("6/16",1.5)],
+    "compound duple": [("6/4",6), ("6/8",3), ("6/16",1.5)],
     "compound triple": [ ("9/4",9), ("9/8",4.5)],
-    "compound quadruple": [("12/4",12), ("12/8",6)]
+    "compound quadruple": [ ("12/8",6)]
 }
 #1. Pick the time signature category
 time_sign_cat, time_sign_list = random.choice(list(TIME_SIGN_CAT.items()))

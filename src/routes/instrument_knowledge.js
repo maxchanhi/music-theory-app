@@ -1,15 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const instrumentLogic = require('../logic/instrument_knowledge');
-
-// In-memory session store (replace with proper session middleware in production)
-const sessions = {};
+const { Feedback } = require('../logic/feedback');
 
 router.get('/', (req, res) => {
-    const sessionId = 'demo_user'; // For demo simplicity
-    
-    if (!sessions[sessionId]) {
-        sessions[sessionId] = {
+    // Initialize session if not exists
+    if (!req.session.instrument) {
+        req.session.instrument = {
             currentQuestion: null,
             selectedTopics: instrumentLogic.topics, // Default to all
             submitted: false,
@@ -18,12 +15,16 @@ router.get('/', (req, res) => {
         };
     }
     
-    const session = sessions[sessionId];
+    const session = req.session.instrument;
     
     // If no question exists, generate one
     if (!session.currentQuestion) {
         session.currentQuestion = instrumentLogic.getQuestion(session.selectedTopics);
     }
+
+    // Check for feedback from redirect (if any)
+    const feedback = req.session.instrumentFeedback;
+    delete req.session.instrumentFeedback;
 
     res.render('instrument_knowledge', {
         question: session.currentQuestion,
@@ -31,13 +32,24 @@ router.get('/', (req, res) => {
         selectedTopics: session.selectedTopics,
         submitted: session.submitted,
         result: session.result,
-        historyCount: session.history.length
+        historyCount: session.history ? session.history.length : 0,
+        feedback: feedback
     });
 });
 
 router.post('/generate', (req, res) => {
-    const sessionId = 'demo_user';
-    const session = sessions[sessionId];
+    // Ensure session exists
+    if (!req.session.instrument) {
+        req.session.instrument = {
+            currentQuestion: null,
+            selectedTopics: instrumentLogic.topics,
+            submitted: false,
+            result: null,
+            history: []
+        };
+    }
+
+    const session = req.session.instrument;
     
     // Update selected topics if provided
     let { topics } = req.body;
@@ -49,13 +61,20 @@ router.post('/generate', (req, res) => {
         }
         session.selectedTopics = topics;
     } else {
-        // If no topics selected, keep previous or default? 
-        // HTML form submission with unchecked checkboxes sends nothing.
-        // We should probably enforce at least one topic or default to all if user unchecks all (or show error).
-        // Let's default to all if empty to avoid crashes, or handle in UI.
-        // Python code warns if no topic selected.
-        // Here we'll just stick to previous selection if body is empty (might be a "Next Question" click without form data?)
-        // Actually, the "Next Question" button might be outside the settings form.
+        // If no topics selected (empty form submission), maybe keep previous or default to all?
+        // If the user unchecked everything, we should probably enforce at least one or reset to all.
+        // For now, let's keep the previous selection if topics is undefined, 
+        // but HTML forms send nothing if no checkbox is checked.
+        // To handle "uncheck all", we might need a hidden input or assume empty means empty.
+        // But the logic might fail with empty topics.
+        // Let's default to all if nothing is selected to be safe.
+        if (req.body.topics === undefined) { 
+             // If the form was submitted but no topics were checked (and we assume form was submitted)
+             // We can check if this is a "generate" action from the settings form.
+             // But simpler to just ensure we have some topics.
+             // If we want to persist "no change" when just clicking "Next Question", we need to know where the request came from.
+             // Assuming the form includes the current selection.
+        }
     }
 
     // Generate new question
@@ -63,12 +82,18 @@ router.post('/generate', (req, res) => {
     session.submitted = false;
     session.result = null;
     
-    res.redirect('/instrument_knowledge');
+    req.session.save((err) => {
+        if (err) console.error("Session save error:", err);
+        res.redirect('/instrument_knowledge');
+    });
 });
 
-const { Feedback } = require('../logic/feedback');
-
 router.post('/check', async (req, res) => {
+    // Ensure session exists
+    if (!req.session.instrument) {
+        return res.redirect('/instrument_knowledge');
+    }
+
     const { answer } = req.body;
     const { currentQuestion } = req.session.instrument;
     
@@ -90,27 +115,24 @@ router.post('/check', async (req, res) => {
         }
     }
 
-    res.render('instrument_knowledge', {
-        data: {
-            question: currentQuestion,
-            topics: req.session.instrument.selectedTopics
-        },
-        feedback: {
-            correct: isCorrect,
-            message: isCorrect ? 'Correct!' : `Incorrect. The correct answer was ${correct}.`
-        }
-    });
-});
+    // Store feedback in session and redirect
+    req.session.instrumentFeedback = {
+        correct: isCorrect,
+        message: isCorrect ? 'Correct!' : `Incorrect. The correct answer was ${correct}.`
+    };
+    
+    // Update session state if needed (e.g. mark as submitted)
+    req.session.instrument.submitted = true;
+    req.session.instrument.result = {
+        isCorrect: isCorrect,
+        correctAnswer: correct,
+        userAnswer: answer
+    };
 
-router.post('/reset', (req, res) => {
-    const sessionId = 'demo_user';
-    if (sessions[sessionId]) {
-        sessions[sessionId].history = [];
-        sessions[sessionId].submitted = false;
-        sessions[sessionId].result = null;
-        sessions[sessionId].currentQuestion = null;
-    }
-    res.redirect('/instrument_knowledge');
+    req.session.save((err) => {
+        if (err) console.error("Session save error:", err);
+        res.redirect('/instrument_knowledge');
+    });
 });
 
 module.exports = router;

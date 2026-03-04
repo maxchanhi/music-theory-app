@@ -25,10 +25,10 @@ for (const [key, scale] of Object.entries(harmonic_ascending)) {
     let seventh = scale[6];
 
     // Modify 6th note
-    if (!sixth.endsWith('s') && !sixth.endsWith('f')) {
-        sixth += 's';
-    } else if (sixth.endsWith('f')) {
+    if (sixth.endsWith('f') && sixth.length > 1) {
         sixth = sixth.slice(0, -1);
+    } else {
+        sixth += 's';
     }
     
     melodic_ascending[key] = scale.slice(0, 5).concat([sixth, seventh]);
@@ -124,45 +124,21 @@ function addOctaveIndicators(tonic, clef) {
     octaveOffsets.push(currentOctave);
 
     // 3. Determine Base Octave for Clef
-    // We want the scale to be centered in the staff.
-    // Treble: C4-C5 (c' - c'')
-    // Bass: C2-C3 (c, - c) or C3-C4
-    // Alto: F3-F4 or C4-C5
-    // Tenor: D3-D4 or A3-A4
-    
-    let baseOctaveShift = 0; 
-    const pitchVal = "cdefgab".indexOf(tonic[0]);
-    
+    // Treble: Ascending starts Oct 4 (C4-B4), Descending starts Oct 5 (C5-B5)
+    // Bass: Ascending starts Oct 2 (C2-B2), Descending starts Oct 3 (C3-B3)
+    let baseOctaveShift = 0;
+
     if (clef === 'treble') {
-        // Range: C4 (c') to A5/B5
-        // Start everything in 4th octave (c')
-        baseOctaveShift = 1; 
+        if (ascending) {
+            baseOctaveShift = 1; // Start in Octave 4 (c')
+        } else {
+            baseOctaveShift = 2; // Start in Octave 5 (c'')
+        }
     } else if (clef === 'bass') {
-        // Range: E2 (e,) to C4 (c')
-        // C, D, E -> Start at C3 (c) [0] or C2 (c,) [-1]?
-        // C3 starts 2nd space. Goes to C4 (1 ledger line above). Good.
-        // F, G, A, B -> Start at F2 (f,) [-1]. F2 is below staff. F3 is 4th line. Good.
-        
-        if (pitchVal <= 2) { // c, d, e
-            baseOctaveShift = 0; // C3, D3, E3 start
-        } else { // f, g, a, b
-            baseOctaveShift = -1; // F2, G2, A2, B2 start
-        }
-    } else if (clef === 'alto') {
-        // C4 is middle line.
-        // F3 (f) to G4 (g').
-        if (pitchVal <= 2) { // c, d, e
-            baseOctaveShift = 1; // C4 start
-        } else { // f, g, a, b
-            baseOctaveShift = 0; // F3 start
-        }
-    } else if (clef === 'tenor') {
-        // C4 is 4th line.
-        // A2 (a,) to B3 (b).
-        if (pitchVal <= 4) { // c, d, e, f, g
-            baseOctaveShift = 0; // C3 start
-        } else { // a, b
-            baseOctaveShift = -1; // A2 start
+        if (ascending) {
+            baseOctaveShift = -1; // Start in Octave 2 (c,)
+        } else {
+            baseOctaveShift = 0; // Start in Octave 3 (c)
         }
     }
 
@@ -179,7 +155,7 @@ function addOctaveIndicators(tonic, clef) {
 }
 
 function pickClefRange() {
-    const clefs = ['treble', 'alto', 'tenor', 'bass'];
+    const clefs = ['treble', 'bass'];
     const clef = getRandomElement(clefs);
     let fixedPitch;
 

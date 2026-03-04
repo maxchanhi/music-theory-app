@@ -26,7 +26,7 @@
     </style>
 </head>
 <body>
-    <%- include('partials/header', { title: 'Clef & Minor Keys', description: 'Identify the clef and minor key from the musical score.' }) %>
+    <%- include('partials/header', { title: 'Clef & Minor Keys', description: 'Identify the minor scale from the musical score.' }) %>
 
     <div class="card">
         <form action="/clef_minor/generate" method="POST" class="controls">
@@ -119,7 +119,8 @@
                     const context = renderer.getContext();
 
                     const stave = new Stave(10, 20, width - 20);
-                    stave.addClef(clef);
+                    // Clef is hidden as per requirement
+                    // stave.addClef(clef);
                     stave.setContext(context).draw();
 
                     const notes = notesData.map(noteKey => {
