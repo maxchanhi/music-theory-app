@@ -1,14 +1,13 @@
 
 // Convert LilyPond notes to VexFlow keys for Clef & Minor module
 function generateQuestionData(clef, fixedPitch, minorScale) {
-    // Determine base octave from fixedPitch (e.g., "c", "c'", "c''", "c,")
-    let baseOctave = 4; // Default to c' (C4)
-    if (fixedPitch === "c''") baseOctave = 5;
-    else if (fixedPitch === "c") baseOctave = 3;
-    else if (fixedPitch === "c,") baseOctave = 2;
+    // VexFlow/LilyPond standard: 'c' is C3 (Small Octave)
+    // We ignore fixedPitch for octave calculation because minorScale is now absolute
+    const baseOctave = 3; 
     
     const vexFlowNotes = minorScale.map(note => {
         // Note can be like "a", "gs", "f'", "c''", "c,"
+        // Regex matches pitch, accidental, and octave modifiers
         let match = note.match(/^([a-g])(s|f|ss|ff)?(['|,]*)$/);
         if (!match) return null;
         
