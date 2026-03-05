@@ -13,8 +13,8 @@ const TIME_SIGN_CAT = {
     "simple triple": [["3/2",6], ["3/4",3]],
     "simple quadruple": [["4/4",4], ["4/2",8]],
     "compound duple": [["6/4",6], ["6/8",3]],
-    "compound triple": [ ["9/4",9], ["9/8",4.5]],
-    "compound quadruple": [ ["12/8",6]]
+    "compound triple": [["9/4",9], ["9/8",4.5]],
+    "compound quadruple": [["12/4",12], ["12/8",6]]
 };
 
 function generateQuestionData() {
