@@ -20,6 +20,9 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        .question-section h3 {
+            margin-top: 0;
+        }
         .options-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -29,13 +32,13 @@
         .option-card {
             border: 2px solid #ddd;
             border-radius: 8px;
-            padding: 10px;
+            padding: 5px;
             cursor: pointer;
             transition: all 0.2s;
             background: white;
         }
         .option-card h4 {
-            margin: 5px 0;
+            margin: 2px 0 0 0;
         }
         .option-card p {
             margin: 0;
@@ -75,6 +78,10 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            margin-bottom: -25px; /* Reduce bottom margin to pull text up */
+        }
+        .question-section h3 {
+            margin-top: -20px; /* Pull text up further */
         }
         .btn {
             padding: 10px 20px;
@@ -140,7 +147,7 @@
 
             console.log("Data loaded:", { originalMelodyData, optionsData, isAnswered });
 
-            function renderMelody(elementId, notesData, keySignature, width = 350, height = 150) {
+            function renderMelody(elementId, notesData, keySignature, width = 450, height = 200) {
                 const div = document.getElementById(elementId);
                 if (!div) {
                     console.error(`Element ${elementId} not found`);
@@ -148,17 +155,43 @@
                 }
                 div.innerHTML = '';
                 
+                // 1. Prepare Notes & Voice first to calculate required width
+                const notes = notesData.map(n => {
+                    const note = new Vex.Flow.StaveNote({ 
+                        keys: [n.key], 
+                        duration: "q" 
+                    });
+                    
+                    if (n.accidental) {
+                        note.addModifier(new Vex.Flow.Accidental(n.accidental));
+                    }
+                    return note;
+                });
+                
+                const voice = new Vex.Flow.Voice({num_beats: notes.length, beat_value: 4});
+                voice.addTickables(notes);
+
+                // 2. Calculate dynamic width
+                const formatter = new Vex.Flow.Formatter().joinVoices([voice]);
+                const minNoteWidth = formatter.preCalculateMinTotalWidth([voice]);
+                
+                // Base padding for Clef (~50px), Key Signature (~30-60px), Left/Right margins (~30px)
+                const padding = 150; 
+                const requiredWidth = minNoteWidth + padding;
+                
+                // Use the larger of provided width or calculated width
+                const finalWidth = Math.max(width, requiredWidth);
+
+                // 3. Setup Renderer with final width
                 const renderer = new Vex.Flow.Renderer(div, Vex.Flow.Renderer.Backends.SVG);
-                renderer.resize(width, height);
+                renderer.resize(finalWidth, height);
                 const context = renderer.getContext();
                 
-                // Create a stave
-                const stave = new Vex.Flow.Stave(10, 0, width - 20);
+                // 4. Draw Stave
+                const stave = new Vex.Flow.Stave(10, 20, finalWidth - 20);
                 stave.addClef("treble");
                 
                 // Add key signature
-                // Clean key string: "bf major" -> "Bb", "fs minor" -> "F#m" (VexFlow expects Major keys usually, relative minor works too)
-                // VexFlow KeySignature uses standard notation: 'C', 'Am', 'F#', 'Gb', etc.
                 let vfKey = keySignature;
                 if (vfKey) {
                     const parts = vfKey.split(' ');
@@ -167,18 +200,6 @@
                         if (root.endsWith('S')) root = root[0] + '#';
                         if (root.endsWith('F')) root = root[0] + 'b';
                     }
-                    // For VexFlow addKeySignature, just the root is often enough if it's Major
-                    // But if it's minor, VexFlow's spec is just the key name (e.g. 'Ab', 'C#') which implies Major.
-                    // To get correct sharps/flats, we need the relative Major if it's minor? 
-                    // Actually VexFlow supports major keys directly. If input is minor, we should convert or just use the root if the key signature is standard.
-                    // Wait, VexFlow `addKeySignature` takes a key spec like "G", "Ab", "C#", "Fm" etc?
-                    // Let's check VexFlow docs pattern. Usually just the Major Key root.
-                    // For simplicity, let's map our keys to VexFlow keys.
-                    // Or just try passing the root + accidental.
-                    
-                    // Our keys: "g major", "fs minor", "bf major"
-                    // If minor, we might need to find relative major for key signature?
-                    // VexFlow 4: stave.addKeySignature('A') -> 3 sharps. stave.addKeySignature('Am') -> 0 sharps (C Major).
                     
                     let mode = parts[1] || 'major';
                     if (mode === 'minor') root += 'm';
@@ -192,36 +213,18 @@
 
                 stave.setContext(context).draw();
                 
-                // Create notes
-                const notes = notesData.map(n => {
-                    const note = new Vex.Flow.StaveNote({ 
-                        keys: [n.key], 
-                        duration: "q" 
-                    });
-                    
-                    if (n.accidental) {
-                        note.addModifier(new Vex.Flow.Accidental(n.accidental));
-                    }
-                    return note;
-                });
+                // 5. Format and Draw Voice
+                formatter.formatToStave([voice], stave);
                 
-                // Create a voice in 4/4
-                const voice = new Vex.Flow.Voice({num_beats: notes.length, beat_value: 4});
-                voice.addTickables(notes);
-                
-                // Format and justify the notes to 300 pixels.
-                new Vex.Flow.Formatter().joinVoices([voice]).format([voice], width - 50);
-                
-                // Render voice
                 voice.draw(context, stave);
             }
 
             // Render Original Melody
-            renderMelody('original-melody', originalMelodyData, "<%= question.originalKey %>", 500, 150);
+            renderMelody('original-melody', originalMelodyData, "<%= question.originalKey %>", 600, 200);
 
             // Render Options
             optionsData.forEach((opt, index) => {
-                renderMelody(`melody-${index}`, opt.vexData, opt.key, 400, 100);
+                renderMelody(`melody-${index}`, opt.vexData, opt.key, 500, 150);
             });
         } catch (err) {
             console.error("Error rendering quiz:", err);
