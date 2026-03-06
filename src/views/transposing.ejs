@@ -98,7 +98,6 @@
 
         <div class="question-section">
             <h2 id="questionText">Transposition Question</h2>
-            <p>Key: <%= question.originalKey %></p>
             <div id="original-melody" class="canvas-container"></div>
             <h3>Transpose this melody <%= question.transposingBy %></h3>
         </div>
@@ -112,7 +111,6 @@
                          onclick="selectOption('<%= index %>')"
                          id="option-<%= index %>">
                         <h4>Option <%= index + 1 %></h4>
-                        <p>Key: <%= opt.key %></p>
                         <div id="melody-<%= index %>" class="canvas-container"></div>
                     </div>
                 <% }); %>
@@ -142,7 +140,7 @@
 
             console.log("Data loaded:", { originalMelodyData, optionsData, isAnswered });
 
-            function renderMelody(elementId, notesData, width = 350, height = 150) {
+            function renderMelody(elementId, notesData, keySignature, width = 350, height = 150) {
                 const div = document.getElementById(elementId);
                 if (!div) {
                     console.error(`Element ${elementId} not found`);
@@ -157,6 +155,41 @@
                 // Create a stave
                 const stave = new Vex.Flow.Stave(10, 0, width - 20);
                 stave.addClef("treble");
+                
+                // Add key signature
+                // Clean key string: "bf major" -> "Bb", "fs minor" -> "F#m" (VexFlow expects Major keys usually, relative minor works too)
+                // VexFlow KeySignature uses standard notation: 'C', 'Am', 'F#', 'Gb', etc.
+                let vfKey = keySignature;
+                if (vfKey) {
+                    const parts = vfKey.split(' ');
+                    let root = parts[0].toUpperCase();
+                    if (root.length > 1) {
+                        if (root.endsWith('S')) root = root[0] + '#';
+                        if (root.endsWith('F')) root = root[0] + 'b';
+                    }
+                    // For VexFlow addKeySignature, just the root is often enough if it's Major
+                    // But if it's minor, VexFlow's spec is just the key name (e.g. 'Ab', 'C#') which implies Major.
+                    // To get correct sharps/flats, we need the relative Major if it's minor? 
+                    // Actually VexFlow supports major keys directly. If input is minor, we should convert or just use the root if the key signature is standard.
+                    // Wait, VexFlow `addKeySignature` takes a key spec like "G", "Ab", "C#", "Fm" etc?
+                    // Let's check VexFlow docs pattern. Usually just the Major Key root.
+                    // For simplicity, let's map our keys to VexFlow keys.
+                    // Or just try passing the root + accidental.
+                    
+                    // Our keys: "g major", "fs minor", "bf major"
+                    // If minor, we might need to find relative major for key signature?
+                    // VexFlow 4: stave.addKeySignature('A') -> 3 sharps. stave.addKeySignature('Am') -> 0 sharps (C Major).
+                    
+                    let mode = parts[1] || 'major';
+                    if (mode === 'minor') root += 'm';
+                    
+                    try {
+                        stave.addKeySignature(root);
+                    } catch (e) {
+                        console.warn("Invalid key for VexFlow:", root);
+                    }
+                }
+
                 stave.setContext(context).draw();
                 
                 // Create notes
@@ -184,11 +217,11 @@
             }
 
             // Render Original Melody
-            renderMelody('original-melody', originalMelodyData, 500, 150);
+            renderMelody('original-melody', originalMelodyData, "<%= question.originalKey %>", 500, 150);
 
             // Render Options
             optionsData.forEach((opt, index) => {
-                renderMelody(`melody-${index}`, opt.vexData, 400, 100);
+                renderMelody(`melody-${index}`, opt.vexData, opt.key, 400, 100);
             });
         } catch (err) {
             console.error("Error rendering quiz:", err);
