@@ -1,130 +1,88 @@
 const alphabet = ["c", "d", "e", "f", "g", "a", "b"];
 const black_white_key = {
-    0: ['c'], 2: ['d'], 4: ['e'],
-    5: ['f', 'es'], 7: ['g'], 9: ['a'],
-    11: ['b'], 1: ['cs', 'df'], 3: ['ds', 'ef'],
-    6: ['fs', 'gf'], 8: ['gs', 'af'], 10: ['as', 'bf']
+    0: ['c'], 1: ['cs', 'df'], 2: ['d'], 3: ['ds', 'ef'],
+    4: ['e'], 5: ['f', 'es'], 6: ['fs', 'gf'], 7: ['g'],
+    8: ['gs', 'af'], 9: ['a'], 10: ['as', 'bf'], 11: ['b']
 };
 
 function generateChromaticScale(ascendingDir) {
     const startingPc = Math.floor(Math.random() * 12);
-    const startingNote = black_white_key[startingPc][Math.floor(Math.random() * black_white_key[startingPc].length)];
+    const potentialStarts = black_white_key[startingPc];
+    const startingPitch = potentialStarts[Math.floor(Math.random() * potentialStarts.length)];
 
-    let chromaticList = [[startingNote]];
+    let scale = [startingPitch];
+    let nextNum = startingPc;
+    
+    // Direction: 1 for ascending, -1 for descending
+    const direction = ascendingDir ? 1 : -1;
+
+    // We want 12 steps to reach the octave (13 notes total)
+    // The loop runs until we have 12 unique pitches (the 13th is the octave of start)
+    while (scale.length < 12) {
+        // Move to next semitone
+        nextNum = (nextNum + direction + 12) % 12;
+        
+        const potentialPitches = black_white_key[nextNum];
+        // Pick random spelling
+        const nextPitch = potentialPitches[Math.floor(Math.random() * potentialPitches.length)];
+        
+        if (scale.length >= 2) {
+            // Python Logic: if next_pitch[0] == scale[-1][0] and next_pitch[0] == scale[-2][0]:
+            // It means we have 3 notes with same letter (e.g. C, C#, C## - wait, C## isn't in our list, but C, Cs, Css? No.)
+            // It means e.g. D, D#, Eb -> D, D, E. 
+            // Actually, if we have D, D#, and we pick D## (not possible) or...
+            // If we have C, C# and we pick C something? 
+            // In our list, we have 'cs'/'df'.
+            // If we have C, C# and next is D/Ebb? 
+            // Wait, the logic is: prevent 3 consecutive notes starting with SAME char.
+            // e.g. scale = [C, C#]. Next semitone is D (or C##/Ebb). 
+            // If our list has D and Ebb? No, list has 'd'.
+            // If list has 'cs' and 'df'.
+            // If we are at C. Next is C# or Db.
+            // If we pick C#, scale is [C, C#].
+            // Next is D. List has 'd'.
+            // If we picked Db. Scale is [C, Db]. Next is D.
+            
+            // The constraint is mostly for cases where we might pick a spelling that causes a run of 3.
+            // e.g. E, E#, F -> E, E, F (ok).
+            // e.g. F, Gb, G -> F, G, G (ok).
+            // e.g. F, F#, Gb -> F, F, G (ok).
+            // Wait, if we are at F, F#. Next is G (or F##).
+            // If we pick F##, we have F, F, F. That's bad.
+            
+            if (nextPitch[0] === scale[scale.length - 1][0] && nextPitch[0] === scale[scale.length - 2][0]) {
+                // Retry this step. 
+                // Since nextNum was incremented at start of loop, we decrement it to "undo" the step
+                // so next iteration increments it again and repicks.
+                nextNum = (nextNum - direction + 12) % 12;
+            } else {
+                scale.push(nextPitch);
+            }
+        } else {
+            scale.push(nextPitch);
+        }
+    }
+
+    // Append Octave
+    // Python: if "'" in scale[0] or "," not in scale[0]: append(scale[0]+"'")
+    // This logic handles relative octave marking.
+    // For VexFlow, we need to be careful.
+    // If ascending, we end an octave higher.
+    // If descending, we end an octave lower.
+    
+    const firstNote = scale[0];
+    let lastNote = firstNote;
     
     if (ascendingDir) {
-        return ascending(startingPc, chromaticList);
+        // Add ' to indicate upper octave
+        lastNote += "'"; 
     } else {
-        return descending(startingPc, chromaticList);
+        // Add , to indicate lower octave
+        lastNote += ",";
     }
-}
+    scale.push(lastNote);
 
-function descending(startingPc, chromaticList) {
-    for (let i = 0; i < 11; i++) {
-        let octave = startingPc - i - 1;
-        let noteIdx = ((octave % 12) + 12) % 12;
-        let noteList = [...black_white_key[noteIdx]];
-        if (octave < 0) {
-            noteList = noteList.map(el => el + ",");
-        }
-        chromaticList.push(noteList);
-    }
-
-    let chromaticScale = chromaticList.map(note => note[0]);
-    chromaticScale.push(chromaticScale[0] + ",");
-
-    for (let i = 2; i < chromaticScale.length; i++) {
-        if (chromaticScale[i - 2][0] === chromaticScale[i - 1][0] && chromaticScale[i - 1][0] === chromaticScale[i][0]) {
-            let threeSame = chromaticList.slice(i - 2, i + 1);
-            for (let idx = 0; idx < threeSame.length; idx++) {
-                if (threeSame[idx].length > 1) {
-                    chromaticScale[i + idx - 2] = threeSame[idx][1];
-                }
-            }
-        }
-    }
-
-    let missingLetter = null;
-    for (let letter of alphabet) {
-        if (!chromaticScale.join('').includes(letter)) {
-            missingLetter = letter;
-            break;
-        }
-    }
-
-    if (missingLetter) {
-        let nextNote = alphabet[(alphabet.indexOf(missingLetter) + 1) % alphabet.length];
-        for (let i = 0; i < chromaticList.length; i++) {
-            for (let el of chromaticList[i]) {
-                if (el.includes(missingLetter) && chromaticScale[i + 1] && chromaticScale[i + 1].includes(nextNote)) {
-                    chromaticScale[i] = chromaticList[i][1] || chromaticList[i][0];
-                    break;
-                }
-            }
-        }
-    }
-
-    if (chromaticScale[0].includes("bs")) {
-        for (let i = 1; i < chromaticScale.length - 1; i++) {
-            chromaticScale[i] = chromaticScale[i].replace(",", "");
-        }
-        chromaticScale[chromaticScale.length - 1] = "bs,";
-    }
-
-    return chromaticScale;
-}
-
-function ascending(startingPc, chromaticList) {
-    for (let i = 0; i < 11; i++) {
-        let octave = startingPc + i + 1;
-        let noteIdx = octave % 12;
-        let noteList = [...black_white_key[noteIdx]];
-        if (octave > 11) {
-            noteList = noteList.map(el => el + "'");
-        }
-        chromaticList.push(noteList);
-    }
-
-    let chromaticScale = chromaticList.map(note => note[0]);
-    chromaticScale.push(chromaticScale[0] + "'");
-
-    for (let i = 2; i < chromaticScale.length; i++) {
-        if (chromaticScale[i - 2][0] === chromaticScale[i - 1][0] && chromaticScale[i - 1][0] === chromaticScale[i][0]) {
-            let threeSame = chromaticList.slice(i - 2, i + 1);
-            for (let idx = 0; idx < threeSame.length; idx++) {
-                if (threeSame[idx].length > 1) {
-                    chromaticScale[i + idx - 2] = threeSame[idx][1];
-                }
-            }
-        }
-    }
-
-    let missingLetter = null;
-    for (let letter of alphabet) {
-        if (!chromaticScale.join('').includes(letter)) {
-            missingLetter = letter;
-            break;
-        }
-    }
-
-    if (missingLetter) {
-        let nextNote = alphabet[(alphabet.indexOf(missingLetter) + 1) % alphabet.length];
-        for (let i = 0; i < chromaticList.length; i++) {
-            for (let el of chromaticList[i]) {
-                if (el.includes(missingLetter) && chromaticScale[i + 1] && chromaticScale[i + 1].includes(nextNote)) {
-                    chromaticScale[i] = chromaticList[i][1] || chromaticList[i][0];
-                    break;
-                }
-            }
-        }
-    }
-
-    if (chromaticScale[0].includes("bs")) {
-        chromaticScale[0] = "bs,";
-        chromaticScale[chromaticScale.length - 1] = "bs";
-    }
-
-    return chromaticScale;
+    return scale;
 }
 
 function generateWrongOptions(originalScale, ascendingDir) {
