@@ -174,14 +174,26 @@
                     });
                     
                     // Add accidentals if present
-                    if (key.includes('##')) {
-                        note.addModifier(new Accidental("##"));
-                    } else if (key.includes('#')) {
-                        note.addModifier(new Accidental("#"));
-                    } else if (key.includes('bb')) {
-                        note.addModifier(new Accidental("bb"));
-                    } else if (key.includes('b')) {
-                        note.addModifier(new Accidental("b"));
+                    // Parse the key part (e.g. "c#", "bb", "f") to find the accidental
+                    // key is "bb" -> note: b, acc: b (flat)
+                    // key is "cbb" -> note: c, acc: bb (double flat)
+                    // key is "f#" -> note: f, acc: # (sharp)
+                    
+                    // Regex to separate note letter from accidental
+                    const accMatch = key.match(/^[a-g](.*)$/);
+                    if (accMatch) {
+                        const acc = accMatch[1];
+                        if (acc === "##") {
+                            note.addModifier(new Accidental("##"));
+                        } else if (acc === "#") {
+                            note.addModifier(new Accidental("#"));
+                        } else if (acc === "bb") {
+                            note.addModifier(new Accidental("bb"));
+                        } else if (acc === "b") {
+                            note.addModifier(new Accidental("b"));
+                        } else if (acc === "n") {
+                            note.addModifier(new Accidental("n"));
+                        }
                     }
                     
                     return note;
