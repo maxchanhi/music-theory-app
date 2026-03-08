@@ -12,6 +12,7 @@ function generateChromaticScale(ascendingDir) {
 
     let scale = [startingPitch];
     let nextNum = startingPc;
+    let currentOctaveMod = "";
     
     // Direction: 1 for ascending, -1 for descending
     const direction = ascendingDir ? 1 : -1;
@@ -19,76 +20,131 @@ function generateChromaticScale(ascendingDir) {
     // We want 12 steps to reach the octave (13 notes total)
     // The loop runs until we have 12 unique pitches (the 13th is the octave of start)
     while (scale.length < 12) {
+        let prevNum = nextNum;
         // Move to next semitone
         nextNum = (nextNum + direction + 12) % 12;
         
+        // Check for octave crossing
+        if (ascendingDir) {
+            // Crossed from B (11) to C (0) or similar wrap
+            if (nextNum < prevNum) {
+                currentOctaveMod += "'";
+            }
+        } else {
+            // Crossed from C (0) to B (11) or similar wrap
+            if (nextNum > prevNum) {
+                currentOctaveMod += ",";
+            }
+        }
+        
         const potentialPitches = black_white_key[nextNum];
         // Pick random spelling
-        const nextPitch = potentialPitches[Math.floor(Math.random() * potentialPitches.length)];
+        let nextPitch = potentialPitches[Math.floor(Math.random() * potentialPitches.length)];
         
         if (scale.length >= 2) {
-            // Python Logic: if next_pitch[0] == scale[-1][0] and next_pitch[0] == scale[-2][0]:
-            // It means we have 3 notes with same letter (e.g. C, C#, C## - wait, C## isn't in our list, but C, Cs, Css? No.)
-            // It means e.g. D, D#, Eb -> D, D, E. 
-            // Actually, if we have D, D#, and we pick D## (not possible) or...
-            // If we have C, C# and we pick C something? 
-            // In our list, we have 'cs'/'df'.
-            // If we have C, C# and next is D/Ebb? 
-            // Wait, the logic is: prevent 3 consecutive notes starting with SAME char.
-            // e.g. scale = [C, C#]. Next semitone is D (or C##/Ebb). 
-            // If our list has D and Ebb? No, list has 'd'.
-            // If list has 'cs' and 'df'.
-            // If we are at C. Next is C# or Db.
-            // If we pick C#, scale is [C, C#].
-            // Next is D. List has 'd'.
-            // If we picked Db. Scale is [C, Db]. Next is D.
-            
-            // The constraint is mostly for cases where we might pick a spelling that causes a run of 3.
-            // e.g. E, E#, F -> E, E, F (ok).
-            // e.g. F, Gb, G -> F, G, G (ok).
-            // e.g. F, F#, Gb -> F, F, G (ok).
-            // Wait, if we are at F, F#. Next is G (or F##).
-            // If we pick F##, we have F, F, F. That's bad.
-            
+            // Check for 3 consecutive same letters
             if (nextPitch[0] === scale[scale.length - 1][0] && nextPitch[0] === scale[scale.length - 2][0]) {
                 // Retry this step. 
-                // Since nextNum was incremented at start of loop, we decrement it to "undo" the step
-                // so next iteration increments it again and repicks.
-                nextNum = (nextNum - direction + 12) % 12;
+                nextNum = prevNum; // Reset index
+                // Reset octave mod if we crossed boundary in this failed step?
+                // Yes, if we crossed, we updated currentOctaveMod. We must revert it.
+                // Actually, currentOctaveMod is cumulative string. 
+                // Ascending: remove last '
+                // Descending: remove last ,
+                if (ascendingDir && ((nextNum + 1) % 12) < nextNum) { // Re-check condition? No, simplify.
+                     // Easier to just not update currentOctaveMod until we confirm the note?
+                     // Or revert:
+                     if (ascendingDir && ((prevNum + 1)%12) < prevNum) currentOctaveMod = currentOctaveMod.slice(0, -1); 
+                     // Wait, prevNum is the VALID note's index.
+                     // If we fail, nextNum goes back to prevNum.
+                     // We should recalculate crossover in next iteration.
+                     // But we already modified `currentOctaveMod` outside.
+                     // Let's refactor to calculate crossover locally first.
+                }
+                // Actually, easier refactor: Move crossover logic AFTER picking valid note?
+                // No, the pitch depends on index which depends on crossover.
+                
+                // Let's revert the state if we retry
+                 if (ascendingDir) {
+                    if (((prevNum + 1) % 12) < prevNum) { // This was the condition that triggered
+                        currentOctaveMod = currentOctaveMod.slice(0, -1);
+                    }
+                } else {
+                    if (((prevNum - 1 + 12) % 12) > prevNum) {
+                        currentOctaveMod = currentOctaveMod.slice(0, -1);
+                    }
+                }
+                
+                continue;
             } else {
                 // Check if we need to add a courtesy natural
                 // If previous note has same letter and an accidental, and this one is natural
                 const prevNote = scale[scale.length - 1];
-                const prevHasAcc = prevNote.length > 1 && (prevNote.includes('s') || prevNote.includes('f'));
+                // prevNote might have octave chars now! Strip them for analysis
+                const prevBase = prevNote.replace(/['+,]/g, '');
+                
+                const prevHasAcc = prevBase.length > 1 && (prevBase.includes('s') || prevBase.includes('f'));
                 const nextIsNatural = nextPitch.length === 1;
                 
-                if (prevNote[0] === nextPitch[0] && prevHasAcc && nextIsNatural) {
-                    scale.push(nextPitch + "n");
-                } else {
-                    scale.push(nextPitch);
+                if (prevBase[0] === nextPitch[0] && prevHasAcc && nextIsNatural) {
+                    nextPitch += "n";
                 }
+                
+                scale.push(nextPitch + currentOctaveMod);
             }
         } else {
-            scale.push(nextPitch);
+            scale.push(nextPitch + currentOctaveMod);
         }
     }
 
     // Append Octave
-    // Python: if "'" in scale[0] or "," not in scale[0]: append(scale[0]+"'")
-    // This logic handles relative octave marking.
-    // For VexFlow, we need to be careful.
-    // If ascending, we end an octave higher.
-    // If descending, we end an octave lower.
-    
     const firstNote = scale[0];
     let lastNote = firstNote;
     
     if (ascendingDir) {
         // Add ' to indicate upper octave
         lastNote += "'"; 
+        if (currentOctaveMod) lastNote += currentOctaveMod; // Add accumulated octaves? No, last note is relative to start.
+        // Wait, if we accumulated octaves in the loop, the last note generated in loop already has them.
+        // The 13th note (octave of start) should just be start + 1 octave relative to start.
+        // But if start was C, and we went up to B (which got '), then next C needs ''.
+        // Actually, my currentOctaveMod logic adds ' when crossing B->C.
+        // So if we start at C, we cross B->C at the very end (for the 13th note).
+        // The loop runs 12 times (generating 12 intervals, so 13 notes?). No, `scale` starts with 1 note.
+        // Loop runs while len < 12. So it adds 11 notes. Total 12 notes (e.g. C ... B).
+        // The 13th note is added here.
+        
+        // We need to calculate if 13th note crosses boundary too.
+        let prevNum = nextNum;
+        nextNum = (nextNum + direction + 12) % 12;
+        if (nextNum < prevNum) currentOctaveMod += "'";
+        
+        // Reconstruct last note based on start pitch + current mod
+        // But wait, start pitch string doesn't have accidental if it was natural.
+        // If start was "cs", end is "cs" + mod.
+        
+        // Actually simpler: The 13th note is just the starting pitch but in the new octave context.
+        // We just need to append currentOctaveMod.
+        
+        // BUT: `lastNote` variable here is `scale[0]`. `scale[0]` has no mod.
+        // We should just use `scale[0] + currentOctaveMod`.
+        // AND if we just crossed boundary for this last note, we need to add another ' ?
+        // If start=C. Loop ends at B. `currentOctaveMod` is "".
+        // 13th note is C. We cross B->C. `currentOctaveMod` becomes "'".
+        // So we append "c" + "'". Correct.
+        
+        // If start=G. Loop ends at F#. `currentOctaveMod` is "'" (crossed at C).
+        // 13th note is G. No cross F#->G. `currentOctaveMod` is "'".
+        // We append "g" + "'". Correct.
+        
+        lastNote = scale[0] + currentOctaveMod;
     } else {
-        // Add , to indicate lower octave
-        lastNote += ",";
+        // Descending
+        let prevNum = nextNum;
+        nextNum = (nextNum + direction + 12) % 12;
+        if (nextNum > prevNum) currentOctaveMod += ",";
+        
+        lastNote = scale[0] + currentOctaveMod;
     }
     scale.push(lastNote);
 
