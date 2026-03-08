@@ -124,7 +124,6 @@ function generateChromaticScale(ascendingDir) {
     lastNote = lastNoteBase + currentOctaveMod;
     scale.push(lastNote);
 
-    console.log(`[DEBUG] generateChromaticScale (${ascendingDir ? 'asc' : 'desc'}):`, JSON.stringify(scale));
     return scale;
 }
 

@@ -30,8 +30,6 @@ function generateQuestionData(chromaticScale, wrongOptions, ascending, clef) {
 }
 
 function convertScaleToVexFlow(scale, baseOctave) {
-    console.log(`[DEBUG] convertScaleToVexFlow input:`, JSON.stringify(scale), `baseOctave: ${baseOctave}`);
-    
     return scale.map(note => {
         // Parse pitch class and octave modifiers
         // Allow 'n' for natural. Note: regex char class [sfn] matches s, f, or n.
@@ -62,10 +60,6 @@ function convertScaleToVexFlow(scale, baseOctave) {
         }
         
         return `${step}${accidental}/${octave}`;
-    }).map((key, index) => {
-        // Log individual key conversion for debugging
-        if (index === 0) console.log(`[DEBUG] First key conversion: ${scale[0]} -> ${key}`);
-        return key;
     });
 }
 

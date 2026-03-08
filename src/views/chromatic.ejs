@@ -122,6 +122,7 @@
             <%- JSON.stringify(data.options) %>
         </script>
         <form action="/chromatic/check" method="POST" id="checkForm">
+            <input type="hidden" name="clef" value="<%= data.clef %>">
             <div class="options-grid">
                 <% data.options.forEach((opt, index) => { %>
                     <div class="option-card <%= data.selectedImage === opt.id ? 'selected' : '' %>" onclick="selectOption('<%= opt.id %>')">
@@ -133,7 +134,11 @@
             </div>
 
             <div class="controls">
-                <button type="submit" class="button" id="submitBtn" disabled>Check Answer</button>
+                <% if (feedback && feedback.correct) { %>
+                    <button type="submit" class="button" formaction="/chromatic/generate">Next Question</button>
+                <% } else { %>
+                    <button type="submit" class="button" id="submitBtn" disabled>Check Answer</button>
+                <% } %>
             </div>
         </form>
 
@@ -228,7 +233,10 @@
                 if (radio) radio.checked = true;
                 
                 // Enable submit button
-                document.getElementById('submitBtn').disabled = false;
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                }
                 
                 // Send selection to server (optional, to persist state)
                 fetch('/chromatic/select', {
@@ -242,8 +250,9 @@
             
             // Re-select previously selected option if any
             const selectedInput = document.querySelector('input[name="option"]:checked');
-            if (selectedInput) {
-                document.getElementById('submitBtn').disabled = false;
+            const submitBtn = document.getElementById('submitBtn');
+            if (selectedInput && submitBtn) {
+                submitBtn.disabled = false;
             }
         </script>
     <% } %>

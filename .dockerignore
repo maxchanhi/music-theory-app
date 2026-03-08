@@ -1,18 +1,20 @@
 # Node modules
 node_modules/
+npm-debug.log
 
 # Environment variables
 .env
+secret.env
 
 # Legacy Python code
 legacy_python/
 
 # System files
 .DS_Store
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
 automating-browser/
-
-# IDE files
-.trae/
-
-# Secrets
-secret.env
