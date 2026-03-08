@@ -178,9 +178,7 @@ function generateInversionQuestion(clef = "treble") { // default to treble if no
     // Octave adjustment logic
     let adjustNotes = [];
     if (clef === "treble") {
-        for (let note of triadNotes) {
-            adjustNotes.push(note + "'");
-        }
+        adjustNotes = [...triadNotes];
     } else if (clef === "bass") {
         if (exceptionPitch.includes(triadNotes[0].charAt(0))) {
             triadNotes[0] = triadNotes[0] + ",";
