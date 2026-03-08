@@ -56,7 +56,17 @@ function generateChromaticScale(ascendingDir) {
                 // so next iteration increments it again and repicks.
                 nextNum = (nextNum - direction + 12) % 12;
             } else {
-                scale.push(nextPitch);
+                // Check if we need to add a courtesy natural
+                // If previous note has same letter and an accidental, and this one is natural
+                const prevNote = scale[scale.length - 1];
+                const prevHasAcc = prevNote.length > 1 && (prevNote.includes('s') || prevNote.includes('f'));
+                const nextIsNatural = nextPitch.length === 1;
+                
+                if (prevNote[0] === nextPitch[0] && prevHasAcc && nextIsNatural) {
+                    scale.push(nextPitch + "n");
+                } else {
+                    scale.push(nextPitch);
+                }
             }
         } else {
             scale.push(nextPitch);
