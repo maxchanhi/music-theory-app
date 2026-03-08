@@ -100,50 +100,28 @@ function generateChromaticScale(ascendingDir) {
     let lastNote = firstNote;
     
     if (ascendingDir) {
-        // Add ' to indicate upper octave
-        lastNote += "'"; 
-        if (currentOctaveMod) lastNote += currentOctaveMod; // Add accumulated octaves? No, last note is relative to start.
-        // Wait, if we accumulated octaves in the loop, the last note generated in loop already has them.
-        // The 13th note (octave of start) should just be start + 1 octave relative to start.
-        // But if start was C, and we went up to B (which got '), then next C needs ''.
-        // Actually, my currentOctaveMod logic adds ' when crossing B->C.
-        // So if we start at C, we cross B->C at the very end (for the 13th note).
-        // The loop runs 12 times (generating 12 intervals, so 13 notes?). No, `scale` starts with 1 note.
-        // Loop runs while len < 12. So it adds 11 notes. Total 12 notes (e.g. C ... B).
-        // The 13th note is added here.
-        
-        // We need to calculate if 13th note crosses boundary too.
         let prevNum = nextNum;
         nextNum = (nextNum + direction + 12) % 12;
         if (nextNum < prevNum) currentOctaveMod += "'";
-        
-        // Reconstruct last note based on start pitch + current mod
-        // But wait, start pitch string doesn't have accidental if it was natural.
-        // If start was "cs", end is "cs" + mod.
-        
-        // Actually simpler: The 13th note is just the starting pitch but in the new octave context.
-        // We just need to append currentOctaveMod.
-        
-        // BUT: `lastNote` variable here is `scale[0]`. `scale[0]` has no mod.
-        // We should just use `scale[0] + currentOctaveMod`.
-        // AND if we just crossed boundary for this last note, we need to add another ' ?
-        // If start=C. Loop ends at B. `currentOctaveMod` is "".
-        // 13th note is C. We cross B->C. `currentOctaveMod` becomes "'".
-        // So we append "c" + "'". Correct.
-        
-        // If start=G. Loop ends at F#. `currentOctaveMod` is "'" (crossed at C).
-        // 13th note is G. No cross F#->G. `currentOctaveMod` is "'".
-        // We append "g" + "'". Correct.
-        
-        lastNote = scale[0] + currentOctaveMod;
     } else {
-        // Descending
         let prevNum = nextNum;
         nextNum = (nextNum + direction + 12) % 12;
         if (nextNum > prevNum) currentOctaveMod += ",";
-        
-        lastNote = scale[0] + currentOctaveMod;
     }
+
+    let lastNoteBase = scale[0];
+    
+    // Check if we need to add a courtesy natural for the final note
+    const prevNote = scale[scale.length - 1];
+    const prevBase = prevNote.replace(/['+,]/g, '');
+    const prevHasAcc = prevBase.length > 1 && (prevBase.includes('s') || prevBase.includes('f'));
+    const lastIsNatural = lastNoteBase.length === 1;
+    
+    if (prevBase[0] === lastNoteBase[0] && prevHasAcc && lastIsNatural) {
+        lastNoteBase += "n";
+    }
+    
+    lastNote = lastNoteBase + currentOctaveMod;
     scale.push(lastNote);
 
     console.log(`[DEBUG] generateChromaticScale (${ascendingDir ? 'asc' : 'desc'}):`, JSON.stringify(scale));
