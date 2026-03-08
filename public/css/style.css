@@ -2,48 +2,60 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f7f6;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     color: #333;
+    min-height: 100vh;
 }
 
 .container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 40px 20px;
 }
 
 header {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
 h1 {
     color: #2c3e50;
     margin: 0;
+    font-weight: 700;
 }
 
 .back-link {
     text-decoration: none;
     color: #3498db;
-    font-weight: 500;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: #2980b9;
 }
 
 .card {
     background: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
 }
 
 .question-display {
     text-align: center;
     margin: 30px 0;
-    padding: 20px;
+    padding: 30px;
     background-color: #fff;
-    border: 1px solid #eee;
-    border-radius: 8px;
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
 }
 
 .score-image {
