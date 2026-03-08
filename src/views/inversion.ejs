@@ -171,9 +171,7 @@
             const notesData = JSON.parse(scoreDiv.dataset.notes);
             
             // Configure size
-            // User requested to "crop" the image to only 1/3 of horizontal area.
-            // Reducing width from 500 to 180 and stave width from 400 to 150.
-            // Adjusted height: 350 for grand staff, 180 for single stave
+      
             const canvasHeight = (clef === 'grand') ? 300 : 180;
             renderer.resize(180, canvasHeight);
             const context = renderer.getContext();
@@ -183,15 +181,9 @@
             
             // Handle Grand Staff differently
             if (clef === 'grand') {
-                // For grand staff, we usually need two staves connected
-                // But our logic returns a single list of notes which might span across
-                // In the python code: "first note is always the bass... high note random"
-                // It seems to render on a single stave in some cases or just uses lilypond grand staff
-                // VexFlow Grand Staff requires two staves.
-                
-                // Let's create two staves
+
                 const staveTreble = new VF.Stave(10, 20, 150);
-                const staveBass = new VF.Stave(10, 150, 150);
+                const staveBass = new VF.Stave(10, 120, 150);
                 
                 staveTreble.addClef("treble");
                 staveBass.addClef("bass");
