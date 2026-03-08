@@ -34,12 +34,12 @@ function convertScaleToVexFlow(scale, baseOctave) {
     
     return scale.map(note => {
         // Parse pitch class and octave modifiers
-        // Allow 'n' for natural
-        let match = note.match(/^([a-g])([s|f|n]*)(['|,]*)$/);
+        // Allow 'n' for natural. Note: regex char class [sfn] matches s, f, or n.
+        let match = note.match(/^([a-g])([sfn]*)(['|,]*)$/);
         if (!match) return null;
         
         let step = match[1]; // a-g
-        let acc = match[2]; // s (sharp), f (flat), n (natural), ss, ff, etc.
+        let acc = match[2]; // s, f, n, ss, ff
         let octMod = match[3]; // ' or ,
         
         // Convert accidental
