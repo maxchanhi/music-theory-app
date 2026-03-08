@@ -173,8 +173,9 @@
             // Configure size
             // User requested to "crop" the image to only 1/3 of horizontal area.
             // Reducing width from 500 to 180 and stave width from 400 to 150.
-            // Adjusted height to 350 to accommodate low bass notes (ledger lines)
-            renderer.resize(180, 350);
+            // Adjusted height: 350 for grand staff, 180 for single stave
+            const canvasHeight = (clef === 'grand') ? 300 : 180;
+            renderer.resize(180, canvasHeight);
             const context = renderer.getContext();
             
             // Create a stave
