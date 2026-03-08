@@ -40,7 +40,7 @@
         }
         .nav-card {
             border: none;
-            padding: 30px;
+            padding: 20px;
             border-radius: 16px;
             text-decoration: none;
             color: inherit;
@@ -51,7 +51,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100%;
+            min-height: auto;
         }
         .nav-card:hover {
             transform: translateY(-8px);
@@ -117,67 +117,93 @@
         <p>Select a topic to practice</p>
     </div>
 
-    <div class="nav-grid">
-        <a href="/chromatic" class="nav-card">
-            <h3>Chromatic Scale Identify</h3>
-            <p>Practice identifying chromatic scales and their notations.</p>
-        </a>
-        
-        <a href="/clef_minor" class="nav-card">
-            <h3>Clef & Minor Keys</h3>
-            <p>Identify the clef and minor key from the musical score.</p>
-        </a>
-        
-        <a href="/compound_simple" class="nav-card">
-            <h3>Compound & Simple Time</h3>
-            <p>Practice metric modulation between simple and compound time.</p>
-        </a>
-
-        <a href="/duration_equation" class="nav-card">
-            <h3>Duration Equation</h3>
-            <p>Calculate note durations and time signatures.</p>
-        </a>
-
-        <a href="/grouping_quiz" class="nav-card">
-            <h3>Grouping & Beaming Quiz</h3>
-            <p>Identify correct grouping and beaming in musical notation.</p>
-        </a>
-
-        <a href="/instrument_knowledge" class="nav-card">
-            <h3>Instrument Knowledge Quiz</h3>
-            <p>Test your knowledge on instruments, clefs, and terms.</p>
-        </a>
-        
-        <a href="/interval" class="nav-card">
-            <h3>Interval Quiz</h3>
-            <p>Identify the interval between two notes.</p>
-        </a>
-
-        <a href="/inversion" class="nav-card">
-            <h3>Inversion Quiz</h3>
-            <p>Identify the chord inversion (Root, 1st, 2nd).</p>
-        </a>
-
-        <a href="/melody_key" class="nav-card">
-            <h3>Melody Key</h3>
-            <p>Identify the key of a given melody.</p>
-        </a>
-
-        <a href="/pitch_id" class="nav-card">
-            <h3>Pitch Identification</h3>
-            <p>Identify musical notes on different clefs with various accidentals.</p>
-        </a>
-
-        <a href="/same_pitch" class="nav-card">
-            <h3>Same Pitch</h3>
-            <p>Identify two melodies that sound the same across different clefs.</p>
-        </a>
-
-        <a href="/transposing" class="nav-card">
-            <h3>Transposition Quiz</h3>
-            <p>Practice transposing music between different keys and clefs.</p>
-        </a>
+    <div class="category-section">
+        <h2 class="category-title">Rhythm-related</h2>
+        <div class="nav-grid">
+            <a href="/grouping_quiz" class="nav-card">
+                <h3>Grouping and beaming</h3>
+                <p>Identify correct grouping and beaming in musical notation.</p>
+            </a>
+            <a href="/compound_simple" class="nav-card">
+                <h3>Simple-compound Modulation</h3>
+                <p>Practice metric modulation between simple and compound time.</p>
+            </a>
+            <a href="/duration_equation" class="nav-card">
+                <h3>Duration calculation</h3>
+                <p>Calculate note durations and time signatures.</p>
+            </a>
+            <!-- Calculation for time signature is merged or similar to duration_equation, keeping duration_equation for now -->
+        </div>
     </div>
+
+    <div class="category-section">
+        <h2 class="category-title">Pitch-related</h2>
+        <div class="nav-grid">
+            <a href="/pitch_id" class="nav-card">
+                <h3>Pitch Identification</h3>
+                <p>Identify musical notes on different clefs with various accidentals.</p>
+            </a>
+            <a href="/interval" class="nav-card">
+                <h3>Interval</h3>
+                <p>Identify the interval between two notes.</p>
+            </a>
+            <a href="/chromatic" class="nav-card">
+                <h3>Chromatic scale</h3>
+                <p>Practice identifying chromatic scales and their notations.</p>
+            </a>
+            <a href="/transposing" class="nav-card">
+                <h3>Transposing</h3>
+                <p>Practice transposing music between different keys and clefs.</p>
+            </a>
+            <a href="/same_pitch" class="nav-card">
+                <h3>Same pitches with different clefs</h3>
+                <p>Identify two melodies that sound the same across different clefs.</p>
+            </a>
+        </div>
+    </div>
+
+    <div class="category-section">
+        <h2 class="category-title">Key-related</h2>
+        <div class="nav-grid">
+            <a href="/melody_key" class="nav-card">
+                <h3>Identifying Key in a Melody</h3>
+                <p>Identify the key of a given melody.</p>
+            </a>
+            <!-- Chord Progression not found in current routes, skipping -->
+            <a href="/inversion" class="nav-card">
+                <h3>Chord Inversion</h3>
+                <p>Identify the chord inversion (Root, 1st, 2nd).</p>
+            </a>
+            <a href="/clef_minor" class="nav-card">
+                <h3>Identify clef from minor scale</h3>
+                <p>Identify the clef and minor key from the musical score.</p>
+            </a>
+        </div>
+    </div>
+
+    <div class="category-section">
+        <h2 class="category-title">Music Knowledge</h2>
+        <div class="nav-grid">
+            <a href="/instrument_knowledge" class="nav-card">
+                <h3>Instrumental Knowledge</h3>
+                <p>Test your knowledge on instruments, clefs, and terms.</p>
+            </a>
+        </div>
+    </div>
+
+    <style>
+        .category-section {
+            margin-bottom: 40px;
+            text-align: left;
+        }
+        .category-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+    </style>
 
     <hr style="margin: 40px 0; border: 0; border-top: 2px solid #eee;">
 
@@ -194,7 +220,7 @@
     </div>
 
     <footer style="margin-top: 40px; color: #888; font-size: 0.9em;">
-        &copy; Chan Chak Hang Max 2026 version 1.0.1
+        &copy; Chan Chak Hang Max 2026 version 1.0.2
     </footer>
 
     <%- include('partials/ai_chat') %>
