@@ -76,25 +76,23 @@ function generateChromaticScale(ascendingDir) {
                 }
                 
                 continue;
-            } else {
-                // Check if we need to add a courtesy natural
-                // If previous note has same letter and an accidental, and this one is natural
-                const prevNote = scale[scale.length - 1];
-                // prevNote might have octave chars now! Strip them for analysis
-                const prevBase = prevNote.replace(/['+,]/g, '');
-                
-                const prevHasAcc = prevBase.length > 1 && (prevBase.includes('s') || prevBase.includes('f'));
-                const nextIsNatural = nextPitch.length === 1;
-                
-                if (prevBase[0] === nextPitch[0] && prevHasAcc && nextIsNatural) {
-                    nextPitch += "n";
-                }
-                
-                scale.push(nextPitch + currentOctaveMod);
             }
-        } else {
-            scale.push(nextPitch + currentOctaveMod);
         }
+
+        // Check if we need to add a courtesy natural
+        // If previous note has same letter and an accidental, and this one is natural
+        const prevNote = scale[scale.length - 1];
+        // prevNote might have octave chars now! Strip them for analysis
+        const prevBase = prevNote.replace(/['+,]/g, '');
+        
+        const prevHasAcc = prevBase.length > 1 && (prevBase.includes('s') || prevBase.includes('f'));
+        const nextIsNatural = nextPitch.length === 1;
+        
+        if (prevBase[0] === nextPitch[0] && prevHasAcc && nextIsNatural) {
+            nextPitch += "n";
+        }
+        
+        scale.push(nextPitch + currentOctaveMod);
     }
 
     // Append Octave
