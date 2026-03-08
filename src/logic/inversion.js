@@ -180,24 +180,17 @@ function generateInversionQuestion(clef = "treble") { // default to treble if no
     if (clef === "treble") {
         adjustNotes = [...triadNotes];
     } else if (clef === "bass") {
-        if (exceptionPitch.includes(triadNotes[0].charAt(0))) {
-            triadNotes[0] = triadNotes[0] + ",";
-            // Remove last char (apostrophe or nothing?)
-            // Python: triad_notes[1]=triad_notes[1][:-1]
-            // This assumes there might be an octave marker to remove, or it just strips the last char
-            // In python logic, notes might have ' added.
-            // Let's implement safely: remove ' if present
-            triadNotes[1] = triadNotes[1].replace(/'$/, "");
-            triadNotes[2] = triadNotes[2].replace(/'$/, "");
-        }
-        adjustNotes = triadNotes;
+        // Lower all notes by 2 octaves as requested
+        adjustNotes = triadNotes.map(note => note + ",,");
     } else if (clef === "grand") {
-        const highNote = triadNotes[Math.floor(Math.random() * triadNotes.length)];
-        triadNotes.push(highNote + "'");
-        adjustNotes = [...triadNotes]; // copy
-        if (!exceptionPitch.includes(adjustNotes[2].charAt(0)) && !adjustNotes[2].includes("'")) {
-            adjustNotes[2] = adjustNotes[2] + "'";
-        }
+        // Ensure 2 notes in bass clef (lowered) and 2 in treble clef (original octave)
+        // We take the 3 triad notes, lower the first two for bass
+        // Keep the third for treble, and duplicate the first one for treble
+        adjustNotes = [];
+        adjustNotes.push(triadNotes[0] + ",,"); // Bass
+        adjustNotes.push(triadNotes[1] + ",,"); // Bass
+        adjustNotes.push(triadNotes[2]);        // Treble
+        adjustNotes.push(triadNotes[0]);        // Treble (doubling the lowest note)
     }
     
     // Prepare VexFlow data
