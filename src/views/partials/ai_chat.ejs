@@ -38,6 +38,8 @@
             right: 30px;
             width: 380px;
             height: 500px;
+            max-width: calc(100vw - 40px); /* Responsive width */
+            max-height: calc(100vh - 120px); /* Responsive height */
             background: white;
             border-radius: 15px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.2);
@@ -47,6 +49,20 @@
             overflow: hidden;
             border: 1px solid #e0e0e0;
             font-family: Arial, sans-serif;
+        }
+
+        @media (max-width: 480px) {
+            .ai-chat-container {
+                right: 20px;
+                bottom: 90px;
+                width: calc(100vw - 40px);
+                height: 60vh;
+            }
+            
+            .ai-chat-btn {
+                right: 20px;
+                bottom: 20px;
+            }
         }
 
         .ai-chat-header {
