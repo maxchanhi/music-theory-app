@@ -83,7 +83,13 @@ router.post('/generate', async (req, res) => {
             selectedImage: null
         };
         
-        res.redirect('/chromatic');
+        req.session.save((err) => {
+            if (err) {
+                console.error("Session save error:", err);
+                return res.status(500).send("Error saving session");
+            }
+            res.redirect('/chromatic');
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send("Error generating question");
