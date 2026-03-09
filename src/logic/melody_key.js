@@ -97,10 +97,7 @@ function rhythmGeneration(allRhythmList, numberOfBeat, lowertime) {
         safety++;
         // If no available rhythms fit the remaining time, reset list or break to avoid infinite loop
         if (availableList.length === 0) {
-             // Try resetting to full list if we are stuck, though logic below should handle beat completion
-             // But if we have a small remainder that no note fits, we might be stuck.
-             // Force break or fill with smallest unit?
-             // Let's break and accept partial melody if we can't fit anything.
+
              break;
         }
 
@@ -200,44 +197,8 @@ function melodyRhyGen(motif, uppertime = 4, lowertime = 4, bar = 2, rhythmList =
 }
 
 function insertNote(melody, intervalList, scale) {
-    for (let i = 0; i < melody.length; i++) {
-        let pitch;
-        // Check if current note needs a pitch (it might be a placeholder from melodyRhyGen)
-        // In python code, it checks `if isinstance(melody[i], list)` but melody is always list of [pitch, dur].
-        // The logic in python `insert_note` seems to try to extend the melody using intervals relative to previous note.
-        // It iterates through the WHOLE melody?
-        // Wait, Python code:
-        /*
-        while i < len(melody):
-            if isinstance(melody[i], list):
-                 pitch = melody[i][0]
-            else:
-                 # It seems Python's melody_rhy_gen appends just duration strings, not lists?
-                 # Let's check python melody_rhy_gen:
-                 # while motif_sum<beat_sum:
-                 #    choice = random.choice(rhythm_list)
-                 #    for note in choice:
-                 #     motif_sum+=durations_fraction[note]
-                 #     melody.append(note) <--- Appends STRING duration
-        */
-       
-        // My melodyRhyGen appends ['c', noteDur]. So it is always a list.
-        // But the intent is: if it's a "new" note (placeholder), assign pitch based on previous.
-        
-        // Let's adapt.
-        // We need to identify which notes are "fixed" (from initial motif) and which are "new" (need generation).
-        // Actually, the Python code re-processes the whole melody?
-        // No, `i` starts at 0.
-        // If `melody[i]` is a list, it takes `pitch = melody[i][0]`.
-        // If it's NOT a list (string duration), it looks back for a previous pitch.
-        
-        // Since I made everything a list, I need another way to distinguish or just follow logic:
-        // The initial motif has valid pitches. The added notes have placeholder 'c'.
-        // But 'c' is a valid pitch.
-        
-        // Better: In melodyRhyGen, append just the duration string for new notes, matching Python.
-        // Then convert to list in insertNote.
-    }
+    // This function appears to be unused or a placeholder.
+    // Logic is implemented in insertNoteMixed.
     return melody; 
 }
 
@@ -395,10 +356,6 @@ function generateOptions(ansKey, filteredKeyscaleKeys) {
     for (const key of candidates) {
         if (key !== ansKey) {
             const keyIndex = allKeys.indexOf(key);
-            // Python: if abs(key_index - ans_key_index) > 1:
-            // This ensures options are not too close in the keyscale list (which is somewhat ordered by complexity/circle of fifths? 
-            // Actually keyscale in notation.py is just a list. "C major", "A minor", "G major"... 
-            // It looks somewhat ordered but not strictly circle of fifths.
             if (Math.abs(keyIndex - ansKeyIndex) > 1) {
                 options.push(key);
             }
@@ -452,14 +409,6 @@ function mapToVexFlow(melody) {
         else if (vfPitch.length > 1 && vfPitch.endsWith('b')) accidental = 'b';
         else if (vfPitch.includes('n')) accidental = 'n';
         
-        // Clean key for VexFlow StaveNote (it expects "c/4", "c#/4" works too?)
-        // VexFlow keys: "c/4", "c#/4", "db/4" etc.
-        // Yes, VexFlow supports keys with accidentals in the string, 
-        // BUT we typically need to add the Accidental modifier explicitly to display it.
-        // However, if we are in a key signature, VexFlow might handle it?
-        // No, VexFlow is low-level. We usually add key signature to stave, 
-        // and then for notes, we might need to be explicit or let VexFlow handle it.
-        // Simplest: Always add accidental modifier if the note has one.
         
         // Also map duration
         const duration = durationToVexFlow[pyDur];
