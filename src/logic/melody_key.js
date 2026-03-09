@@ -95,7 +95,20 @@ function rhythmGeneration(allRhythmList, numberOfBeat, lowertime) {
     let safety = 0;
     while (melodyDurationSum < targetDuration - 0.0001 && safety < 1000) {
         safety++;
+        // If no available rhythms fit the remaining time, reset list or break to avoid infinite loop
+        if (availableList.length === 0) {
+             // Try resetting to full list if we are stuck, though logic below should handle beat completion
+             // But if we have a small remainder that no note fits, we might be stuck.
+             // Force break or fill with smallest unit?
+             // Let's break and accept partial melody if we can't fit anything.
+             break;
+        }
+
         const rhythmChoice = availableList[Math.floor(Math.random() * availableList.length)];
+        
+        // Safety check if rhythmChoice is undefined (should not happen if availableList is checked)
+        if (!rhythmChoice) break;
+        
         melody.push(rhythmChoice);
         melodyDurationSum += durationsFraction[rhythmChoice];
 
@@ -166,10 +179,17 @@ function melodyRhyGen(motif, uppertime = 4, lowertime = 4, bar = 2, rhythmList =
         melody.push([...note]); // Deep copy note [pitch, duration]
     }
 
+    // If we have no rhythm list, we can't generate anything
+    if (rhythmList.length === 0) return melody;
+
     let safety = 0;
     while (motifSum < beatSum - 0.0001 && safety < 1000) {
         safety++;
         const choice = rhythmList[Math.floor(Math.random() * rhythmList.length)];
+        
+        // Safety check
+        if (!choice) break;
+
         for (const noteDur of choice) {
             motifSum += durationsFraction[noteDur];
             // Placeholder pitch, will be filled later
@@ -303,6 +323,12 @@ function generateSingleMelody(key) {
         const scale = keyscale[key];
         
         const rhyMotif = rhythmGeneration(rhythmList, 2, 4);
+        // Safety check if rhythm generation failed
+        if (!rhyMotif || rhyMotif.length === 0) {
+            console.error("rhythmGeneration failed to produce rhythm");
+            return null;
+        }
+
         let melody = [];
         for (const dur of rhyMotif) {
             melody.push([scale[Math.floor(Math.random() * scale.length)], dur]);
@@ -313,6 +339,12 @@ function generateSingleMelody(key) {
         // Generate full melody (mixed format)
         let fullMelody = melodyRhyGenMixed(melody, 4, 4, 2, motifRhythmList);
         
+        // Safety check if fullMelody generation failed
+        if (!fullMelody || fullMelody.length === 0) {
+            console.error("melodyRhyGenMixed failed to produce full melody");
+            return null;
+        }
+
         // Insert notes
         fullMelody = insertNoteMixed(fullMelody, intervalList, scale);
         
