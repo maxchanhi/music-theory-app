@@ -196,13 +196,6 @@ function melodyRhyGen(motif, uppertime = 4, lowertime = 4, bar = 2, rhythmList =
     return melody;
 }
 
-function insertNote(melody, intervalList, scale) {
-    // This function appears to be unused or a placeholder.
-    // Logic is implemented in insertNoteMixed.
-    return melody; 
-}
-
-// Redefine melodyRhyGen to match Python behavior (mixed list/string) for easier porting
 function melodyRhyGenMixed(motif, uppertime = 4, lowertime = 4, bar = 2, rhythmList = []) {
     const beatSum = uppertime * (1 / lowertime) * bar;
     let motifSum = 0;
