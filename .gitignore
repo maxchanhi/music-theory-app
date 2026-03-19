@@ -13,6 +13,6 @@ automating-browser/
 
 # IDE files
 .trae/
-
+.agents/
 # Secrets
 secret.env

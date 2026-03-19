@@ -13,7 +13,8 @@ legacy_python/
 .DS_Store
 .git
 .gitignore
-
+.trae/
+.agents/
 # Docker
 Dockerfile
 .dockerignore

@@ -4,6 +4,37 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
+        body {
+            background:
+                radial-gradient(circle at 12% 10%, #ffe87a 0 8%, transparent 9%),
+                radial-gradient(circle at 88% 12%, #ff9dd5 0 7%, transparent 8%),
+                radial-gradient(circle at 10% 84%, #86ffd5 0 8%, transparent 9%),
+                radial-gradient(circle at 86% 88%, #8ad4ff 0 9%, transparent 10%),
+                linear-gradient(160deg, #fff4d6 0%, #ffe0f0 35%, #ddf8ff 72%, #e4ffef 100%);
+            color: #1f2b4a;
+            font-family: 'Trebuchet MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container,
+        .main-container,
+        .quiz-container,
+        .question-container {
+            background: #ffffffcf;
+            border: 2px solid #e5e9ff;
+            border-radius: 20px;
+            box-shadow: 0 12px 24px rgba(58, 79, 132, 0.1);
+        }
+        button,
+        .btn,
+        .button {
+            border-radius: 14px;
+            font-weight: 800;
+        }
+        select,
+        input[type="text"],
+        input[type="password"] {
+            border: 2px solid #d9d7ff;
+            border-radius: 12px;
+        }
         .ai-chat-btn {
             position: fixed;
             bottom: 30px;

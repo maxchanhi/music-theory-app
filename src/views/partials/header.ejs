@@ -1,38 +1,90 @@
 <style>
+    body {
+        background:
+            radial-gradient(circle at 12% 10%, #ffe87a 0 8%, transparent 9%),
+            radial-gradient(circle at 88% 12%, #ff9dd5 0 7%, transparent 8%),
+            radial-gradient(circle at 10% 84%, #86ffd5 0 8%, transparent 9%),
+            radial-gradient(circle at 86% 88%, #8ad4ff 0 9%, transparent 10%),
+            linear-gradient(160deg, #fff4d6 0%, #ffe0f0 35%, #ddf8ff 72%, #e4ffef 100%);
+        color: #1f2b4a;
+        font-family: 'Trebuchet MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .container,
+    .quiz-container,
+    .question-container,
+    .main-content {
+        background: #ffffffcf;
+        border: 2px solid #e5e9ff;
+        border-radius: 20px;
+        box-shadow: 0 12px 24px rgba(58, 79, 132, 0.1);
+    }
+    button,
+    .btn,
+    .button {
+        border-radius: 14px;
+        border: 0;
+        font-weight: 800;
+    }
+    select,
+    input[type="text"],
+    input[type="password"] {
+        border-radius: 12px;
+        border: 2px solid #d9d7ff;
+    }
     .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 0;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #eee;
+        padding: 16px 2px;
+        margin-bottom: 16px;
+        border-bottom: 3px dashed #a5b3ff;
     }
     .page-title {
         margin: 0;
-        color: #2c3e50;
-        font-size: 2em;
+        color: #2d2d7a;
+        font-size: clamp(1.7rem, 3.6vw, 2.4rem);
         text-align: left;
+        font-weight: 900;
     }
     .home-link {
         text-decoration: none;
-        color: #3498db;
-        font-weight: bold;
-        display: flex;
+        color: #5f26ce;
+        font-weight: 800;
+        display: inline-flex;
         align-items: center;
-        font-size: 1.1em;
+        font-size: 1.05rem;
+        background: #ffffff;
+        border: 2px solid #e8d4ff;
+        border-radius: 999px;
+        padding: 8px 14px;
+        box-shadow: 0 8px 16px rgba(88, 62, 160, 0.15);
     }
     .home-link:hover {
-        text-decoration: underline;
+        color: #431ca0;
     }
     .home-link span {
-        margin-right: 5px;
+        margin-right: 6px;
     }
     .page-description {
         text-align: left;
-        margin-bottom: 30px;
-        color: #666;
-        font-size: 1.1em;
-        line-height: 1.5;
+        margin-bottom: 24px;
+        color: #3e4b77;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        background: #ffffffcf;
+        border: 2px solid #e5e9ff;
+        border-radius: 16px;
+        padding: 14px 16px;
+    }
+    @media (max-width: 680px) {
+        .page-header {
+            gap: 10px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .home-link {
+            font-size: 0.95rem;
+        }
     }
 </style>
 

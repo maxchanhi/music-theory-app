@@ -1,9 +1,14 @@
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Trebuchet MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    color: #333;
+    background:
+        radial-gradient(circle at 12% 10%, #ffe87a 0 8%, transparent 9%),
+        radial-gradient(circle at 88% 12%, #ff9dd5 0 7%, transparent 8%),
+        radial-gradient(circle at 10% 84%, #86ffd5 0 8%, transparent 9%),
+        radial-gradient(circle at 86% 88%, #8ad4ff 0 9%, transparent 10%),
+        linear-gradient(160deg, #fff4d6 0%, #ffe0f0 35%, #ddf8ff 72%, #e4ffef 100%);
+    color: #1f2b4a;
     min-height: 100vh;
 }
 
@@ -18,34 +23,36 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: white;
+    background: #ffffffdc;
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-radius: 20px;
+    border: 3px solid #ffd66c;
+    box-shadow: 0 14px 0 #ffc24f, 0 24px 38px rgba(31, 43, 74, 0.16);
 }
 
 h1 {
-    color: #2c3e50;
+    color: #2d2d7a;
     margin: 0;
-    font-weight: 700;
+    font-weight: 900;
 }
 
 .back-link {
     text-decoration: none;
-    color: #3498db;
-    font-weight: 600;
+    color: #5f26ce;
+    font-weight: 800;
     transition: color 0.2s;
 }
 
 .back-link:hover {
-    color: #2980b9;
+    color: #431ca0;
 }
 
 .card {
-    background: white;
-    border-radius: 16px;
+    background: #ffffffcf;
+    border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    border: 2px solid #e5e9ff;
+    box-shadow: 0 12px 24px rgba(58, 79, 132, 0.1);
     transition: transform 0.3s ease;
 }
 
@@ -53,9 +60,9 @@ h1 {
     text-align: center;
     margin: 30px 0;
     padding: 30px;
-    background-color: #fff;
-    border: 2px solid #f0f0f0;
-    border-radius: 12px;
+    background-color: #ffffffcf;
+    border: 2px solid #e5e9ff;
+    border-radius: 16px;
 }
 
 .score-image {
@@ -73,21 +80,21 @@ h1 {
     display: flex;
     align-items: center;
     padding: 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    border: 2px solid #d9d7ff;
+    border-radius: 14px;
     cursor: pointer;
     transition: all 0.2s;
-    background: white;
+    background: #fff;
 }
 
 .option-container:hover {
-    border-color: #3498db;
-    background-color: #f8fbff;
+    border-color: #7f5cff;
+    background-color: #f3edff;
 }
 
 .option-container.selected {
-    border-color: #3498db;
-    background-color: #eaf6ff;
+    border-color: #5f26ce;
+    background-color: #efe6ff;
 }
 
 .option-radio {
@@ -104,18 +111,19 @@ h1 {
 }
 
 .btn {
-    background-color: #3498db;
+    background: linear-gradient(140deg, #ff7db8, #ff5f95);
     color: white;
     border: none;
     padding: 12px 24px;
-    border-radius: 6px;
+    border-radius: 14px;
     font-size: 16px;
+    font-weight: 800;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: transform 0.2s;
 }
 
 .btn:hover {
-    background-color: #2980b9;
+    transform: translateY(-1px);
 }
 
 .result-message {
@@ -127,15 +135,15 @@ h1 {
 }
 
 .result-correct {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    background-color: #dcffe9;
+    color: #1b6a43;
+    border: 2px solid #98e6bd;
 }
 
 .result-wrong {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+    background-color: #ffdbe8;
+    color: #912349;
+    border: 2px solid #ffb3cd;
 }
 
 .nav-grid {
@@ -146,27 +154,28 @@ h1 {
 }
 
 .nav-card {
-    background: white;
+    background: #ffffffcf;
     padding: 25px;
-    border-radius: 12px;
+    border-radius: 18px;
     text-decoration: none;
     color: inherit;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 8px 0 rgba(53, 57, 120, 0.15);
     transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid #eee;
+    border: 2px solid #e5e9ff;
 }
 
 .nav-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 14px 0 rgba(53, 57, 120, 0.2);
 }
 
 .nav-card h3 {
     margin-top: 0;
-    color: #2c3e50;
+    color: #2d2d7a;
+    font-weight: 900;
 }
 
 .nav-card p {
-    color: #7f8c8d;
+    color: #3e4b77;
     margin-bottom: 0;
 }

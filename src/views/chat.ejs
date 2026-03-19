@@ -6,29 +6,38 @@
     <title>AI Music Assistant</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Trebuchet MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f4;
             display: flex;
             flex-direction: column;
             height: 100vh;
             box-sizing: border-box;
+            color: #1f2b4a;
+            background:
+                radial-gradient(circle at 12% 10%, #ffe87a 0 8%, transparent 9%),
+                radial-gradient(circle at 88% 12%, #ff9dd5 0 7%, transparent 8%),
+                radial-gradient(circle at 10% 84%, #86ffd5 0 8%, transparent 9%),
+                radial-gradient(circle at 86% 88%, #8ad4ff 0 9%, transparent 10%),
+                linear-gradient(160deg, #fff4d6 0%, #ffe0f0 35%, #ddf8ff 72%, #e4ffef 100%);
         }
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             position: relative;
+            color: #2d2d7a;
+            font-weight: 900;
         }
         .chat-container {
             flex: 1;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: #ffffffd9;
+            border-radius: 20px;
+            box-shadow: 0 14px 24px rgba(58, 79, 132, 0.15);
+            border: 2px solid #e5e9ff;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            max-width: 800px;
+            max-width: 860px;
             margin: 0 auto;
             width: 100%;
         }
@@ -41,52 +50,56 @@
             gap: 15px;
         }
         .message {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 15px;
+            max-width: 84%;
+            padding: 11px 15px;
+            border-radius: 16px;
             line-height: 1.5;
+            font-size: 0.98rem;
         }
         .message.user {
             align-self: flex-end;
-            background-color: #3498db;
+            background: linear-gradient(140deg, #7f5cff, #5f26ce);
             color: white;
-            border-bottom-right-radius: 5px;
+            border-bottom-right-radius: 6px;
         }
         .message.ai {
             align-self: flex-start;
-            background-color: #f0f0f0;
-            color: #333;
-            border-bottom-left-radius: 5px;
+            background: linear-gradient(140deg, #fff6a8, #ffe7cf);
+            color: #2b2e68;
+            border: 1px solid #f1cf78;
+            border-bottom-left-radius: 6px;
         }
         .input-area {
-            padding: 20px;
-            border-top: 1px solid #eee;
+            padding: 16px;
+            border-top: 2px solid #ebe6ff;
             display: flex;
             gap: 10px;
+            background: #fff;
         }
         input[type="text"] {
             flex: 1;
             padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
+            border: 2px solid #d9d7ff;
+            border-radius: 14px;
             outline: none;
             font-size: 16px;
         }
         button {
-            padding: 12px 25px;
-            background-color: #2ecc71;
+            padding: 12px 22px;
+            background: linear-gradient(140deg, #ff7db8, #ff5f95);
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 14px;
             cursor: pointer;
             font-size: 16px;
-            transition: background 0.2s;
+            font-weight: 800;
+            transition: transform 0.2s ease;
         }
         button:hover {
-            background-color: #27ae60;
+            transform: translateY(-1px);
         }
         button:disabled {
-            background-color: #95a5a6;
+            background: #b9b6cd;
             cursor: not-allowed;
         }
         .back-link {
@@ -95,13 +108,15 @@
             top: 50%;
             transform: translateY(-50%);
             text-decoration: none;
-            color: #666;
+            color: #5f26ce;
+            font-weight: 800;
         }
         .loading {
             align-self: center;
-            color: #999;
+            color: #5f26ce;
             font-style: italic;
             display: none;
+            font-weight: 700;
         }
     </style>
 </head>

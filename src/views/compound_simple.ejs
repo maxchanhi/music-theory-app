@@ -90,7 +90,7 @@
         }
         .vexflow-canvas {
             width: 100%;
-            overflow-x: auto;
+            overflow-x: hidden;
             min-height: 200px;
             margin: 10px 0;
             display: flex;
@@ -102,6 +102,14 @@
         }
         .vexflow-canvas svg {
             pointer-events: none; 
+        }
+        .option-canvas {
+            min-height: 140px;
+        }
+        .option-canvas svg {
+            width: 100% !important;
+            height: auto !important;
+            display: block;
         }
     </style>
 </head>
@@ -131,7 +139,7 @@
                                         required>
                                     <div style="flex-grow: 1;">
                                         <span>Option <%= index + 1 %></span>
-                                        <div id="canvas-option-<%= index %>" class="vexflow-canvas"></div>
+                                        <div id="canvas-option-<%= index %>" class="vexflow-canvas option-canvas"></div>
                                         <div class="lilypond-text"><%= opt.notes.join(' ') %></div>
                                     </div>
                                 </label>
@@ -305,7 +313,7 @@
                             return { notes, tuplets };
                         }
                         
-                        function renderScore(containerId, timeSignature, melodyArray) {
+                        function renderScore(containerId, timeSignature, melodyArray, fitToCell = false) {
                             console.log(`Rendering score in container: ${containerId}, timeSignature: ${timeSignature}, melody:`, melodyArray);
                             
                             const container = document.getElementById(containerId);
@@ -324,8 +332,9 @@
                                 return;
                             }
                             
-                            // Calculate width
-                            const width = Math.max(400, notes.length * 50 + 50);
+                            const containerWidth = Math.max(320, container.clientWidth || 320);
+                            const intrinsicWidth = Math.max(420, notes.length * 52 + 80);
+                            const width = fitToCell ? intrinsicWidth : Math.max(containerWidth, intrinsicWidth);
                             const height = 200;
                             
                             try {
@@ -338,6 +347,10 @@
                                 if (svg) {
                                     svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
                                     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                                    if (fitToCell) {
+                                        svg.style.width = '100%';
+                                        svg.style.height = 'auto';
+                                    }
                                 }
                                 
                                 const stave = new Stave(10, 50, width - 20);
@@ -420,7 +433,7 @@
                                     // Render Options
                                     if (data.options) {
                                         data.options.forEach((opt, index) => {
-                                            renderScore("canvas-option-" + index, opt.timeSignature, opt.notes);
+                                            renderScore("canvas-option-" + index, opt.timeSignature, opt.notes, true);
                                         });
                                     }
                                 } else {

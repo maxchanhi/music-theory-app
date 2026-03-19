@@ -6,11 +6,18 @@
     <title>About Me</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Trebuchet MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             text-align: center;
+            color: #1f2b4a;
+            background:
+                radial-gradient(circle at 12% 10%, #ffe87a 0 8%, transparent 9%),
+                radial-gradient(circle at 88% 12%, #ff9dd5 0 7%, transparent 8%),
+                radial-gradient(circle at 10% 84%, #86ffd5 0 8%, transparent 9%),
+                radial-gradient(circle at 86% 88%, #8ad4ff 0 9%, transparent 10%),
+                linear-gradient(160deg, #fff4d6 0%, #ffe0f0 35%, #ddf8ff 72%, #e4ffef 100%);
         }
         .header {
             margin-bottom: 40px;
@@ -18,9 +25,10 @@
         .content-section {
             margin: 30px 0;
             padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: #ffffffd9;
+            border-radius: 20px;
+            border: 2px solid #e5e9ff;
+            box-shadow: 0 12px 24px rgba(58, 79, 132, 0.12);
             text-align: left;
             line-height: 1.6;
         }
@@ -28,31 +36,33 @@
             display: inline-block;
             margin-bottom: 20px;
             padding: 10px 20px;
-            background-color: #95a5a6;
+            background: linear-gradient(140deg, #ff7db8, #ff5f95);
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 14px;
+            font-weight: 800;
         }
         .back-btn:hover {
-            background-color: #7f8c8d;
+            opacity: 0.9;
         }
         .highlight-box {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #dcffe9;
+            color: #1b6a43;
             padding: 15px;
-            border-radius: 5px;
+            border-radius: 12px;
             margin-top: 20px;
-            border-left: 5px solid #28a745;
+            border-left: 5px solid #3ac889;
         }
         .credit-box {
             font-size: 0.9em;
-            color: #6c757d;
+            color: #4c5784;
             margin-top: 20px;
             font-style: italic;
         }
         a {
-            color: #3498db;
+            color: #5f26ce;
             text-decoration: none;
+            font-weight: 700;
         }
         a:hover {
             text-decoration: underline;

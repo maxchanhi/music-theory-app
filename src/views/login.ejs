@@ -6,14 +6,29 @@
     <title>Login - Music Theory App</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
+        body {
+            background:
+                radial-gradient(circle at 12% 10%, #ffe87a 0 8%, transparent 9%),
+                radial-gradient(circle at 88% 12%, #ff9dd5 0 7%, transparent 8%),
+                radial-gradient(circle at 10% 84%, #86ffd5 0 8%, transparent 9%),
+                radial-gradient(circle at 86% 88%, #8ad4ff 0 9%, transparent 10%),
+                linear-gradient(160deg, #fff4d6 0%, #ffe0f0 35%, #ddf8ff 72%, #e4ffef 100%);
+            color: #1f2b4a;
+            font-family: 'Trebuchet MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
         .login-container {
             max-width: 400px;
             margin: 50px auto;
-            padding: 30px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px 26px;
+            background-color: #ffffffd9;
+            border-radius: 20px;
+            border: 2px solid #e5e9ff;
+            box-shadow: 0 14px 24px rgba(58, 79, 132, 0.15);
             text-align: center;
+        }
+        .login-container h1 {
+            color: #2d2d7a;
+            font-weight: 900;
         }
         .form-group {
             margin-bottom: 20px;
@@ -22,35 +37,41 @@
         .form-group label {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
+            font-weight: 800;
+            color: #2b2e68;
         }
         .form-group input {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 2px solid #d9d7ff;
+            border-radius: 12px;
             font-size: 16px;
+            box-sizing: border-box;
         }
         .btn-login {
             width: 100%;
+            display: block;
             padding: 12px;
-            background-color: #3498db;
+            background: linear-gradient(140deg, #ff7db8, #ff5f95);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 14px;
             font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            font-weight: 800;
+            transition: transform 0.2s;
+            box-sizing: border-box;
         }
         .btn-login:hover {
-            background-color: #2980b9;
+            transform: translateY(-1px);
         }
         .error-message {
-            color: #e74c3c;
+            color: #912349;
             margin-bottom: 20px;
             padding: 10px;
-            background-color: #fdedec;
-            border-radius: 4px;
+            background-color: #ffdbe8;
+            border: 2px solid #ffb3cd;
+            border-radius: 12px;
         }
     </style>
 </head>
