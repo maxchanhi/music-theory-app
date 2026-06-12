@@ -116,6 +116,58 @@ const generateQuestion = () => {
     };
 };
 
+const meta = {
+    topic: 'same_pitch',
+    name: 'Same Pitch Across Clefs',
+    description: 'Identify which two melodies sound the same despite being in different clefs',
+    difficultyLevels: null,
+    answerType: 'multi-select'
+};
+
+function generate(options = {}) {
+    const questionData = generateQuestion();
+
+    const correctIndices = questionData.options
+        .map((opt, idx) => opt.type === 'same' ? idx : -1)
+        .filter(idx => idx !== -1);
+
+    return {
+        questionText: `Which two melodies SOUND the same (same pitch) across different clefs? There are ${correctIndices.length} correct answers.`,
+        answerFormat: { type: 'multi-select', minSelect: 2, maxSelect: 2 },
+        choices: questionData.options.map((o, i) => `Option ${i + 1} (${o.clef})`),
+        correctAnswer: correctIndices,
+        displayData: {
+            melodyNotes: questionData.melodyNotes,
+            options: questionData.options
+        },
+        rawData: questionData
+    };
+}
+
+function check(questionData, userAnswer) {
+    const indices = Array.isArray(userAnswer)
+        ? userAnswer.map(i => parseInt(i))
+        : String(userAnswer).split(',').map(s => parseInt(s.trim()));
+
+    const correctIndices = questionData.options
+        .map((opt, idx) => opt.type === 'same' ? idx : -1)
+        .filter(idx => idx !== -1);
+
+    const correct = indices.length === correctIndices.length &&
+        indices.every(i => correctIndices.includes(i));
+
+    return {
+        correct,
+        correctAnswer: correctIndices,
+        explanation: correct
+            ? 'Correct! Those two melodies sound at the same pitch.'
+            : `Incorrect. The correct options are ${correctIndices.map(i => i + 1).join(' and ')}. They share the same sounding pitches despite different clefs.`
+    };
+}
+
 module.exports = {
-    generateQuestion
+    generateQuestion,
+    generate,
+    check,
+    meta
 };

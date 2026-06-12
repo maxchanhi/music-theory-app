@@ -345,6 +345,50 @@ const generateQuestion = () => {
     };
 };
 
+const meta = {
+    topic: 'transposing',
+    name: 'Transposition',
+    description: 'Identify the correct transposition of a melody',
+    difficultyLevels: null,
+    answerType: 'multiple-choice'
+};
+
+function generate(options = {}) {
+    const questionData = generateQuestion();
+
+    return {
+        questionText: `Which option shows the correct transposition (${questionData.transposingBy}) from ${questionData.originalKey}?`,
+        answerFormat: { type: 'multiple-choice' },
+        choices: questionData.options.map(o => `${o.key}: ${o.melody.join(' ')}`),
+        correctAnswer: questionData.options.findIndex(o => o.type === 'correct'),
+        displayData: {
+            originalKey: questionData.originalKey,
+            originalMelody: questionData.originalMelody,
+            transposingBy: questionData.transposingBy,
+            options: questionData.options,
+            originalVexData: questionData.originalVexData
+        },
+        rawData: questionData
+    };
+}
+
+function check(questionData, userAnswer) {
+    const selectedIdx = typeof userAnswer === 'string' ? parseInt(userAnswer) : userAnswer;
+    const correctIdx = questionData.options.findIndex(o => o.type === 'correct');
+    const correct = selectedIdx === correctIdx;
+
+    return {
+        correct,
+        correctAnswer: correctIdx,
+        explanation: correct
+            ? 'Correct! You identified the right transposition.'
+            : 'Incorrect. The transposition must move each note by the correct interval and maintain the key signature.'
+    };
+}
+
 module.exports = {
-    generateQuestion
+    generateQuestion,
+    generate,
+    check,
+    meta
 };

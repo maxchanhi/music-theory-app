@@ -1,14 +1,23 @@
 const express = require('express');
-const OpenAI = require('openai');
 const { getFeedbackByUserId } = require('../logic/feedback');
 const router = express.Router();
 
-// Initialize OpenAI client with DashScope configuration
-const openai = new OpenAI({
-    apiKey: process.env.DASHSCOPE_API_KEY,
-    // Use the International endpoint (Singapore) as requested by user
-    baseURL: process.env.DASHSCOPE_BASE_URL
-});
+let openai = null;
+function getOpenAI() {
+    if (!openai) {
+        try {
+            const OpenAI = require('openai');
+            openai = new OpenAI({
+                apiKey: process.env.DASHSCOPE_API_KEY || process.env.DEEPSEEK_API_KEY,
+                baseURL: process.env.DASHSCOPE_BASE_URL || process.env.DEEPSEEK_BASE_URL
+            });
+        } catch (e) {
+            console.warn('OpenAI SDK not available:', e.message);
+            return null;
+        }
+    }
+    return openai;
+}
 
 // Middleware to check if user is logged in
 const isAuthenticated = (req, res, next) => {
@@ -51,7 +60,11 @@ router.post('/api/message', isAuthenticated, async (req, res) => {
             console.warn('Failed to fetch feedback context:', err);
         }
 
-        const completion = await openai.chat.completions.create({
+        const client = getOpenAI();
+        if (!client) {
+            return res.status(503).json({ error: 'AI service not available' });
+        }
+        const completion = await client.chat.completions.create({
             model: process.env.LLM_MODEL || 'qwen-turbo',
             messages: [
                 { role: 'system', content: `You are a helpful music theory assistant. You help students understand music theory concepts, analyze music, and answer questions about the app.${feedbackContext}` },

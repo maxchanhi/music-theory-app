@@ -249,8 +249,57 @@ function generateIntervalData(selectedClefs, selectedAccidentals, sameClef, comp
     return null;
 }
 
+function generate(options = {}) {
+    const questionData = generateQuestion(options);
+    const quality = questionData.quality;
+    const interval = questionData.intervalName;
+    const correctAnswer = `${quality} ${interval}`;
+
+    return {
+        questionText: `What is the interval between the two notes? (${questionData.note1} to ${questionData.note2})`,
+        answerFormat: { type: 'composite', separator: ' ', fields: ['quality', 'interval'] },
+        choices: {
+            qualities: userQualities.filter(q => q !== '--'),
+            intervals: userIntervals.filter(i => i !== '--')
+        },
+        correctAnswer,
+        displayData: {
+            vexNotes: [questionData.vexNote1, questionData.vexNote2],
+            clefs: [questionData.clef1, questionData.clef2]
+        },
+        rawData: questionData
+    };
+}
+
+function check(questionData, userAnswer) {
+    const normalized = typeof userAnswer === 'string'
+        ? userAnswer.trim()
+        : `${userAnswer.quality || ''} ${userAnswer.interval || ''}`.trim();
+
+    const correct = normalized.toLowerCase() === questionData.answer.toLowerCase();
+
+    return {
+        correct,
+        correctAnswer: questionData.answer,
+        explanation: correct
+            ? 'Correct! You identified the interval accurately.'
+            : `The correct answer is ${questionData.answer}. Remember to count the semitones between the two notes.`
+    };
+}
+
+const meta = {
+    topic: 'interval',
+    name: 'Intervals',
+    description: 'Identify the interval between two notes on a staff',
+    difficultyLevels: Object.keys(difficultySettings),
+    answerType: 'composite'
+};
+
 module.exports = {
     generateQuestion,
+    generate,
+    check,
+    meta,
     userIntervals,
     userQualities,
     difficultySettings,

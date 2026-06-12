@@ -123,9 +123,63 @@ function generateQuestion(options) {
     };
 }
 
+function generate(options = {}) {
+    const questionData = generateQuestion(options);
+    const noteName = questionData.answer.note;
+    const accName = questionData.answer.accidental;
+
+    return {
+        questionText: `Identify the note. What note is this?`,
+        answerFormat: { type: 'composite', separator: ' ', fields: ['note', 'accidental'] },
+        choices: null,
+        correctAnswer: `${noteName} ${accName}`,
+        displayData: {
+            clef: questionData.clef,
+            vexKey: questionData.vexKey,
+            accidental: questionData.accidental
+        },
+        rawData: questionData
+    };
+}
+
+function check(questionData, userAnswer) {
+    let userNote, userAcc;
+    if (typeof userAnswer === 'string') {
+        const parts = userAnswer.trim().split(/\s+/);
+        userNote = parts[0] || '';
+        userAcc = parts.slice(1).join(' ') || 'Natural (♮)';
+    } else {
+        userNote = userAnswer.note || '';
+        userAcc = userAnswer.accidental || 'Natural (♮)';
+    }
+
+    const correctNote = userNote.toUpperCase() === questionData.answer.note.toUpperCase();
+    const correctAcc = userAcc.trim().toLowerCase() === questionData.answer.accidental.trim().toLowerCase();
+    const correct = correctNote && correctAcc;
+
+    return {
+        correct,
+        correctAnswer: `${questionData.answer.note} ${questionData.answer.accidental}`,
+        explanation: correct
+            ? 'Correct! You identified the note accurately.'
+            : `The correct answer is ${questionData.answer.note} ${questionData.answer.accidental}. Pay attention to the clef and accidental.`
+    };
+}
+
+const meta = {
+    topic: 'pitch_id',
+    name: 'Pitch Identification',
+    description: 'Identify note names and accidentals across different clefs',
+    difficultyLevels: Object.keys(levels),
+    answerType: 'composite'
+};
+
 module.exports = {
+    generateQuestion,
+    generate,
+    check,
+    meta,
     levels,
     note_letters,
-    accidentalsList,
-    generateQuestion
+    accidentalsList
 };

@@ -1,0 +1,8 @@
+{
+  "name": "music-theory-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for music theory question generation",
+  "main": "index.js",
+  "private": true,
+  "type": "commonjs"
+}

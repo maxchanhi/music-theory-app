@@ -229,7 +229,50 @@ function generateQuestionData(level = "easy") {
     };
 }
 
+function generate(options = {}) {
+    const level = options.difficulty || 'easy';
+    const questionData = generateQuestionData(level);
+
+    return {
+        questionText: `What key and type of minor scale is this?`,
+        answerFormat: { type: 'multiple-choice' },
+        choices: questionData.userOptions,
+        correctAnswer: questionData.answer,
+        displayData: {
+            clef: questionData.clef,
+            startingPitch: questionData.startingPitch,
+            minorScale: questionData.minorScale,
+            minorType: questionData.minorType
+        },
+        rawData: questionData
+    };
+}
+
+function check(questionData, userAnswer) {
+    const normalized = typeof userAnswer === 'string' ? userAnswer.trim() : String(userAnswer);
+    const correct = normalized.toLowerCase() === questionData.answer.toLowerCase();
+
+    return {
+        correct,
+        correctAnswer: questionData.answer,
+        explanation: correct
+            ? 'Correct! You identified the minor scale correctly.'
+            : `The correct answer is ${questionData.answer}. Check the key signature and accidentals.`
+    };
+}
+
+const meta = {
+    topic: 'clef_minor',
+    name: 'Clef and Minor Scales',
+    description: 'Identify the key and type of a minor scale from notation',
+    difficultyLevels: ['easy', 'intermediate', 'hard'],
+    answerType: 'multiple-choice'
+};
+
 module.exports = {
     generateQuestionData,
+    generate,
+    check,
+    meta,
     displayNote
 };

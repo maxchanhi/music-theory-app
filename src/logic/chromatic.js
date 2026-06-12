@@ -198,7 +198,67 @@ function wrongDescending(idx, chromaticScale) {
     return chromaticScale;
 }
 
+function generate(options = {}) {
+    const ascending = options.ascending !== undefined ? options.ascending : Math.random() < 0.5;
+    const clef = options.clef || 'treble';
+
+    const chromaticScale = generateChromaticScale(ascending);
+    const wrongOptions = generateWrongOptions(chromaticScale, ascending);
+
+    const allOptions = [{ scale: chromaticScale, isCorrect: true }];
+    wrongOptions.forEach((w, i) => {
+        allOptions.push({ scale: w, isCorrect: false });
+    });
+    for (let i = allOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+    }
+
+    const correctIndex = allOptions.findIndex(o => o.isCorrect);
+
+    return {
+        questionText: `Which of these is the correct ${ascending ? 'ascending' : 'descending'} chromatic scale?`,
+        answerFormat: { type: 'multiple-choice' },
+        choices: allOptions.map(o => o.scale.join(' ')),
+        correctAnswer: correctIndex,
+        displayData: {
+            clef,
+            ascending,
+            options: allOptions.map((o, i) => ({
+                id: i,
+                scale: o.scale,
+                isCorrect: o.isCorrect
+            }))
+        },
+        rawData: { options: allOptions, correctIndex, ascending, clef }
+    };
+}
+
+function check(questionData, userAnswer) {
+    const selectedIdx = typeof userAnswer === 'string' ? parseInt(userAnswer) : userAnswer;
+    const correct = selectedIdx === questionData.correctIndex;
+
+    return {
+        correct,
+        correctAnswer: questionData.correctIndex,
+        explanation: correct
+            ? 'Correct! That is the properly spelled chromatic scale.'
+            : 'That is incorrect. The correct scale has the correct enharmonic spelling throughout.'
+    };
+}
+
+const meta = {
+    topic: 'chromatic',
+    name: 'Chromatic Scales',
+    description: 'Identify the correct chromatic scale notation',
+    difficultyLevels: null,
+    answerType: 'multiple-choice'
+};
+
 module.exports = {
     generateChromaticScale,
-    generateWrongOptions
+    generateWrongOptions,
+    generate,
+    check,
+    meta
 };

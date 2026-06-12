@@ -330,6 +330,46 @@ function getReason(seed) {
     return "Incorrect modulation";
 }
 
+function generate(options = {}) {
+    const questionData = generateQuestionData();
+
+    return {
+        questionText: `Which option correctly converts ${questionData.question.timeSignature} to the correct meter?`,
+        answerFormat: { type: 'multiple-choice' },
+        choices: questionData.options.map(o => `${o.timeSignature} - ${o.notes.join(' ')}`),
+        correctAnswer: questionData.correctIndex,
+        displayData: {
+            question: questionData.question,
+            options: questionData.options
+        },
+        rawData: questionData
+    };
+}
+
+function check(questionData, userAnswer) {
+    const selectedIdx = typeof userAnswer === 'string' ? parseInt(userAnswer) : userAnswer;
+    const correct = selectedIdx === questionData.correctIndex;
+
+    return {
+        correct,
+        correctAnswer: questionData.correctIndex,
+        explanation: correct
+            ? 'Correct! That is the proper simple/compound conversion.'
+            : 'Incorrect. The conversion changes note values and tuplets when switching between simple and compound time.'
+    };
+}
+
+const meta = {
+    topic: 'compound_simple',
+    name: 'Simple-Compound Modulation',
+    description: 'Convert rhythms between simple and compound time signatures',
+    difficultyLevels: null,
+    answerType: 'multiple-choice'
+};
+
 module.exports = {
-    generateQuestionData
+    generateQuestionData,
+    generate,
+    check,
+    meta
 };

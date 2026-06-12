@@ -416,10 +416,59 @@ function mapToVexFlow(melody) {
     });
 }
 
+function generate(options = {}) {
+    const difficulty = options.difficulty || 'Easy';
+    let keysPool;
+    if (difficulty === 'Easy') keysPool = easymode;
+    else if (difficulty === 'Intermediate') keysPool = intermediate;
+    else keysPool = hard;
+
+    const ansKey = keysPool[Math.floor(Math.random() * keysPool.length)];
+    const melody = mainGeneration(ansKey);
+    const optionsArr = generateOptions(ansKey, keysPool);
+
+    return {
+        questionText: `Listen to the melody and identify the key.`,
+        answerFormat: { type: 'multiple-choice' },
+        choices: optionsArr,
+        correctAnswer: ansKey,
+        displayData: {
+            vexNotes: mapToVexFlow(melody),
+            options: optionsArr,
+            toneNotes: melody.map(note => ({ pitch: note[0], duration: note[1] }))
+        },
+        rawData: { melody, ansKey, options: optionsArr }
+    };
+}
+
+function check(questionData, userAnswer) {
+    const normalized = String(userAnswer).trim().toLowerCase();
+    const correct = normalized === questionData.ansKey.toLowerCase();
+
+    return {
+        correct,
+        correctAnswer: questionData.ansKey,
+        explanation: correct
+            ? 'Correct! You have a great ear for tonality.'
+            : `The correct answer is ${questionData.ansKey}. Listen for the tonic and the overall tonality.`
+    };
+}
+
+const meta = {
+    topic: 'melody_key',
+    name: 'Melody Key Identification',
+    description: 'Listen to or view a melody and identify the key',
+    difficultyLevels: ['Easy', 'Intermediate', 'Advanced'],
+    answerType: 'multiple-choice'
+};
+
 module.exports = {
     mainGeneration,
     generateOptions,
     mapToVexFlow,
+    generate,
+    check,
+    meta,
     keyscale,
     easymode,
     intermediate,

@@ -207,8 +207,57 @@ function generateInversionQuestion(clef = "treble") { // default to treble if no
     };
 }
 
+function generate(options = {}) {
+    const clef = options.clef || 'treble';
+    const questionData = generateInversionQuestion(clef);
+
+    return {
+        questionText: `Identify the inversion of this ${questionData.keySign} chord (${questionData.triad}).`,
+        answerFormat: { type: 'composite', separator: ' ', fields: ['numeral', 'inversion'] },
+        choices: {
+            numerals: romanNumerial,
+            inversions: inversionType
+        },
+        correctAnswer: questionData.correctAnswer,
+        displayData: {
+            clef: questionData.clef,
+            keySign: questionData.keySign,
+            triad: questionData.triad,
+            vexNotes: questionData.vexNotes
+        },
+        rawData: questionData
+    };
+}
+
+function check(questionData, userAnswer) {
+    const normalized = typeof userAnswer === 'string'
+        ? userAnswer.trim()
+        : `${userAnswer.numeral || ''} ${userAnswer.inversion || ''}`.trim();
+
+    const correct = normalized.toLowerCase() === questionData.correctAnswer.toLowerCase();
+
+    return {
+        correct,
+        correctAnswer: questionData.correctAnswer,
+        explanation: correct
+            ? 'Correct! You identified the inversion perfectly.'
+            : `The correct answer is ${questionData.correctAnswer}. Remember, 'a' is root, 'b' is first inversion, 'c' is second inversion.`
+    };
+}
+
+const meta = {
+    topic: 'inversion',
+    name: 'Chord Inversions',
+    description: 'Identify the inversion position of triads',
+    difficultyLevels: null,
+    answerType: 'composite'
+};
+
 module.exports = {
     generateInversionQuestion,
+    generate,
+    check,
+    meta,
     romanNumerial,
     inversionType,
     funEmojiList

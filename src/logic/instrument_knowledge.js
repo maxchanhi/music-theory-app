@@ -415,7 +415,56 @@ function getQuestion(selectedTopics) {
     return topicFunctions[chosenTopic]();
 }
 
+const meta = {
+    topic: 'instrument_knowledge',
+    name: 'Instrument Knowledge',
+    description: 'Questions about instruments, clefs, transposition, voice types, ornaments, and more',
+    difficultyLevels: Object.keys(topicFunctions),
+    answerType: 'multiple-choice'
+};
+
+function generate(options = {}) {
+    const selectedTopics = options.topics || options.difficulty ? [options.difficulty] : Object.keys(topicFunctions);
+    const questionData = getQuestion(selectedTopics);
+
+    if (!questionData) {
+        return {
+            questionText: 'No question available for the selected topics.',
+            answerFormat: { type: 'multiple-choice' },
+            choices: ['N/A'],
+            correctAnswer: 0,
+            displayData: null,
+            rawData: null
+        };
+    }
+
+    return {
+        questionText: questionData.question,
+        answerFormat: { type: 'multiple-choice' },
+        choices: questionData.options,
+        correctAnswer: questionData.answer,
+        displayData: questionData.pic_url ? { imageUrl: questionData.pic_url } : null,
+        rawData: questionData
+    };
+}
+
+function check(questionData, userAnswer) {
+    const normalized = String(userAnswer).trim();
+    const correct = normalized === questionData.answer;
+
+    return {
+        correct,
+        correctAnswer: questionData.answer,
+        explanation: correct
+            ? 'Correct! You know your instrument knowledge well.'
+            : `The correct answer is ${questionData.answer}. Review this topic to strengthen your knowledge.`
+    };
+}
+
 module.exports = {
     getQuestion,
+    generate,
+    check,
+    meta,
     topics: Object.keys(topicFunctions)
 };

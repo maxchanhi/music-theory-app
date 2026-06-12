@@ -18,6 +18,7 @@ const pitchIdRouter = require('./routes/pitch_id');
 const samePitchRouter = require('./routes/same_pitch');
 const transposingRouter = require('./routes/transposing');
 const pagesRouter = require('./routes/pages');
+const tutorRouter = require('./routes/tutor');
 
 const createApp = () => {
   // Connect to Database
@@ -89,6 +90,7 @@ const createApp = () => {
   app.use('/same_pitch', samePitchRouter);
   app.use('/transposing', transposingRouter);
   app.use('/', pagesRouter);
+  app.use('/tutor', tutorRouter);
 
   return app;
 };

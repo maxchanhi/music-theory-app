@@ -107,7 +107,62 @@ function generateTimeSignatureQuestion() {
     };
 }
 
+function generate(options = {}) {
+    const quizType = options.quizType || (Math.random() < 0.5 ? 'duration' : 'time_signature');
+
+    if (quizType === 'time_signature') {
+        const q = generateTimeSignatureQuestion();
+        return {
+            questionText: q.questionText,
+            answerFormat: { type: 'free-text' },
+            choices: null,
+            correctAnswer: q.correctAnswer,
+            displayData: null,
+            rawData: q
+        };
+    } else {
+        const settings = {
+            hard: options.hard || false,
+            simple: options.simple !== undefined ? options.simple : true,
+            double_dotted: options.double_dotted || false
+        };
+        const q = generateDurationQuestion(settings);
+        return {
+            questionText: q.questionText,
+            answerFormat: { type: 'free-text' },
+            choices: null,
+            correctAnswer: String(q.correctAnswer),
+            displayData: null,
+            rawData: q
+        };
+    }
+}
+
+function check(questionData, userAnswer) {
+    const normalized = String(userAnswer).trim();
+    const correct = normalized === String(questionData.correctAnswer);
+
+    return {
+        correct,
+        correctAnswer: String(questionData.correctAnswer),
+        explanation: correct
+            ? 'Correct! Your duration math is right on pitch.'
+            : `The correct answer is ${questionData.correctAnswer}. Remember to use proper note value relationships.`
+    };
+}
+
+const meta = {
+    topic: 'duration_equation',
+    name: 'Duration Equations',
+    description: 'Calculate note duration equivalencies and time signature math',
+    difficultyLevels: null,
+    answerType: 'free-text'
+};
+
 module.exports = {
     generateDurationQuestion,
-    generateTimeSignatureQuestion
+    generateTimeSignatureQuestion,
+    generate,
+    check,
+    meta
 };
