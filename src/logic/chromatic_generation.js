@@ -1,6 +1,8 @@
 
 // Convert LilyPond notes to VexFlow keys
 // This function replaces image generation with data generation for client-side rendering
+const { clampLedgerLines } = require('./ledger_utils');
+
 function generateQuestionData(chromaticScale, wrongOptions, ascending, clef) {
     let octaveIndex = 4; // Default to C4 (middle C) base
     
@@ -21,7 +23,13 @@ function generateQuestionData(chromaticScale, wrongOptions, ascending, clef) {
 
     const correct = convertScaleToVexFlow(chromaticScale, baseOctave);
     const wrongs = wrongOptions.map(opt => convertScaleToVexFlow(opt, baseOctave));
-    
+
+    // Clamp ledger lines for all scales
+    if (clef) {
+        const clamp = (arr) => clampLedgerLines(clef, arr);
+        return { correct: clamp(correct), wrongs: wrongs.map(clamp), clef };
+    }
+
     return {
         correct: correct,
         wrongs: wrongs,

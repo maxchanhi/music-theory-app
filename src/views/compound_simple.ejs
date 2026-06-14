@@ -178,12 +178,12 @@
                         console.log('VexFlow script starting...');
                         
                         // Check if VexFlow is loaded
-                        if (typeof Vex === 'undefined' || !Vex.Flow) {
+                        if (typeof VexFlow === 'undefined') {
                             console.error('VexFlow library not loaded!');
                             return;
                         }
                         
-                        const { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice, Fraction, Dot } = Vex.Flow;
+                        const { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice, Fraction, Dot } = VexFlow;
                         console.log('VexFlow components loaded:', { Renderer, Stave, StaveNote, Accidental, Formatter, Tuplet, Beam, Voice, Fraction, Dot });
                         
                         function parseLilypondNote(noteStr) {
@@ -385,8 +385,8 @@
                                 // Create a voice matching the time signature
                                 const timeParts = timeSigStr.split('/');
                                 const voice = new Voice({
-                                    num_beats: parseInt(timeParts[0]), 
-                                    beat_value: parseInt(timeParts[1])
+                                    numBeats: parseInt(timeParts[0]), 
+                                    beatValue: parseInt(timeParts[1])
                                 });
                                 voice.setStrict(false); // IMPORTANT: Disable strict timing checks
                                 voice.addTickables(notes);

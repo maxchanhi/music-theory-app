@@ -369,6 +369,8 @@ function generateOptions(ansKey, filteredKeyscaleKeys) {
     return options.sort(() => 0.5 - Math.random());
 }
 
+const { clampLedgerLines } = require('./ledger_utils');
+
 // Convert melody to VexFlow format
 function mapToVexFlow(melody) {
     // melody is list of [pitch, duration]
@@ -427,13 +429,25 @@ function generate(options = {}) {
     const melody = mainGeneration(ansKey);
     const optionsArr = generateOptions(ansKey, keysPool);
 
+    const vexNotes = mapToVexFlow(melody);
+
+    // Clamp ledger lines (all notes default to octave 4, treble clef)
+    const allKeys = vexNotes.flatMap(v => v.keys);
+    const clampedKeys = clampLedgerLines('treble', allKeys);
+    if (clampedKeys !== allKeys) {
+        let ki = 0;
+        for (const v of vexNotes) {
+            v.keys = [clampedKeys[ki++]];
+        }
+    }
+
     return {
         questionText: `Listen to the melody and identify the key.`,
         answerFormat: { type: 'multiple-choice' },
         choices: optionsArr,
         correctAnswer: ansKey,
         displayData: {
-            vexNotes: mapToVexFlow(melody),
+            vexNotes,
             options: optionsArr,
             toneNotes: melody.map(note => ({ pitch: note[0], duration: note[1] }))
         },

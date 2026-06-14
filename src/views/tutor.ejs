@@ -25,14 +25,6 @@
     }
     .header h1 { font-size: 20px; display: flex; align-items: center; gap: 8px; }
     .header .user-info { font-size: 13px; opacity: 0.8; }
-    .mode-toggle {
-      display: flex; gap: 4px; background: #2a3a5a; border-radius: 8px; padding: 2px;
-    }
-    .mode-toggle button {
-      padding: 6px 14px; border: none; border-radius: 6px; cursor: pointer;
-      font-size: 13px; background: transparent; color: rgba(255,255,255,0.6); transition: all 0.2s;
-    }
-    .mode-toggle button.active { background: #8e44ad; color: white; }
     .container {
       flex: 1; display: flex; flex-direction: column; max-width: 800px;
       margin: 0 auto; width: 100%; padding: 16px;
@@ -95,6 +87,20 @@
     .send-btn:hover { background: #2a3a5a; }
     .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    .fold-bar {
+      text-align: center; padding: 8px 12px; margin: 4px 0;
+      background: rgba(31,43,74,0.06); border-radius: 12px;
+      cursor: pointer; font-size: 12px; color: #666;
+      transition: background 0.2s;
+    }
+    .fold-bar:hover { background: rgba(31,43,74,0.12); }
+    .mute-btn {
+      background: none; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px;
+      color: white; font-size: 18px; cursor: pointer; padding: 4px 8px;
+      transition: all 0.2s; line-height: 1;
+    }
+    .mute-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.5); }
+    .mute-btn.muted { opacity: 0.5; text-decoration: line-through; }
     .status-bar {
       display: flex; gap: 8px; align-items: center; padding: 4px 12px;
       font-size: 12px; color: #666; margin-bottom: 8px;
@@ -121,15 +127,13 @@
 <body>
   <div class="header">
     <h1>🎵 AI Music Tutor</h1>
-    <span class="user-info"><%= user ? user.user_name : 'Guest' %></span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button id="muteBtn" class="mute-btn" title="Toggle text-to-speech">🔊</button>
+      <span class="user-info"><%= user ? user.user_name : 'Guest' %></span>
+    </div>
   </div>
 
   <div class="container">
-    <div class="mode-toggle">
-      <button id="voiceModeBtn" class="active">🎤 Voice</button>
-      <button id="textModeBtn">⌨ Text</button>
-    </div>
-
     <div class="topic-bar" id="topicBar"></div>
 
     <div class="status-bar">
@@ -159,7 +163,9 @@
     let isVoiceMode = true;
     let isListening = false;
     let recognition = null;
-    let conversationHistory = [];
+    let isMuted = false;
+    const savedHistory = <%- typeof savedHistory !== 'undefined' ? savedHistory : '[]' %>;
+    let conversationHistory = savedHistory || [];
 
     // ===== DOM Elements =====
     const chatArea = document.getElementById('chatArea');
@@ -169,8 +175,8 @@
     const loading = document.getElementById('loading');
     const statusText = document.getElementById('statusText');
     const statusDot = document.getElementById('statusDot');
-    const voiceModeBtn = document.getElementById('voiceModeBtn');
-    const textModeBtn = document.getElementById('textModeBtn');
+    const voiceModeBtn = null;
+    const textModeBtn = null;
     const topicBar = document.getElementById('topicBar');
 
     // ===== Speech Recognition Setup (Web Speech API) =====
@@ -179,7 +185,6 @@
       if (!SpeechRecognition) {
         setStatus('Speech recognition not available in this browser', 'error');
         isVoiceMode = false;
-        voiceModeBtn.style.display = 'none';
         return null;
       }
       const sr = new SpeechRecognition();
@@ -262,68 +267,307 @@
     }
 
     // ===== VexFlow Score Rendering =====
+    function calcScoreLayout(keys, clef) {
+      const noteLetters = ['c','d','e','f','g','a','b'];
+      const clefTopRoom = 45;
+      const clefBottomRoom = 45;
+      const staffH = 40;
+
+      // Bottom line of the staff for each clef (note index = octave * 7 + letterIdx)
+      const staffBottom = { treble: 30, bass: 18, alto: 25, tenor: 23 };
+      const bottomRef = staffBottom[clef] || 30;
+
+      let deepest = Infinity;
+      for (const k of keys) {
+        const m = k.match(/^([a-g])[#bn]*\/(\d+)$/i);
+        if (!m) continue;
+        const letter = m[1].toLowerCase();
+        const octave = parseInt(m[2]);
+        const idx = noteLetters.indexOf(letter);
+        if (idx < 0) continue;
+        deepest = Math.min(deepest, octave * 7 + idx);
+      }
+      const ledgerExtra = isFinite(deepest) ? Math.max(0, (bottomRef - deepest) * 8) : 0;
+      const height = clefTopRoom + staffH + clefBottomRoom + ledgerExtra;
+      return {
+        width: 280,
+        height: height,
+        staveY: clefTopRoom,
+        formatWidth: 250
+      };
+    }
+
     function renderScore(container, displayData, topic) {
-      if (!displayData || !window.Vex) return;
+      const VF = window.VexFlow;
+      if (!displayData || !VF) return;
       try {
-        const VF = Vex.Flow;
         const containerDiv = document.createElement('div');
         containerDiv.className = 'score-display';
         container.appendChild(containerDiv);
 
-        const renderer = new VF.Renderer(containerDiv, VF.Renderer.Backends.SVG);
-        renderer.resize(280, 120);
-        const ctx = renderer.getContext();
+        // ── Transpose note key for clef: VexFlow positions by absolute pitch ──
+        // Bass: +5 letter steps (A→C), Tenor: +1, Alto: -1
+        const noteLetters = ['c','d','e','f','g','a','b'];
+        const clefTranspose = { bass: 5, tenor: 1, alto: -1 };
+        function transposeKey(key, clef) {
+          const shift = clefTranspose[clef];
+          if (!shift) return key;
+          const m = key.match(/^([a-g])([#bn]*)\/(\d+)$/i);
+          if (!m) return key;
+          let letter = m[1].toLowerCase();
+          let acc = m[2] || '';
+          let oct = parseInt(m[3], 10);
+          const idx = noteLetters.indexOf(letter);
+          if (idx < 0) return key;
+          let newIdx = idx + shift;
+          while (newIdx < 0) { newIdx += 7; oct--; }
+          while (newIdx >= 7) { newIdx -= 7; oct++; }
+          return noteLetters[newIdx] + (acc === 'n' ? '' : acc) + '/' + oct;
+        }
 
         if (topic === 'interval' && displayData.vexNotes && displayData.clefs) {
           const clef = displayData.clefs[0] || 'treble';
-          const stave = new VF.Stave(5, 15, 270);
+          const shiftedKeys = displayData.vexNotes.map(n => transposeKey(n.key, clef));
+          const layout = calcScoreLayout(shiftedKeys, clef);
+
+          const renderer = new VF.Renderer(containerDiv, VF.Renderer.Backends.SVG);
+          renderer.resize(layout.width, layout.height);
+          const ctx = renderer.getContext();
+
+          const stave = new VF.Stave(5, layout.staveY, 270);
           stave.addClef(clef).setContext(ctx).draw();
 
-          const notes = displayData.vexNotes.map(n => {
-            const note = new VF.StaveNote({ keys: [n.key], duration: 'q', clef });
+          const notes = displayData.vexNotes.map((n, i) => {
+            const note = new VF.StaveNote({ keys: [shiftedKeys[i]], duration: 'q' });
+            note.getStem().setVisibility(false);
             if (n.accidental && n.accidental !== 'n' && n.accidental !== '') {
-              note.addModifier(new VF.Accidental(n.accidental), 0);
+              note.addModifier(new VF.Accidental(n.accidental));
             }
             return note;
           });
 
-          const voice = new VF.Voice({ num_beats: displayData.vexNotes.length, beat_value: 4 });
+          const voice = new VF.Voice({ numBeats: displayData.vexNotes.length, beatValue: 4 });
           voice.addTickables(notes);
-          new VF.Formatter().joinVoices([voice]).format([voice], 250);
+          new VF.Formatter().joinVoices([voice]).format([voice], layout.formatWidth);
           voice.draw(ctx, stave);
+          ctx.setViewBox(0, 40, layout.width, layout.height);
 
         } else if (topic === 'pitch_id' && displayData.vexKey) {
           const clef = displayData.clef || 'treble';
-          const stave = new VF.Stave(5, 15, 270);
+          const shiftedKey = transposeKey(displayData.vexKey, clef);
+          const layout = calcScoreLayout([shiftedKey], clef);
+
+          const renderer = new VF.Renderer(containerDiv, VF.Renderer.Backends.SVG);
+          renderer.resize(layout.width, layout.height);
+          const ctx = renderer.getContext();
+
+          const stave = new VF.Stave(5, layout.staveY, 270);
           stave.addClef(clef).setContext(ctx).draw();
 
-          const note = new VF.StaveNote({ keys: [displayData.vexKey], duration: 'w', clef });
+          const note = new VF.StaveNote({ keys: [shiftedKey], duration: 'w' });
+          note.getStem().setVisibility(false);
           if (displayData.accidental && displayData.accidental !== 'n' && displayData.accidental !== '') {
-            note.addModifier(new VF.Accidental(displayData.accidental), 0);
+            note.addModifier(new VF.Accidental(displayData.accidental));
           }
 
-          const voice = new VF.Voice({ num_beats: 4, beat_value: 4 });
+          const voice = new VF.Voice({ numBeats: 4, beatValue: 4 });
           voice.addTickables([note]);
-          new VF.Formatter().joinVoices([voice]).format([voice], 250);
+          new VF.Formatter().joinVoices([voice]).format([voice], layout.formatWidth);
           voice.draw(ctx, stave);
+          ctx.setViewBox(0, 40, layout.width, layout.height);
 
         } else if (topic === 'inversion' && displayData.vexNotes) {
           const clef = displayData.clef || 'treble';
-          const stave = new VF.Stave(5, 15, 270);
+          const shiftedKeys = displayData.vexNotes.map(n => transposeKey(n.key, clef));
+          const layout = calcScoreLayout(shiftedKeys, clef);
+
+          const renderer = new VF.Renderer(containerDiv, VF.Renderer.Backends.SVG);
+          renderer.resize(layout.width, layout.height);
+          const ctx = renderer.getContext();
+
+          const stave = new VF.Stave(5, layout.staveY, 270);
           stave.addClef(clef).setContext(ctx).draw();
 
-          const notes = displayData.vexNotes.map(n => {
-            const note = new VF.StaveNote({ keys: [n.key], duration: 'h', clef });
+          const notes = displayData.vexNotes.map((n, i) => {
+            const note = new VF.StaveNote({ keys: [shiftedKeys[i]], duration: 'h' });
             if (n.accidental && n.accidental !== '') {
               note.addModifier(new VF.Accidental(n.accidental), 0);
             }
             return note;
           });
 
-          const voice = new VF.Voice({ num_beats: 4, beat_value: 4 });
+          const voice = new VF.Voice({ numBeats: 4, beatValue: 4 });
           voice.addTickables(notes);
-          new VF.Formatter().joinVoices([voice]).format([voice], 250);
+          new VF.Formatter().joinVoices([voice]).format([voice], layout.formatWidth);
           voice.draw(ctx, stave);
+        } else if (topic === 'chromatic' && displayData.options) {
+          const clef = displayData.clef || 'treble';
+          const gap = 10;
+          const svgW = Math.min(window.innerWidth - 60, 700);
+
+          const perOption = displayData.options.map(opt => {
+            const keys = (opt.scale || []).map(n => {
+              const m = n.match(/^([a-g])([#bn]*)\/(\d+)$/i);
+              if (!m) return { key: 'c/4', acc: '' };
+              const acc = m[2] || '';
+              // Keep 'n' so addModifier(new VF.Accidental('n')) renders the natural glyph
+              return { key: m[1].toLowerCase() + '/' + m[3], acc: acc };
+            });
+            const layout = calcScoreLayout(keys.map(k => k.key), clef);
+            return { keys, layout };
+          });
+
+          let svgH = 10;
+          const staveYs = [];
+          for (const o of perOption) { staveYs.push(svgH); svgH += o.layout.height + gap; }
+
+          const renderer = new VF.Renderer(containerDiv, VF.Renderer.Backends.SVG);
+          renderer.resize(svgW, svgH);
+          const ctx = renderer.getContext();
+
+          perOption.forEach((opt, i) => {
+            const staveY = staveYs[i];
+            const stave = new VF.Stave(5, staveY, svgW - 10);
+            stave.addClef(clef).setContext(ctx).draw();
+
+            const notes = opt.keys.map(k => {
+              const dur = '8';
+              const note = new VF.StaveNote({ keys: [transposeKey(k.key, clef)], duration: dur });
+              if (k.acc && k.acc !== '') {
+                note.addModifier(new VF.Accidental(k.acc));
+              }
+              return note;
+            });
+
+            const beams = VF.Beam.generateBeams(notes);
+            VF.Formatter.FormatAndDraw(ctx, stave, notes);
+            beams.forEach(b => b.setContext(ctx).draw());
+          });
+
+        } else if (topic === 'clef_minor' && displayData.minorScale) {
+          const clef = displayData.clef || 'treble';
+          const svgW = Math.min(window.innerWidth - 60, 480);
+          const keys = displayData.minorScale.map(n => {
+            const m = n.match(/^([a-g])([sfn]*)(['|,]*)$/);
+            if (!m) return { key: 'c/4', acc: '' };
+            let step = m[1], acc = m[2], octMod = m[3];
+            let accidental = '';
+            if (acc === 's') accidental = '#';
+            else if (acc === 'ss') accidental = '##';
+            else if (acc === 'f') accidental = 'b';
+            else if (acc === 'ff') accidental = 'bb';
+            else if (acc === 'n') accidental = 'n';
+            let oct = 4;
+            for (let c of octMod) { if (c === "'") oct++; if (c === ',') oct--; }
+            return { key: step + accidental + '/' + oct, acc: accidental };
+          });
+          const layout = calcScoreLayout(keys.map(k => k.key), clef);
+          const renderer = new VF.Renderer(containerDiv, VF.Renderer.Backends.SVG);
+          renderer.resize(svgW, layout.height);
+          const ctx = renderer.getContext();
+          const stave = new VF.Stave(5, layout.staveY, svgW - 10);
+          stave.addClef(clef).setContext(ctx).draw();
+          const notes = keys.map(k => {
+            const note = new VF.StaveNote({ keys: [transposeKey(k.key, clef)], duration: 'q' });
+            if (k.acc && k.acc !== '') note.addModifier(new VF.Accidental(k.acc), 0);
+            return note;
+          });
+          const voice = new VF.Voice({ numBeats: keys.length, beatValue: 4 });
+          voice.addTickables(notes);
+          new VF.Formatter().joinVoices([voice]).format([voice], svgW - 50);
+          voice.draw(ctx, stave);
+
+        } else if (topic === 'melody_key' && displayData.vexNotes) {
+          const clef = displayData.clef || 'treble';
+          const svgW = Math.min(window.innerWidth - 60, 550);
+          const keys = displayData.vexNotes.map(n => n.keys ? n.keys[0] : 'c/4');
+          const layout = calcScoreLayout(keys, clef);
+          const renderer = new VF.Renderer(containerDiv, VF.Renderer.Backends.SVG);
+          renderer.resize(svgW, layout.height);
+          const ctx = renderer.getContext();
+          const stave = new VF.Stave(5, layout.staveY, svgW - 10);
+          stave.addClef(clef).setContext(ctx).draw();
+          const beatMap = { w: 4, h: 2, q: 1, '8': 0.5, '16': 0.25, qd: 1.5, '8d': 0.75 };
+          const notes = displayData.vexNotes.map(n => {
+            const dur = (n.duration || 'q').replace(/\d+d?$/, m => {
+              if (m.endsWith('d')) return m.slice(0, -1) + 'd';
+              return m;
+            }).replace(/^(\d+)n/, '$1');
+            const noteKeys = (n.keys || [n.key || 'c/4']).map(k => transposeKey(k, clef));
+            const note = new VF.StaveNote({ keys: noteKeys, duration: dur || 'q' });
+            if (n.accidental && n.accidental !== '') {
+              note.addModifier(new VF.Accidental(n.accidental), 0);
+            }
+            return note;
+          });
+          const totalBeats = displayData.vexNotes.reduce((s, n) => {
+            let d = (n.duration || 'q').replace('n', '').replace('d', '').replace('.', '');
+            return s + (beatMap[d] || 1);
+          }, 0);
+          const voice = new VF.Voice({ numBeats: Math.max(totalBeats, 1), beatValue: 4 });
+          voice.addTickables(notes);
+          new VF.Formatter().joinVoices([voice]).format([voice], svgW - 50);
+          voice.draw(ctx, stave);
+
+        } else if (topic === 'transposing' && displayData.originalVexData) {
+          const clef = displayData.clef || 'treble';
+          const svgW = Math.min(window.innerWidth - 60, 500);
+          const keys = displayData.originalVexData.map(n => n.key || 'c/4');
+          const layout = calcScoreLayout(keys, clef);
+          const renderer = new VF.Renderer(containerDiv, VF.Renderer.Backends.SVG);
+          renderer.resize(svgW, layout.height);
+          const ctx = renderer.getContext();
+          const stave = new VF.Stave(5, layout.staveY, svgW - 10);
+          stave.addClef(clef).setContext(ctx).draw();
+          const notes = displayData.originalVexData.map(n => {
+            const note = new VF.StaveNote({ keys: [transposeKey(n.key || 'c/4', clef)], duration: 'q' });
+            if (n.accidental && n.accidental !== '') {
+              note.addModifier(new VF.Accidental(n.accidental));
+            }
+            return note;
+          });
+          const voice = new VF.Voice({ numBeats: notes.length, beatValue: 4 });
+          voice.addTickables(notes);
+          new VF.Formatter().joinVoices([voice]).format([voice], svgW - 50);
+          voice.draw(ctx, stave);
+
+        } else if (topic === 'same_pitch' && displayData.options) {
+          const gap = 8;
+          const svgW = Math.min(window.innerWidth - 60, 400);
+          // Calculate per-option layouts
+          const layouts = displayData.options.map(opt =>
+            calcScoreLayout(opt.keys || ['c/4'], opt.clef || 'treble')
+          );
+          let svgH = 10;
+          const staveYs = [];
+          for (const l of layouts) {
+            staveYs.push(svgH);
+            svgH += l.height + gap;
+          }
+          const renderer = new VF.Renderer(containerDiv, VF.Renderer.Backends.SVG);
+          renderer.resize(svgW, svgH);
+          const ctx = renderer.getContext();
+          displayData.options.forEach((opt, i) => {
+            const staveY = staveYs[i];
+            const stave = new VF.Stave(5, staveY, svgW - 10);
+            stave.addClef(opt.clef || 'treble').setContext(ctx).draw();
+            const notes = (opt.keys || []).map(k => {
+              const note = new VF.StaveNote({ keys: [transposeKey(k, opt.clef || 'treble')], duration: 'q' });
+              try { note.setStemStyle({ visible: false }); } catch(e) {}
+              return note;
+            });
+            const voice = new VF.Voice({ numBeats: (opt.keys || []).length, beatValue: 4 });
+            voice.addTickables(notes);
+            new VF.Formatter().joinVoices([voice]).format([voice], svgW - 50);
+            voice.draw(ctx, stave);
+          });
+        } else if (topic === 'instrument_knowledge' && displayData.imageUrl) {
+          const img = document.createElement('img');
+          img.src = displayData.imageUrl;
+          img.style.maxWidth = '100%';
+          img.style.borderRadius = '8px';
+          img.style.marginTop = '4px';
+          container.appendChild(img);
         }
       } catch (err) {
         console.warn('Score render error:', err.message);
@@ -332,6 +576,7 @@
 
     // ===== TTS (Speech Synthesis) =====
     function speak(text) {
+      if (isMuted) return;
       if (!window.speechSynthesis) return;
       window.speechSynthesis.cancel();
       const clean = stripMarkdown(text);
@@ -371,6 +616,31 @@
       chatArea.appendChild(div);
       chatArea.scrollTop = chatArea.scrollHeight;
       return div;
+    }
+
+    // Restore saved chat history on page load — show last 10, fold older ones
+    const MAX_VISIBLE = 10;
+    if (conversationHistory.length > 0) {
+      chatArea.innerHTML = ''; // clear welcome message
+      const olderCount = conversationHistory.length - MAX_VISIBLE;
+      if (olderCount > 0) {
+        // Show a "show older" bar above the recent messages
+        const foldBar = document.createElement('div');
+        foldBar.className = 'fold-bar';
+        foldBar.textContent = `… ${olderCount} earlier message${olderCount !== 1 ? 's' : ''} (click to show)`;
+        foldBar.onclick = function () {
+          // Replace fold bar and recent messages with full history
+          chatArea.innerHTML = '';
+          conversationHistory.forEach(msg => addMessage(msg.content, msg.role === 'user' ? 'user' : 'tutor'));
+        };
+        chatArea.appendChild(foldBar);
+        // Render only the last MAX_VISIBLE messages
+        conversationHistory.slice(-MAX_VISIBLE).forEach(msg =>
+          addMessage(msg.content, msg.role === 'user' ? 'user' : 'tutor')
+        );
+      } else {
+        conversationHistory.forEach(msg => addMessage(msg.content, msg.role === 'user' ? 'user' : 'tutor'));
+      }
     }
 
     // ===== Topic Loading =====
@@ -416,10 +686,10 @@
           addMessage('Error: ' + data.error, 'tutor');
         } else {
           const msgEl = addMessage(data.reply, 'tutor');
-          // Render score if question has notation data
           if (data.displayData && data.toolCalls?.some?.(tc => tc.name === 'generate_question')) {
             const genCall = data.toolCalls.find(tc => tc.name === 'generate_question');
-            renderScore(msgEl, data.displayData, genCall?.args?.topic);
+            const topic = genCall?.args?.topic || data.topic;
+            renderScore(msgEl, data.displayData, topic);
           }
           conversationHistory.push(
             { role: 'user', content: text },
@@ -463,18 +733,19 @@
     // ===== Mode Toggle =====
     function setMode(voice) {
       isVoiceMode = voice;
-      voiceModeBtn.classList.toggle('active', voice);
-      textModeBtn.classList.toggle('active', !voice);
-      if (voice) {
-        setupRecognition();
-      } else {
-        stopListening();
-      }
     }
 
     // ===== Event Listeners =====
-    voiceModeBtn.onclick = () => setMode(true);
-    textModeBtn.onclick = () => setMode(false);
+    // ===== Mute Toggle =====
+    const muteBtn = document.getElementById('muteBtn');
+    function toggleMute() {
+      isMuted = !isMuted;
+      muteBtn.textContent = isMuted ? '🔇' : '🔊';
+      muteBtn.classList.toggle('muted', isMuted);
+      muteBtn.title = isMuted ? 'Unmute text-to-speech' : 'Mute text-to-speech';
+      if (isMuted && window.speechSynthesis) window.speechSynthesis.cancel();
+    }
+    muteBtn.onclick = toggleMute;
 
     micBtn.onclick = toggleListening;
     sendBtn.onclick = () => {

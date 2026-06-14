@@ -63,6 +63,8 @@ const NOTE_TO_SEMITONES_LILYPOND = {
 // python uses: 'fs', 'bf', 's', 'f' etc.
 // VexFlow uses: '#', 'b', 'n', '##', 'bb'
 // We need to convert our internal notation to VexFlow
+const { clampLedgerLines } = require('./ledger_utils');
+
 const convertToVexFlow = (note) => {
     // note is like "c", "fs", "bf", "c'", "c,"
     // Remove octave markers for parsing
@@ -329,6 +331,15 @@ const generateQuestion = () => {
     }
     
     // Format for frontend
+    const clampVex = (vexArr) => {
+        const keys = vexArr.map(v => v.key);
+        const clampedKeys = clampLedgerLines('treble', keys);
+        if (clampedKeys !== keys) {
+            vexArr.forEach((v, i) => { v.key = clampedKeys[i]; });
+        }
+        return vexArr;
+    };
+
     return {
         originalKey: pickAKey,
         originalMelody: melody,
@@ -339,9 +350,9 @@ const generateQuestion = () => {
             melody: opt.melody,
             type: opt.type,
             // Pre-calculate VexFlow data
-            vexData: opt.melody.map(convertToVexFlow)
+            vexData: clampVex(opt.melody.map(convertToVexFlow))
         })),
-        originalVexData: melody.map(convertToVexFlow)
+        originalVexData: clampVex(melody.map(convertToVexFlow))
     };
 };
 

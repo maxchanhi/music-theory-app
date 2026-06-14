@@ -215,68 +215,68 @@
         // Initial run
         toggleSettings();
 
-        // VexFlow Rendering
+        // VexFlow Rendering — VexFlow 5 Factory API
         const scoreDiv = document.getElementById("score");
         if (scoreDiv) {
-            const VF = Vex.Flow;
-            const renderer = new VF.Renderer(scoreDiv, VF.Renderer.Backends.SVG);
-            
-            // Get data from attributes
-            const clef1 = scoreDiv.dataset.clef1;
-            const clef2 = scoreDiv.dataset.clef2;
-            const note1Data = JSON.parse(scoreDiv.dataset.note1);
-            const note2Data = JSON.parse(scoreDiv.dataset.note2);
-            
-            // Configure size
-            renderer.resize(400, 200);
-            const context = renderer.getContext();
-            
-            // Create a stave
-            const stave1 = new VF.Stave(10, 40, 180);
-            stave1.addClef(clef1);
-            stave1.setContext(context).draw();
-            
-            const stave2 = new VF.Stave(stave1.width + 10, 40, 180);
-            stave2.addClef(clef2);
-            stave2.setContext(context).draw();
-            
-            // Notes
-            const note1 = new VF.StaveNote({ 
-                clef: clef1, 
-                keys: [note1Data.key], 
-                duration: "w" 
-            });
-            if (note1Data.accidental && note1Data.accidental !== 'n') {
-                note1.addModifier(new VF.Accidental(note1Data.accidental));
-            } else if (note1Data.accidental === 'n') {
-                 note1.addModifier(new VF.Accidental('n'));
+            try {
+                if (typeof VexFlow === 'undefined') {
+                    console.error('VexFlow library not loaded!');
+                    scoreDiv.textContent = 'Failed to load music notation engine.';
+                    return;
+                }
+                const VF = VexFlow;
+
+                // Get data from attributes
+                const clef1 = scoreDiv.dataset.clef1 || 'treble';
+                const clef2 = scoreDiv.dataset.clef2 || 'treble';
+                const note1Data = JSON.parse(scoreDiv.dataset.note1);
+                const note2Data = JSON.parse(scoreDiv.dataset.note2);
+
+                // Clear any previous rendering
+                scoreDiv.innerHTML = '';
+
+                // VexFlow 5 Renderer + Formatter (Factory.draw() skips accidentals)
+                const renderer = new VF.Renderer(scoreDiv, VF.Renderer.Backends.SVG);
+                renderer.resize(420, 220);
+                const ctx = renderer.getContext();
+
+                // Stave 1
+                const stave1 = new VF.Stave(5, 70, 200);
+                stave1.addClef(clef1).setContext(ctx).draw();
+
+                // Helper: build a whole note (stem hidden, accidental added)
+                const noteLetters = ['c','d','e','f','g','a','b'];
+                function buildNote(noteData) {
+                    const note = new VF.StaveNote({ keys: [noteData.key], duration: 'w' });
+                    note.getStem().setVisibility(false);
+                    const [letter] = noteData.key.split('/');
+                    const noteIdx = noteLetters.indexOf(letter);
+                    if (noteIdx >= 0) {
+                        try { note.setStemDirection(noteIdx >= 6 ? VF.Stem.DOWN : VF.Stem.UP); } catch(e) {}
+                    }
+                    if (noteData.accidental && noteData.accidental !== '' && noteData.accidental !== 'n') {
+                        note.addModifier(new VF.Accidental(noteData.accidental));
+                    }
+                    return note;
+                }
+
+                const note1 = buildNote(note1Data);
+                VF.Formatter.FormatAndDraw(ctx, stave1, [note1]);
+
+                // Stave 2
+                const stave2 = new VF.Stave(210, 70, 200);
+                stave2.addClef(clef2).setContext(ctx).draw();
+
+                const note2 = buildNote(note2Data);
+                VF.Formatter.FormatAndDraw(ctx, stave2, [note2]);
+
+                // Crop viewBox
+                ctx.setViewBox(0, 40, 420, 160);
+
+            } catch (e) {
+                console.error('VexFlow rendering error:', e);
+                scoreDiv.innerHTML = '<p style="color:red">Error rendering score: ' + e.message + '</p>';
             }
-            
-            const note2 = new VF.StaveNote({ 
-                clef: clef2, 
-                keys: [note2Data.key], 
-                duration: "w" 
-            });
-            if (note2Data.accidental && note2Data.accidental !== 'n') {
-                note2.addModifier(new VF.Accidental(note2Data.accidental));
-            } else if (note2Data.accidental === 'n') {
-                note2.addModifier(new VF.Accidental('n'));
-            }
-            
-            // Voice
-            const voice1 = new VF.Voice({num_beats: 4,  beat_value: 4});
-            voice1.addTickables([note1]);
-            
-            const voice2 = new VF.Voice({num_beats: 4,  beat_value: 4});
-            voice2.addTickables([note2]);
-            
-            // Format and justify the notes
-            new VF.Formatter().joinVoices([voice1]).format([voice1], 150);
-            new VF.Formatter().joinVoices([voice2]).format([voice2], 150);
-            
-            // Render voice
-            voice1.draw(context, stave1);
-            voice2.draw(context, stave2);
         }
     </script>
     <%- include('partials/ai_chat') %>

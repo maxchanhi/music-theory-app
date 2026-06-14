@@ -156,43 +156,30 @@
 
     <% if (question) { %>
     <script>
-        const VF = Vex.Flow;
-        const div = document.getElementById("score");
-        const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
-        
-        // Resize
-        renderer.resize(120, 200);
-        const context = renderer.getContext();
-        
-        // Create stave
-        const stave = new VF.Stave(10, 40, 100);
-        const clef = "<%= question.clef %>";
-        stave.addClef(clef);
-        
-        stave.setContext(context).draw();
-        
-        // Create note
+        // VexFlow 5 Factory API
+        const VF = VexFlow;
         const key = "<%= question.vexKey %>";
         const accidental = "<%= question.accidental %>";
-        
-        const note = new VF.StaveNote({
-            clef: clef,
-            keys: [key],
-            duration: "w",
-            auto_stem: true
-        });
-        
-        if (accidental && accidental !== 'n') {
+        const clef = "<%= question.clef %>";
+
+        const vf = new VF.Factory({ renderer: { elementId: 'score', width: 120, height: 220 } });
+
+        vf.Stave({ x: 10, y: 70, width: 100 }).addClef(clef);
+
+        const note = vf.StaveNote({ keys: [key], duration: 'w' });
+        note.getStem().setVisibility(false);
+        const [letter] = key.split('/');
+        const noteLetters = ['c','d','e','f','g','a','b'];
+        const idx = noteLetters.indexOf(letter);
+        if (idx >= 0) {
+            try { note.setStemDirection(idx >= 6 ? VF.Stem.DOWN : VF.Stem.UP); } catch(e) {}
+        }
+        if (accidental && accidental !== 'n' && accidental !== '') {
             note.addModifier(new VF.Accidental(accidental));
         }
-        
-        // Create voice
-        const voice = new VF.Voice({num_beats: 4, beat_value: 4});
-        voice.addTickables([note]);
-        
-        // Format and draw
-        new VF.Formatter().joinVoices([voice]).format([voice], 80);
-        voice.draw(context, stave);
+
+        vf.draw();
+        vf.getContext().setViewBox(0, 40, 120, 160);
     </script>
     <% } %>
     <%- include('partials/ai_chat') %>

@@ -1,4 +1,5 @@
 // Helper to get random item from array
+const { clampLedgerLines } = require('./ledger_utils');
 const getRandomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 // Helper to get n random items from array
@@ -99,8 +100,9 @@ const generateQuestion = () => {
         // Generate VexFlow keys for this option
         // Note: melodyNotes is ['c', 'd', ...]
         // VexFlow key: "c/4"
-        const keys = melodyNotes.map(noteLetter => `${noteLetter}/${opt.octave}`);
-        
+        const rawKeys = melodyNotes.map(noteLetter => `${noteLetter}/${opt.octave}`);
+        const keys = clampLedgerLines(opt.clef, rawKeys);
+
         return {
             id: index, // 0, 1, 2 for frontend identification
             clef: opt.clef,

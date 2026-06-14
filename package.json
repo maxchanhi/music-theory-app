@@ -7,6 +7,7 @@
     "node": ">=25.8.0"
   },
   "scripts": {
+    "build": "echo No build step needed - just run npm start",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },
@@ -17,9 +18,10 @@
     "express": "^4.22.1",
     "express-session": "^1.19.0",
     "fraction.js": "^5.3.4",
+    "jsdom": "^29.1.1",
     "mongoose": "^9.2.3",
     "openai": "^6.25.0",
-    "vexflow": "^4.2.2"
+    "vexflow": "^5.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

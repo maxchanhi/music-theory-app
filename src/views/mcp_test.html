@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP Tool Tester</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+  .layout { display: flex; height: 100vh; }
+  .sidebar { width: 320px; background: #1e293b; padding: 16px; overflow-y: auto; border-right: 1px solid #334155; }
+  .main { flex: 1; padding: 16px; overflow-y: auto; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin: 16px 0 8px; }
+  h2:first-child { margin-top: 0; }
+  .tool-btn {
+    display: block; width: 100%; text-align: left; padding: 10px 12px; margin: 4px 0;
+    background: #334155; border: 1px solid #475569; border-radius: 8px; cursor: pointer;
+    color: #e2e8f0; font-size: 13px; transition: all 0.15s;
+  }
+  .tool-btn:hover { background: #475569; border-color: #64748b; }
+  .tool-btn.active { background: #3b82f6; border-color: #60a5fa; }
+  .tool-desc { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+  .param-group { margin: 12px 0; }
+  .param-group label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+  .param-group label span { color: #f87171; margin-left: 4px; font-size: 10px; }
+  .param-group input, .param-group select, .param-group textarea {
+    width: 100%; padding: 8px 10px; background: #1e293b; border: 1px solid #475569;
+    border-radius: 6px; color: #e2e8f0; font-size: 13px; font-family: inherit;
+  }
+  .param-group textarea { min-height: 80px; resize: vertical; font-family: 'Fira Code', monospace; font-size: 12px; }
+  .param-group select { cursor: pointer; }
+  .btn-run {
+    width: 100%; padding: 10px; background: #3b82f6; color: white; border: none;
+    border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 12px;
+  }
+  .btn-run:hover { background: #2563eb; }
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+  .result-box {
+    margin-top: 16px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px;
+  }
+  .result-box h3 { font-size: 13px; color: #94a3b8; margin-bottom: 8px; }
+  .result-box pre {
+    background: #0f172a; padding: 12px; border-radius: 6px; overflow-x: auto;
+    font-family: 'Fira Code', monospace; font-size: 12px; max-height: 500px; overflow-y: auto;
+    white-space: pre-wrap; word-break: break-all;
+  }
+  .score-box { margin-top: 12px; border: 1px solid #334155; border-radius: 8px; min-height: 120px; display: flex; align-items: center; justify-content: center; background: white; }
+  .score-box svg { max-width: 100%; }
+  .status { font-size: 12px; color: #22c55e; margin-top: 4px; }
+  .status.err { color: #f87171; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 6px; }
+  .badge.req { background: #f8717122; color: #f87171; }
+  .badge.opt { background: #94a3b822; color: #94a3b8; }
+  .topic-item { font-size: 11px; color: #94a3b8; padding: 4px 0; border-bottom: 1px solid #1e293b; }
+  .history-item { padding: 6px 8px; margin: 4px 0; border-radius: 6px; cursor: pointer; font-size: 12px; background: #1e293b; }
+  .history-item:hover { background: #334155; }
+  .history-item .time { color: #64748b; font-size: 10px; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar: Tool list -->
+  <div class="sidebar">
+    <h2>🔧 MCP Tools</h2>
+    <div id="toolList"></div>
+    <h2>📋 Topics</h2>
+    <div id="topicList"></div>
+    <h2>🕘 History</h2>
+    <div id="historyList"></div>
+  </div>
+
+  <!-- Main: Params + Result -->
+  <div class="main">
+    <h2 id="toolTitle" style="font-size:18px;color:#e2e8f0;">Select a tool</h2>
+    <p id="toolDesc" style="font-size:13px;color:#94a3b8;margin-bottom:12px;"></p>
+    <div id="paramsContainer"></div>
+    <button class="btn-run" id="btnRun" disabled onclick="runTool()">▶ Run</button>
+    <div id="status"></div>
+    <div class="result-box" id="resultBox" style="display:none;">
+      <h3>📤 Response</h3>
+      <pre id="resultJson"></pre>
+    </div>
+    <div class="score-box" id="scoreBox" style="display:none;"></div>
+  </div>
+</div>
+
+<script src="/scripts/vexflow/vexflow.js"></script>
+<script>
+// ── State ──
+let tools = [], topics = [], currentTool = null, history = [], lastResult = null;
+
+// ── Init ──
+fetch('/mcp/tools').then(r => r.json()).then(data => {
+  tools = data.tools;
+  topics = data.topics;
+  renderToolList();
+  renderTopicList();
+}).catch(e => console.error('Failed to load tools:', e));
+
+function renderToolList() {
+  const el = document.getElementById('toolList');
+  el.innerHTML = tools.map(t => {
+    const paramCount = Object.keys(t.parameters).length;
+    return `<button class="tool-btn" onclick="selectTool('${t.name}')">
+      <strong>${t.name}</strong>
+      <div class="tool-desc">${t.description} · ${paramCount} param${paramCount !== 1 ? 's' : ''}</div>
+    </button>`;
+  }).join('');
+}
+
+function renderTopicList() {
+  document.getElementById('topicList').innerHTML = topics.map(t =>
+    `<div class="topic-item"><strong>${t.topic}</strong> — ${t.name}<br><span style="font-size:10px;color:#64748b;">${t.description}${t.difficultyLevels ? ' · difficulties: ' + t.difficultyLevels.join(', ') : ''}</span></div>`
+  ).join('');
+}
+
+function addHistory(tool, args, result) {
+  history.unshift({ tool, args, result, time: new Date().toLocaleTimeString() });
+  if (history.length > 20) history.length = 20;
+  renderHistory();
+}
+
+function renderHistory() {
+  document.getElementById('historyList').innerHTML = history.map((h, i) =>
+    `<div class="history-item" onclick="loadHistory(${i})">
+      <strong>${h.tool}</strong> <span class="time">${h.time}</span>
+    </div>`
+  ).join('');
+}
+
+function loadHistory(i) {
+  const h = history[i];
+  selectTool(h.tool);
+  setTimeout(() => {
+    for (const [key, val] of Object.entries(h.args)) {
+      const el = document.querySelector(`[name="${key}"]`);
+      if (el) {
+        if (el.tagName === 'TEXTAREA') el.value = typeof val === 'object' ? JSON.stringify(val, null, 2) : val;
+        else el.value = val;
+      }
+    }
+    showResult(h.result);
+  }, 100);
+}
+
+// ── Tool selection ──
+function selectTool(name) {
+  currentTool = tools.find(t => t.name === name);
+  if (!currentTool) return;
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  const btn = [...document.querySelectorAll('.tool-btn')].find(b => b.textContent.includes(name));
+  if (btn) btn.classList.add('active');
+  document.getElementById('toolTitle').textContent = name;
+  document.getElementById('toolDesc').textContent = currentTool.description;
+  renderParams(currentTool.parameters);
+  document.getElementById('btnRun').disabled = false;
+  document.getElementById('resultBox').style.display = 'none';
+  document.getElementById('scoreBox').style.display = 'none';
+  document.getElementById('status').textContent = '';
+}
+
+function renderParams(params) {
+  const container = document.getElementById('paramsContainer');
+  const prevTopic = document.querySelector('[name="topic"]')?.value || '';
+  if (!Object.keys(params).length) {
+    container.innerHTML = '<p style="color:#94a3b8;font-size:13px;">No parameters needed.</p>';
+    return;
+  }
+  container.innerHTML = Object.entries(params).map(([key, meta]) => {
+    const req = meta.required ? '<span class="badge req">required</span>' : '<span class="badge opt">optional</span>';
+    if (meta.enum) {
+      return `<div class="param-group">
+        <label>${key} ${req} <span style="color:#64748b;font-size:10px;">${meta.desc || ''}</span></label>
+        <select name="${key}">${meta.enum.map(v => `<option value="${v}" ${v === prevTopic ? 'selected' : ''}>${v}</option>`).join('')}</select>
+      </div>`;
+    }
+    if (meta.type === 'json') {
+      // Determine placeholder/default based on topic field value
+      const topicVal = document.querySelector('[name="topic"]')?.value || '';
+      let ph = '["treble","bass"]';
+      if (key === 'clefs' && topicVal === 'pitch_id') ph = '["treble"]';
+      else if (key === 'clefs' && topicVal === 'chromatic') ph = '["treble"]';
+      else if (key === 'accidentals' && topicVal === 'pitch_id') ph = '["Natural (♮)"]';
+      return `<div class="param-group">
+        <label>${key} ${req} <span style="color:#64748b;font-size:10px;">${meta.desc || ''}</span></label>
+        <textarea name="${key}" placeholder='${ph}'></textarea>
+      </div>`;
+    }
+    if (meta.type === 'boolean') {
+      // Hide sameClef/compound for non-interval topics
+      const topicVal = document.querySelector('[name="topic"]')?.value || '';
+      const show = currentTool?.name === 'generate_question' && key !== 'topic' &&
+        (topicVal === 'interval' || (key !== 'sameClef' && key !== 'compound'));
+      if (!show) return '';
+      return `<div class="param-group" style="opacity:0.7">
+        <label>${key} ${req}</label>
+        <select name="${key}"><option value="true">true</option><option value="false">false</option></select>
+      </div>`;
+    }
+    return `<div class="param-group">
+      <label>${key} ${req} <span style="color:#64748b;font-size:10px;">${meta.desc || ''}</span></label>
+      <input type="text" name="${key}" placeholder="${meta.desc || key}">
+    </div>`;
+  }).join('');
+}
+
+// Watch topic field changes to re-render params with topic-appropriate defaults
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.getAttribute('name') === 'topic') {
+    renderParams(currentTool?.parameters || {});
+  }
+});
+
+// ── Run tool ──
+async function runTool() {
+  if (!currentTool) return;
+  const btn = document.getElementById('btnRun');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running...';
+  document.getElementById('status').textContent = '';
+  document.getElementById('resultBox').style.display = 'none';
+  document.getElementById('scoreBox').style.display = 'none';
+
+  const args = {};
+  document.querySelectorAll('#paramsContainer [name]').forEach(el => {
+    const key = el.getAttribute('name');
+    let val = el.value;
+    if (currentTool.parameters[key]?.type === 'json') {
+      try { val = JSON.parse(val); } catch { val = val; }
+    }
+    if (currentTool.parameters[key]?.type === 'boolean') {
+      val = val === 'true';
+    }
+    if (val !== '' && val !== null && val !== undefined) args[key] = val;
+  });
+
+  try {
+    const resp = await fetch('/mcp/execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tool: currentTool.name, args })
+    });
+    const data = await resp.json();
+    showResult(data.result || data);
+    addHistory(currentTool.name, args, data.result || data);
+    document.getElementById('status').innerHTML = '<span class="status">✓ OK</span>';
+  } catch (e) {
+    document.getElementById('status').innerHTML = `<span class="status err">✗ ${e.message}</span>`;
+    document.getElementById('resultBox').style.display = 'block';
+    document.getElementById('resultJson').textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '▶ Run';
+  }
+}
+
+function showResult(result) {
+  lastResult = result;
+  document.getElementById('resultBox').style.display = 'block';
+  document.getElementById('resultJson').textContent = JSON.stringify(result, null, 2);
+
+  // Render VexFlow if displayData exists
+  const scoreBox = document.getElementById('scoreBox');
+  scoreBox.style.display = 'none';
+  scoreBox.innerHTML = '';
+  if (result && result.displayData && typeof VexFlow !== 'undefined') {
+    const VF = VexFlow;
+    const dd = result.displayData;
+
+    // ── Transpose note key for clef: VexFlow positions by absolute pitch ──
+    const nl = ['c','d','e','f','g','a','b'];
+    const clefShift = { bass: 5, tenor: 1, alto: -1 };
+    function transposeKey(key, clef) {
+      const s = clefShift[clef]; if (!s) return key;
+      const m = key.match(/^([a-g])([#bn]*)\/(\d+)$/i); if (!m) return key;
+      let l = m[1].toLowerCase(), a = m[2]||'', o = parseInt(m[3],10), i = nl.indexOf(l);
+      if (i < 0) return key; let ni = i + s;
+      while (ni < 0) { ni += 7; o--; } while (ni >= 7) { ni -= 7; o++; }
+      return nl[ni] + (a === 'n' ? '' : a) + '/' + o;
+    }
+
+    try {
+      if (dd.vexNotes && dd.clefs) {
+        // Interval-style: two notes with clefs
+        const clef = dd.clefs[0] || 'treble';
+        const w = 400, h = 180;
+        const renderer = new VF.Renderer(scoreBox, VF.Renderer.Backends.SVG);
+        renderer.resize(w, h);
+        const ctx = renderer.getContext();
+        const stave1 = new VF.Stave(5, 50, 185);
+        stave1.addClef(clef).setContext(ctx).draw();
+        const stave2 = new VF.Stave(200, 50, 185);
+        stave2.addClef(dd.clefs[1] || clef).setContext(ctx).draw();
+        const clef2 = dd.clefs[1] || clef;
+        function buildNote(v, c) {
+          const n = new VF.StaveNote({ keys: [transposeKey(v.key, c)], duration: 'w' });
+          n.getStem().setVisibility(false);
+          if (v.accidental && v.accidental !== 'n' && v.accidental !== '') n.addModifier(new VF.Accidental(v.accidental));
+          return n;
+        }
+        VF.Formatter.FormatAndDraw(ctx, stave1, [buildNote(dd.vexNotes[0], clef)]);
+        VF.Formatter.FormatAndDraw(ctx, stave2, [buildNote(dd.vexNotes[1], clef2)]);
+        scoreBox.style.display = 'flex';
+      } else if (dd.vexKey) {
+        // Pitch ID: single note
+        const clef = dd.clef || 'treble';
+        const renderer = new VF.Renderer(scoreBox, VF.Renderer.Backends.SVG);
+        renderer.resize(150, 180);
+        const ctx = renderer.getContext();
+        const stave = new VF.Stave(5, 50, 130);
+        stave.addClef(clef).setContext(ctx).draw();
+        const note = new VF.StaveNote({ keys: [transposeKey(dd.vexKey, clef)], duration: 'w' });
+        note.getStem().setVisibility(false);
+        if (dd.accidental && dd.accidental !== 'n' && dd.accidental !== '') note.addModifier(new VF.Accidental(dd.accidental));
+        VF.Formatter.FormatAndDraw(ctx, stave, [note]);
+        scoreBox.style.display = 'flex';
+      } else if (dd.options && dd.options[0]?.scale) {
+        // Chromatic-style: multiple scale options, one per stave
+        const clef = dd.clef || 'treble';
+        const gap = 10;
+        const svgW = Math.min(window.innerWidth - 120, 700);
+        const clefTopRoom = 45, clefBottomRoom = 45, staffH = 40;
+        const staffBot = { treble:30, bass:18, alto:25, tenor:23 };
+        function simpleLayout(keys) {
+          const bottomRef = staffBot[clef] || 30;
+          let deepest = Infinity;
+          for (const k of keys) {
+            const m = k.match(/^([a-g])[#bn]*\/(\d+)$/i);
+            if (!m) continue;
+            const idx = nl.indexOf(m[1].toLowerCase());
+            if (idx < 0) continue;
+            deepest = Math.min(deepest, parseInt(m[2]) * 7 + idx);
+          }
+          const ledgerExtra = isFinite(deepest) ? Math.max(0, (bottomRef - deepest) * 8) : 0;
+          return { height: clefTopRoom + staffH + clefBottomRoom + ledgerExtra, staveY: clefTopRoom };
+        }
+        const perOption = dd.options.map(opt => {
+          const keys = (opt.scale || []).map(n => {
+            const m = n.match(/^([a-g])([#bn]*)\/(\d+)$/i);
+            if (!m) return { key: 'c/4', acc: '' };
+            const acc = m[2] || '';
+            return { key: m[1].toLowerCase() + '/' + m[3], acc: acc };
+          });
+          const layout = simpleLayout(keys.map(k => k.key));
+          return { keys, layout };
+        });
+        let svgH = 10;
+        const staveYs = [];
+        for (const o of perOption) { staveYs.push(svgH); svgH += o.layout.height + gap; }
+        const renderer = new VF.Renderer(scoreBox, VF.Renderer.Backends.SVG);
+        renderer.resize(svgW, svgH);
+        const ctx = renderer.getContext();
+        perOption.forEach((opt, i) => {
+          const staveY = staveYs[i];
+          const stave = new VF.Stave(5, staveY, svgW - 10);
+          stave.addClef(clef).setContext(ctx).draw();
+          const notes = opt.keys.map(k => {
+            const note = new VF.StaveNote({ keys: [transposeKey(k.key, clef)], duration: '8' });
+            if (k.acc && k.acc !== '') note.addModifier(new VF.Accidental(k.acc));
+            return note;
+          });
+          const beams = VF.Beam.generateBeams(notes);
+          VF.Formatter.FormatAndDraw(ctx, stave, notes);
+          beams.forEach(b => b.setContext(ctx).draw());
+        });
+        scoreBox.style.display = 'flex';
+      } else if (dd.vexNotes && !dd.clefs) {
+        // Inversion-style: multiple notes, one clef
+        const clef = dd.clef || 'treble';
+        const w = Math.max(300, dd.vexNotes.length * 50 + 40);
+        const renderer = new VF.Renderer(scoreBox, VF.Renderer.Backends.SVG);
+        renderer.resize(w, 180);
+        const ctx = renderer.getContext();
+        const stave = new VF.Stave(5, 50, w - 20);
+        stave.addClef(clef).setContext(ctx).draw();
+        const notes = dd.vexNotes.map(n => {
+          const note = new VF.StaveNote({ keys: [transposeKey(n.key, clef)], duration: 'h' });
+          if (n.accidental && n.accidental !== 'n') note.addModifier(new VF.Accidental(n.accidental));
+          return note;
+        });
+        VF.Formatter.FormatAndDraw(ctx, stave, notes);
+        scoreBox.style.display = 'flex';
+      }
+    } catch(e) {
+      scoreBox.innerHTML = `<p style="color:red;font-size:12px;">Render error: ${e.message}</p>`;
+      scoreBox.style.display = 'flex';
+    }
+  }
+}
+</script>
+</body>
+</html>

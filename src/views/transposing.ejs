@@ -157,22 +157,22 @@
                 
                 // 1. Prepare Notes & Voice first to calculate required width
                 const notes = notesData.map(n => {
-                    const note = new Vex.Flow.StaveNote({ 
+                    const note = new VexFlow.StaveNote({ 
                         keys: [n.key], 
                         duration: "q" 
                     });
                     
                     if (n.accidental) {
-                        note.addModifier(new Vex.Flow.Accidental(n.accidental));
+                        note.addModifier(new VexFlow.Accidental(n.accidental));
                     }
                     return note;
                 });
                 
-                const voice = new Vex.Flow.Voice({num_beats: notes.length, beat_value: 4});
+                const voice = new VexFlow.Voice({numBeats: notes.length, beatValue: 4});
                 voice.addTickables(notes);
 
                 // 2. Calculate dynamic width
-                const formatter = new Vex.Flow.Formatter().joinVoices([voice]);
+                const formatter = new VexFlow.Formatter().joinVoices([voice]);
                 const minNoteWidth = formatter.preCalculateMinTotalWidth([voice]);
                 
                 // Base padding for Clef (~50px), Key Signature (~30-60px), Left/Right margins (~30px)
@@ -183,12 +183,12 @@
                 const finalWidth = Math.max(width, requiredWidth);
 
                 // 3. Setup Renderer with final width
-                const renderer = new Vex.Flow.Renderer(div, Vex.Flow.Renderer.Backends.SVG);
+                const renderer = new VexFlow.Renderer(div, VexFlow.Renderer.Backends.SVG);
                 renderer.resize(finalWidth, height);
                 const context = renderer.getContext();
                 
                 // 4. Draw Stave
-                const stave = new Vex.Flow.Stave(10, 20, finalWidth - 20);
+                const stave = new VexFlow.Stave(10, 20, finalWidth - 20);
                 stave.addClef("treble");
                 
                 // Add key signature

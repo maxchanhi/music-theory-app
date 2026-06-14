@@ -165,7 +165,7 @@
         updateSelection({}); // Just run to set initial state
 
         // VexFlow Rendering
-        const VF = Vex.Flow;
+        const VF = VexFlow;
         const options = JSON.parse('<%- JSON.stringify(question.options) %>');
         
         options.forEach((opt, index) => {
@@ -191,7 +191,7 @@
             });
             
             // Create voice
-            const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+            const voice = new VF.Voice({numBeats: 4, beatValue: 4});
             voice.addTickables(notes);
             
             // Format and draw

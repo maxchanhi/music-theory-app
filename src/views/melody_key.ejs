@@ -253,7 +253,7 @@
                     console.error("No notes data available");
                     scoreDiv.innerHTML = "<div class='error'>Error: No melody data generated. Please try 'New Question'.</div>";
                 } else {
-                    const VF = Vex.Flow;
+                    const VF = VexFlow;
                     const notesData = JSON.parse(notesDataStr);
                     
                     if (!notesData || notesData.length === 0) {
@@ -297,7 +297,7 @@
                         // Calculate total beats to configure Voice correctly
                         // We use a flexible voice mode, but providing correct num_beats helps
                         // Simply use a large number or calculate from duration
-                        const voice = new VF.Voice({num_beats: 40, beat_value: 4});
+                        const voice = new VF.Voice({numBeats: 40, beatValue: 4});
                         voice.setMode(VF.Voice.Mode.SOFT);
                         voice.addTickables(vfNotes);
                         

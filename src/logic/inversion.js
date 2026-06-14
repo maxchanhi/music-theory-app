@@ -1,4 +1,5 @@
 // const { Vex } = require('vexflow'); // VexFlow is client-side only for this app, we don't need it in Node logic for now
+const { clampLedgerLines } = require('./ledger_utils');
 
 
 // Constants from notation.py
@@ -195,7 +196,16 @@ function generateInversionQuestion(clef = "treble") { // default to treble if no
     
     // Prepare VexFlow data
     const vexNotes = adjustNotes.map(note => mapPitchToVexFlow(note));
-    
+
+    // Clamp ledger lines — shift all notes up/down if any exceed 3 ledgers
+    if (clef !== 'grand') {
+        const keys = vexNotes.map(n => n.key);
+        const clampedKeys = clampLedgerLines(clef, keys);
+        if (clampedKeys !== keys) {
+            vexNotes.forEach((n, i) => { n.key = clampedKeys[i]; });
+        }
+    }
+
     return {
         clef: clef,
         keySign: key,

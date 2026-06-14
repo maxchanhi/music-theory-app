@@ -163,7 +163,7 @@
         // VexFlow Rendering
         const scoreDiv = document.getElementById("score");
         if (scoreDiv) {
-            const VF = Vex.Flow;
+            const VF = VexFlow;
             const renderer = new VF.Renderer(scoreDiv, VF.Renderer.Backends.SVG);
             
             // Get data from attributes
@@ -247,7 +247,7 @@
                         if (n.accidental) chordNote.addModifier(new VF.Accidental(n.accidental), idx);
                     });
                     
-                    const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+                    const voice = new VF.Voice({numBeats: 4, beatValue: 4});
                     voice.addTickables([chordNote]);
                     voices.push(voice);
                     
@@ -256,7 +256,7 @@
                 } else {
                     // Add a whole rest
                      const rest = new VF.StaveNote({ clef: "treble", keys: ["b/4"], duration: "wr" });
-                     const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+                     const voice = new VF.Voice({numBeats: 4, beatValue: 4});
                      voice.addTickables([rest]);
                      new VF.Formatter().joinVoices([voice]).format([voice], 100);
                      voice.draw(context, staveTreble);
@@ -269,7 +269,7 @@
                         if (n.accidental) chordNote.addModifier(new VF.Accidental(n.accidental), idx);
                     });
                     
-                    const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+                    const voice = new VF.Voice({numBeats: 4, beatValue: 4});
                     voice.addTickables([chordNote]);
                     voices.push(voice); // Not strictly needed to push if we draw immediately
                     
@@ -277,7 +277,7 @@
                     voice.draw(context, staveBass);
                 } else {
                      const rest = new VF.StaveNote({ clef: "bass", keys: ["d/3"], duration: "wr" });
-                     const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+                     const voice = new VF.Voice({numBeats: 4, beatValue: 4});
                      voice.addTickables([rest]);
                      new VF.Formatter().joinVoices([voice]).format([voice], 100);
                      voice.draw(context, staveBass);
@@ -303,7 +303,7 @@
                     }
                 });
                 
-                const voice = new VF.Voice({num_beats: 4, beat_value: 4});
+                const voice = new VF.Voice({numBeats: 4, beatValue: 4});
                 voice.addTickables([chordNote]);
                 
                 new VF.Formatter().joinVoices([voice]).format([voice], 100);

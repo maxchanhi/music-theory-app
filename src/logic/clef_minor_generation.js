@@ -1,5 +1,7 @@
 
 // Convert LilyPond notes to VexFlow keys for Clef & Minor module
+const { clampLedgerLines } = require('./ledger_utils');
+
 function generateQuestionData(clef, fixedPitch, minorScale) {
     // VexFlow/LilyPond standard: 'c' is C3 (Small Octave)
     // We ignore fixedPitch for octave calculation because minorScale is now absolute
@@ -35,7 +37,7 @@ function generateQuestionData(clef, fixedPitch, minorScale) {
     });
 
     return {
-        notes: vexFlowNotes,
+        notes: clampLedgerLines(clef, vexFlowNotes),
         clef: clef
     };
 }

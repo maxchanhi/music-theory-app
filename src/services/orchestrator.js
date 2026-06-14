@@ -50,6 +50,24 @@ const TOOL_DEFS = topics.length > 0 ? [
           difficulty: {
             type: 'string',
             description: 'Optional difficulty level for the topic'
+          },
+          clefs: {
+            type: 'array',
+            items: { type: 'string', enum: ['treble', 'bass', 'alto', 'tenor'] },
+            description: 'Optional: list of clefs to pick from (overrides difficulty preset)'
+          },
+          accidentals: {
+            type: 'array',
+            items: { type: 'string', enum: ['Sharp (♯)', 'Natural (♮)', 'Flat (♭)', 'Double-sharp(x)', 'Double-flat(♭♭)'] },
+            description: 'Optional: which accidentals to include (overrides difficulty preset)'
+          },
+          sameClef: {
+            type: 'boolean',
+            description: 'Optional: force both staves to use the same clef (interval only)'
+          },
+          compound: {
+            type: 'boolean',
+            description: 'Optional: allow compound intervals (notes in different octaves)'
           }
         },
         required: ['topic']
@@ -135,12 +153,18 @@ async function callLLM(messages, options = {}) {
     max_tokens: 4096
   };
 
-  // Inject a system instruction to force tool calling when needed
+  // Inject a system instruction to force tool calling when needed.
+  // MUST be inserted right after the first system message, not at the end.
   if (options.forceTool) {
+    const sysIdx = messages.findIndex(m => m.role === 'system');
+    const insertAt = sysIdx >= 0 ? sysIdx + 1 : 0;
     body.messages = [
-      ...messages,
-      { role: 'system', content: 'The user just answered a quiz question. You MUST call check_answer NOW with the questionData from your previous generate_question call. Do not explain — call the function immediately.' }
+      ...messages.slice(0, insertAt),
+      { role: 'system', content: 'SYSTEM OVERRIDE: The user just answered a quiz question. You MUST call check_answer NOW. Do not write any text first — call the check_answer function immediately.' },
+      ...messages.slice(insertAt)
     ];
+  } else {
+    body.messages = messages;
   }
 
   const response = await fetch(`${DEEPSEEK_BASE_URL}/chat/completions`, {
@@ -186,6 +210,9 @@ async function judgeAnswer(topic, questionData, userAnswer) {
   }
 }
 
+// Track last asked question signature to avoid repeats
+let _lastQuestionSig = null;
+
 async function executeTool(toolCall) {
   const fnName = toolCall.function.name;
   const args = safeJSON(toolCall.function.arguments);
@@ -197,7 +224,20 @@ async function executeTool(toolCall) {
     case 'generate_question': {
       const options = {};
       if (args.difficulty) options.difficulty = args.difficulty;
+      if (args.clefs) options.clefs = args.clefs;
+      if (args.accidentals) options.accs = args.accidentals;
+      if (args.sameClef !== undefined) options.sameClef = args.sameClef;
+      if (args.compound !== undefined) options.compound = args.compound;
+      // Avoid repeating the same question
+      if (_lastQuestionSig) options.avoid = _lastQuestionSig;
       const question = registry.generateQuestion(args.topic, options);
+      // Store signature for next avoid
+      const raw = question?.rawData || question;
+      if (raw?.vexKey) {
+        _lastQuestionSig = raw.vexKey;
+      } else if (raw?.vexNote1?.key && raw?.vexNote2?.key) {
+        _lastQuestionSig = raw.vexNote1.key + '-' + raw.vexNote2.key;
+      }
       return JSON.stringify(question);
     }
 
@@ -208,7 +248,11 @@ async function executeTool(toolCall) {
       const result = registry.checkAnswer(args.topic, args.questionData, args.userAnswer);
       if (result.correct) return JSON.stringify(result);
 
-      // Exact match failed — ask LLM to judge semantic equivalence
+      // Exact match failed — try local fuzzy match (handles abbreviations, misspellings)
+      const fuzzyResult = fuzzyMatchAnswer(result.correctAnswer, args.userAnswer);
+      if (fuzzyResult) return JSON.stringify(fuzzyResult);
+
+      // Fuzzy failed — ask LLM to judge semantic equivalence
       try {
         const judge = await judgeAnswer(args.topic, args.questionData, args.userAnswer);
         if (judge && judge.correct) return JSON.stringify(judge);
@@ -256,7 +300,8 @@ async function executeTool(toolCall) {
   }
 }
 
-// Direct answer checking fallback when LLM refuses to use check_answer
+// Direct answer checking fallback when LLM refuses to use check_answer.
+// Works entirely without LLM — exact match first, then fuzzy, then LLM judge if available.
 async function fallbackAnswerCheck(pendingQuestion, userMessage) {
   // Use the registry's real checkAnswer if we know the topic
   const topic = pendingQuestion.topic;
@@ -266,12 +311,18 @@ async function fallbackAnswerCheck(pendingQuestion, userMessage) {
       if (result.correct) return {
         correct: true,
         correctAnswer: result.correctAnswer,
-        explanation: `Correct! ${result.explanation.replace(/^Correct[!]*\s*/i, '')} Would you like another question?`
+        explanation: `Correct! ${String(result.explanation || '').replace(/^Correct[!]*\s*/i, '')} Would you like another question?`
       };
-      // Exact match failed — try LLM judge
+
+      // Exact match failed — try local fuzzy match before LLM judge
+      const fuzzyResult = fuzzyMatchAnswer(result.correctAnswer, userMessage);
+      if (fuzzyResult) return fuzzyResult;
+
+      // Try LLM judge
       const judge = await judgeAnswer(topic, pendingQuestion, userMessage);
       if (judge && judge.correct) return judge;
       if (judge) return judge;
+
       return {
         correct: false,
         correctAnswer: result.correctAnswer,
@@ -280,23 +331,149 @@ async function fallbackAnswerCheck(pendingQuestion, userMessage) {
     } catch (e) { /* fall through */ }
   }
 
-  // Simple string comparison fallback
+  // Ultimate fallback: direct comparison
   const qData = pendingQuestion.rawData || pendingQuestion;
-  const correctAnswer = pendingQuestion.correctAnswer || qData.answer || qData.correctAnswer;
+  const correctAnswer = pendingQuestion.correctAnswer || qData?.answer || qData?.correctAnswer;
   if (!correctAnswer) return null;
 
-  const normalizedUser = userMessage.trim().toLowerCase().replace(/^a\s+/i, '');
-  const normalizedCorrect = String(correctAnswer).trim().toLowerCase();
-
-  const isCorrect = normalizedUser === normalizedCorrect;
+  const fuzzyResult = fuzzyMatchAnswer(String(correctAnswer), userMessage);
+  if (fuzzyResult) return fuzzyResult;
 
   return {
-    correct: isCorrect,
+    correct: false,
     correctAnswer: String(correctAnswer),
-    explanation: isCorrect
-      ? `Correct! The answer is ${correctAnswer}. Great work! Would you like another question?`
-      : `Not quite — the correct answer is ${correctAnswer}. Would you like to try another one?`
+    explanation: `Not quite — the correct answer is ${correctAnswer}. Would you like to try another one?`
   };
+}
+
+/**
+ * Local fuzzy answer match — no LLM needed.
+ * Handles: abbreviations (maj=Major, min=Minor, aug=Augmented, dim=Diminished,
+ *   per/perfect=Perfect), case differences, number shorthand (3rd=Third, 4th=Fourth),
+ *   extra words, "pefect" → "perfect" common misspellings.
+ */
+function fuzzyMatchAnswer(correctAnswer, userAnswer) {
+  const norm = (s) => String(s).toLowerCase().trim().replace(/[.!?,;]+$/, '');
+
+  const user = norm(userAnswer);
+  const correct = norm(correctAnswer);
+
+  // Direct match
+  if (user === correct) return {
+    correct: true,
+    correctAnswer: String(correctAnswer),
+    explanation: `Correct! The answer is ${correctAnswer}. Would you like another question?`
+  };
+
+  // Strip common prefixes: "a ", "an ", "the "
+  const strippedUser = user.replace(/^(a|an|the)\s+/, '').trim();
+
+  // Handle single-word note+accidental: "fbb", "eb", "f#", "fx", etc.
+  const noteAccMatch = strippedUser.match(/^([a-g])(''|##|bb|xx|#|b|x|n)?$/);
+  if (noteAccMatch) {
+    const noteLetter = noteAccMatch[1];
+    const accSuffix = (noteAccMatch[2] || '').toLowerCase();
+    const accMap = { '': 'natural', 'n': 'natural', '#': 'sharp', 'b': 'flat', '##': 'double-sharp', 'bb': 'double-flat', 'x': 'double-sharp', 'xx': 'double-sharp' };
+    const accName = accMap[accSuffix] || 'natural';
+    const canonical = noteLetter + ' ' + accName;
+    // correct might be like "f double-flat(♭♭)" — strip parenthetical
+    const correctClean = correct.replace(/\(.*?\)/g, '').trim();
+    if (canonical === correctClean) {
+      return {
+        correct: true,
+        correctAnswer: String(correctAnswer),
+        explanation: `Correct! The answer is ${correctAnswer} (accepting "${userAnswer}"). Would you like another question?`
+      };
+    }
+  }
+
+  // Apply common misspellings BEFORE abbreviation matching
+  const spellFixes = {
+    'pefect': 'perfect', 'perfict': 'perfect', 'perfact': 'perfect',
+    'forth': 'fourth', 'fith': 'fifth', 'sevnth': 'seventh',
+    'unision': 'unison', 'agumented': 'augmented', 'augment': 'augmented',
+    'diminshed': 'diminished', 'deminished': 'diminished',
+  };
+  let spellChecked = strippedUser;
+  for (const [wrong, right] of Object.entries(spellFixes)) {
+    spellChecked = spellChecked.replace(new RegExp('\\b' + wrong + '\\b', 'gi'), right);
+  }
+  if (spellChecked !== strippedUser && spellChecked === correct) {
+    return {
+      correct: true,
+      correctAnswer: String(correctAnswer),
+      explanation: `Correct! The answer is ${correctAnswer} (accepting "${userAnswer}"). Would you like another question?`
+    };
+  }
+
+  // Build abbreviation maps for interval qualities and numbers
+  const qualityMap = {
+    'perfect': ['perfect', 'per', 'perf', 'p'],
+    'major': ['major', 'maj'],
+    'minor': ['minor', 'min'],
+    'augmented': ['augmented', 'aug', 'a'],
+    'diminished': ['diminished', 'dim', 'd'],
+  };
+  const numberMap = {
+    'unison': ['unison', 'uni', '1st', '1'],
+    'second': ['second', '2nd', '2'],
+    'third': ['third', '3rd', '3'],
+    'fourth': ['fourth', '4th', '4'],
+    'fifth': ['fifth', '5th', '5'],
+    'sixth': ['sixth', '6th', '6'],
+    'seventh': ['seventh', '7th', '7'],
+    'octave': ['octave', 'oct', '8th', '8'],
+    'ninth': ['ninth', '9th', '9'],
+    'tenth': ['tenth', '10th', '10'],
+    'eleventh': ['eleventh', '11th', '11'],
+    'twelfth': ['twelfth', '12th', '12'],
+    'thirteenth': ['thirteenth', '13th', '13'],
+  };
+
+  // Use spell-checked version for all abbreviation matching
+  const bestUser = spellChecked !== strippedUser ? spellChecked : strippedUser;
+
+  // Handle compound abbreviations: use original case to distinguish M=major, m=minor
+  const rawTrimmed = String(userAnswer).trim();
+  const compoundAbbrev = rawTrimmed.match(/^([PMmAd])(\d+)$/);
+  if (compoundAbbrev) {
+    const qAbbrev = compoundAbbrev[1];
+    const nAbbrev = compoundAbbrev[2];
+    const qualMap = { P: 'perfect', M: 'major', m: 'minor', A: 'augmented', d: 'diminished' };
+    const numMap = { '1':'unison','2':'second','3':'third','4':'fourth','5':'fifth','6':'sixth','7':'seventh','8':'octave','9':'ninth','10':'tenth','11':'eleventh','12':'twelfth','13':'thirteenth' };
+    const qual = qualMap[qAbbrev];
+    const num = numMap[nAbbrev];
+    if (qual && num && (qual + ' ' + num) === correct.toLowerCase()) {
+      return { correct: true, correctAnswer: String(correctAnswer), explanation: `Correct! The answer is ${correctAnswer} (accepting "${userAnswer}"). Would you like another question?` };
+    }
+  }
+
+  // Try splitting correct answer into quality + number parts
+  const correctParts = correct.split(/\s+/);
+  const userParts = bestUser.split(/\s+/);
+  if (correctParts.length >= 2 && userParts.length >= 2) {
+    const cQuality = correctParts.slice(0, -1).join(' ');
+    const cNumber = correctParts[correctParts.length - 1];
+    const uQuality = userParts.slice(0, -1).join(' ');
+    const uNumber = userParts[userParts.length - 1];
+
+    // Check if quality matches via abbreviation map
+    const qualityAliases = qualityMap[cQuality] || [cQuality];
+    const numberAliases = numberMap[cNumber] || [cNumber];
+
+    const qualityMatch = qualityAliases.some(a => uQuality === a);
+    const numberMatch = numberAliases.some(a => uNumber === a);
+
+    if (qualityMatch && numberMatch) {
+      return {
+        correct: true,
+        correctAnswer: String(correctAnswer),
+        explanation: `Correct! The answer is ${correctAnswer} (accepting "${userAnswer}"). Would you like another question?`
+      };
+    }
+  }
+
+  return null; // no match
 }
 
 // ==============================
@@ -323,7 +500,14 @@ ${progressInfo}`;
   const steps = [];
   const startTime = Date.now();
   const hasPendingQuestion = pendingQuestion !== null;
-  const looksLikeAnswer = hasPendingQuestion && message.length < 80;
+
+  // Detect if the message looks like a new topic request (not an answer)
+  const requestPattern = /^(let.?(s|'s)?\s+)?(practice|quiz|test|try|new|switch|change|different|another|show|list)\s/i;
+  const topicNames = registry.listTopics().map(t => t.topic.replace(/_/g, ' ').toLowerCase());
+  const containsTopic = topicNames.some(t => message.toLowerCase().includes(t));
+  const isNewRequest = (requestPattern.test(message) || containsTopic) && message.length < 60;
+
+  const looksLikeAnswer = hasPendingQuestion && message.length < 80 && !isNewRequest;
 
   let currentMsgs = messages;
   let finalReply = null;

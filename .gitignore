@@ -16,3 +16,6 @@ automating-browser/
 .agents/
 # Secrets
 secret.env
+
+# Chat history (local memory)
+.chat_history/

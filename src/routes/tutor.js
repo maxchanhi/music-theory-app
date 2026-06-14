@@ -4,34 +4,22 @@ const path = require('path');
 
 const orchestratorPath = path.resolve(__dirname, '..', 'services', 'orchestrator');
 const { processMessage } = require(orchestratorPath);
+const memory = require('../services/memory');
 
 // Session states: IDLE | QUESTION_ASKED | WAITING
-const tutorSessions = {};
 
 function getSession(userId) {
-  if (!tutorSessions[userId]) {
-    tutorSessions[userId] = {
-      history: [],
-      state: 'IDLE',
-      currentQuestionData: null,
-      progress: {
-        level: 'beginner',
-        weakAreas: [],
-        strongAreas: [],
-        totalQuestions: 0,
-        correctCount: 0
-      }
-    };
-  }
-  return tutorSessions[userId];
+  return memory.load(userId);
 }
 
 router.get('/', (req, res) => {
   const userId = (req.session && req.session.userInfo && req.session.userInfo.user_id) || 'anonymous';
+  const session = memory.load(userId);
   res.render('tutor', {
     user: req.session.userInfo || null,
     userId,
-    title: 'AI Music Tutor'
+    title: 'AI Music Tutor',
+    savedHistory: JSON.stringify(session.history || [])
   });
 });
 
@@ -64,17 +52,25 @@ router.post('/api/message', async (req, res) => {
     );
 
     // ---- State machine ----
+    let freshDisplayData = null;
     if (result.toolCalls && result.toolCalls.length > 0) {
       for (const tc of result.toolCalls) {
         if (tc.name === 'generate_question') {
           session.state = 'QUESTION_ASKED';
-          // The question data is in the steps — extract from tool results
           const genStep = (result.steps || []).find(s =>
             s.toolCalls && s.toolCalls.some(t => t.name === 'generate_question')
           );
-          if (genStep && genStep.results && genStep.results[0]) {
-            session.currentQuestionData = genStep.results[0];
-            session.currentQuestionData.topic = tc.args.topic;
+          if (genStep && genStep.results) {
+            let qData = genStep.results[0];
+            // If safeJSON fallback returned raw string, try parsing again
+            if (typeof qData === 'string') {
+              try { qData = JSON.parse(qData); } catch(e) { qData = null; }
+            }
+            if (qData && typeof qData === 'object') {
+              session.currentQuestionData = qData;
+              session.currentQuestionData.topic = tc.args.topic;
+              freshDisplayData = qData.displayData;
+            }
           }
         }
 
@@ -103,8 +99,11 @@ router.post('/api/message', async (req, res) => {
       session.currentQuestionData = null;
     }
 
+    // Persist session to disk so history survives restarts
+    memory.save(userId, session);
+
     // Include displayData from current question for score rendering
-    const displayData = session.currentQuestionData?.displayData || null;
+    const displayData = freshDisplayData || session.currentQuestionData?.displayData || null;
 
     res.json({
       reply: result.reply,
@@ -113,6 +112,7 @@ router.post('/api/message', async (req, res) => {
       steps: result.steps || [],
       metrics: result.metrics || {},
       state: session.state,
+      topic: session.currentQuestionData?.topic || null,
       displayData
     });
 
@@ -124,7 +124,12 @@ router.post('/api/message', async (req, res) => {
 
 router.post('/api/reset', (req, res) => {
   const userId = (req.session && req.session.userInfo && req.session.userInfo.user_id) || 'anonymous';
-  delete tutorSessions[userId];
+  memory.save(userId, {
+    history: [],
+    state: 'IDLE',
+    currentQuestionData: null,
+    progress: { level: 'beginner', weakAreas: [], strongAreas: [], totalQuestions: 0, correctCount: 0 }
+  });
   res.json({ status: 'reset' });
 });
 

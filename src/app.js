@@ -19,6 +19,7 @@ const samePitchRouter = require('./routes/same_pitch');
 const transposingRouter = require('./routes/transposing');
 const pagesRouter = require('./routes/pages');
 const tutorRouter = require('./routes/tutor');
+const mcpTestRouter = require('./routes/mcp_test');
 
 const createApp = () => {
   // Connect to Database
@@ -91,6 +92,7 @@ const createApp = () => {
   app.use('/transposing', transposingRouter);
   app.use('/', pagesRouter);
   app.use('/tutor', tutorRouter);
+  app.use('/mcp', mcpTestRouter);
 
   return app;
 };
