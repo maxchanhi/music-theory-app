@@ -65,6 +65,19 @@
       border: 1px solid #e8e8e8; overflow-x: auto; line-height: 0;
     }
     .score-display svg { display: block; margin: 0 auto; }
+    .chromatic-option {
+      cursor: pointer; border: 2px solid #e0e0e0; border-radius: 10px;
+      padding: 8px; margin: 6px 0; background: #fafafa;
+      transition: all 0.2s; overflow: hidden;
+    }
+    .message.tutor:has(.chromatic-option) { width: fit-content; }
+    .chromatic-option:hover { border-color: #8e44ad; background: #f5f0ff; box-shadow: 0 2px 8px rgba(142,68,173,0.15); }
+    .chromatic-option:active { transform: scale(0.98); }
+    .chromatic-label {
+      font-size: 13px; font-weight: 600; color: #1f2b4a; margin-bottom: 4px; padding-left: 4px;
+    }
+    .chromatic-score { line-height: 0; }
+    .chromatic-score svg { display: block; margin: 0 auto; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .input-area {
       display: flex; gap: 8px; align-items: center;
@@ -402,37 +415,42 @@
           voice.draw(ctx, stave);
         } else if (topic === 'chromatic' && displayData.options) {
           const clef = displayData.clef || 'treble';
-          const gap = 10;
-          const svgW = Math.min(window.innerWidth - 60, 700);
+          const svgW = Math.min(window.innerWidth - 60, 700) * 0.8;
 
-          const perOption = displayData.options.map(opt => {
+          displayData.options.forEach((opt, idx) => {
+            const optionNumber = idx + 1;
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'chromatic-option';
+            optionDiv.title = `Click to select option ${optionNumber}`;
+
+            const label = document.createElement('div');
+            label.className = 'chromatic-label';
+            label.textContent = `Option ${optionNumber}`;
+            optionDiv.appendChild(label);
+
+            const scoreDiv = document.createElement('div');
+            scoreDiv.className = 'chromatic-score';
+            optionDiv.appendChild(scoreDiv);
+
             const keys = (opt.scale || []).map(n => {
               const m = n.match(/^([a-g])([#bn]*)\/(\d+)$/i);
               if (!m) return { key: 'c/4', acc: '' };
               const acc = m[2] || '';
-              // Keep 'n' so addModifier(new VF.Accidental('n')) renders the natural glyph
               return { key: m[1].toLowerCase() + '/' + m[3], acc: acc };
             });
-            const layout = calcScoreLayout(keys.map(k => k.key), clef);
-            return { keys, layout };
-          });
 
-          let svgH = 10;
-          const staveYs = [];
-          for (const o of perOption) { staveYs.push(svgH); svgH += o.layout.height + gap; }
+            const noteKeys = keys.map(k => k.key);
+            const renderer = new VF.Renderer(scoreDiv, VF.Renderer.Backends.SVG);
+            renderer.resize(svgW, 100);
+            const ctx = renderer.getContext();
 
-          const renderer = new VF.Renderer(containerDiv, VF.Renderer.Backends.SVG);
-          renderer.resize(svgW, svgH);
-          const ctx = renderer.getContext();
-
-          perOption.forEach((opt, i) => {
-            const staveY = staveYs[i];
-            const stave = new VF.Stave(5, staveY, svgW - 10);
+            const stave = new VF.Stave(10, 20, svgW - 20);
             stave.addClef(clef).setContext(ctx).draw();
+            ctx.setViewBox(0, 30, svgW, 100);
 
-            const notes = opt.keys.map(k => {
-              const dur = '8';
-              const note = new VF.StaveNote({ keys: [transposeKey(k.key, clef)], duration: dur });
+            const notes = keys.map(k => {
+              const shiftedKey = transposeKey(k.key, clef);
+              const note = new VF.StaveNote({ keys: [shiftedKey], duration: '8' });
               if (k.acc && k.acc !== '') {
                 note.addModifier(new VF.Accidental(k.acc));
               }
@@ -442,6 +460,9 @@
             const beams = VF.Beam.generateBeams(notes);
             VF.Formatter.FormatAndDraw(ctx, stave, notes);
             beams.forEach(b => b.setContext(ctx).draw());
+
+            optionDiv.addEventListener('click', () => sendMessage(String(optionNumber)));
+            containerDiv.appendChild(optionDiv);
           });
 
         } else if (topic === 'clef_minor' && displayData.minorScale) {
@@ -686,9 +707,9 @@
           addMessage('Error: ' + data.error, 'tutor');
         } else {
           const msgEl = addMessage(data.reply, 'tutor');
-          if (data.displayData && data.toolCalls?.some?.(tc => tc.name === 'generate_question')) {
-            const genCall = data.toolCalls.find(tc => tc.name === 'generate_question');
-            const topic = genCall?.args?.topic || data.topic;
+          console.log('render check:', { displayData: !!data.displayData, topic: data.topic, toolCalls: data.toolCalls?.map?.(t=>t.name) });
+          if (data.displayData) {
+            const topic = data.topic || 'chromatic';
             renderScore(msgEl, data.displayData, topic);
           }
           conversationHistory.push(

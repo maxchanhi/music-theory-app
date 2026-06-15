@@ -4,6 +4,13 @@ const black_white_key = {
     4: ['e'], 5: ['f', 'es'], 6: ['fs', 'gf'], 7: ['g'],
     8: ['gs', 'af'], 9: ['a'], 10: ['as', 'bf'], 11: ['b']
 };
+const getFullSpellings = (() => {
+    const theoretical = { 0: ['bs'], 4: ['ff'], 11: ['cf'] };
+    return (pc, includeTheoretical = false) => {
+        const base = black_white_key[pc] || [];
+        return includeTheoretical && theoretical[pc] ? [...base, ...theoretical[pc]] : base;
+    };
+})();
 
 function generateChromaticScale(ascendingDir) {
     const startingPc = Math.floor(Math.random() * 12);
@@ -38,12 +45,15 @@ function generateChromaticScale(ascendingDir) {
         const stillNeedVariety = unusedLetters.length > 0;
 
         // Score each potential spelling
+        const prevBase = scale[scale.length - 1].replace(/['+,]/g, '');
+        const prevHasAcc = prevBase.length > 1 && (prevBase.includes('s') || prevBase.includes('f'));
         let best = null, bestScore = -1;
         for (const p of potentials) {
             let score = 0;
             if (p[0] !== prevLetter) score += 2;        // prefer different letter from previous
             if (!usedLetters.has(p[0])) score += 4;      // strongly prefer unused letters
             if (stillNeedVariety && !usedLetters.has(p[0])) score += 10; // must-pick if still missing letters
+            if (prevHasAcc && p[0] === prevBase[0] && p.length === 1) score += 3; // natural resolution after accidental
             if (score > bestScore) { bestScore = score; best = p; }
         }
 
@@ -51,8 +61,6 @@ function generateChromaticScale(ascendingDir) {
         usedLetters.add(nextPitch[0]);
 
         // Courtesy natural if same letter as previous with accidental
-        const prevBase = scale[scale.length - 1].replace(/['+,]/g, '');
-        const prevHasAcc = prevBase.length > 1 && (prevBase.includes('s') || prevBase.includes('f'));
         if (prevBase[0] === nextPitch[0] && prevHasAcc && nextPitch.length === 1) {
             nextPitch += "n";
         }
@@ -77,6 +85,7 @@ function generateChromaticScale(ascendingDir) {
     for (const [pc, spellings] of Object.entries(black_white_key)) {
         for (const s of spellings) noteToPc[s] = parseInt(pc);
     }
+    noteToPc.bs = 0; noteToPc.ff = 4; noteToPc.cf = 11;
     for (let i = 1; i < scale.length; i++) {
         const prev = scale[i-1].replace(/['+,]/g, '');
         const curr = scale[i].replace(/['+,]/g, '');
@@ -84,18 +93,30 @@ function generateChromaticScale(ascendingDir) {
             // Same letter adjacent — try respelling the CURRENT note
             const pc = noteToPc[curr];
             if (pc !== undefined) {
-                const altSpellings = black_white_key[pc].filter(s => s !== curr && s[0] !== prev[0]);
+                const altSpellings = getFullSpellings(pc, true).filter(s => s !== curr && s[0] !== prev[0]);
                 if (altSpellings.length > 0) {
                     const octMod = scale[i].match(/['+,]*$/)[0];
-                    scale[i] = altSpellings[0] + octMod;
+                    const oldIdx = alphabet.indexOf(curr[0]);
+                    const newIdx = alphabet.indexOf(altSpellings[0][0]);
+                    const octDiff = -Math.round((newIdx - oldIdx) / 7);
+                    let adj = '';
+                    if (octDiff > 0) { for (let n = 0; n < octDiff; n++) adj += "'"; }
+                    else if (octDiff < 0) { for (let n = 0; n < -octDiff; n++) adj += ","; }
+                    scale[i] = altSpellings[0] + octMod + adj;
                 } else {
                     // Can't respell current — try respelling PREVIOUS note
                     const prevPc = noteToPc[prev];
                     if (prevPc !== undefined) {
-                        const prevAlt = black_white_key[prevPc].filter(s => s !== prev && s[0] !== curr[0]);
+                        const prevAlt = getFullSpellings(prevPc, true).filter(s => s !== prev && s[0] !== curr[0]);
                         if (prevAlt.length > 0) {
                             const octMod = scale[i-1].match(/['+,]*$/)[0];
-                            scale[i-1] = prevAlt[0] + octMod;
+                            const oldIdx = alphabet.indexOf(prev[0]);
+                            const newIdx = alphabet.indexOf(prevAlt[0][0]);
+                            const octDiff = -Math.round((newIdx - oldIdx) / 7);
+                            let adj = '';
+                            if (octDiff > 0) { for (let n = 0; n < octDiff; n++) adj += "'"; }
+                            else if (octDiff < 0) { for (let n = 0; n < -octDiff; n++) adj += ","; }
+                            scale[i-1] = prevAlt[0] + octMod + adj;
                         }
                     }
                 }
@@ -111,6 +132,41 @@ function generateChromaticScale(ascendingDir) {
     const penHasAcc = penultimate.length > 1 && (penultimate.includes('s') || penultimate.includes('f'));
     const finalBase = (penultimate[0] === lastBase[0] && penHasAcc && lastBase.length === 1) ? lastBase + 'n' : lastBase;
     scale[scale.length - 1] = finalBase + lastOct;
+
+    // Enforce max-2 per letter (including first and last)
+    const letterCounts = {};
+    for (const n of scale) {
+        const l = n.replace(/['+,]/g, '')[0];
+        letterCounts[l] = (letterCounts[l] || 0) + 1;
+    }
+    for (const [letter, count] of Object.entries(letterCounts)) {
+        if (count > 2) {
+            for (let i = 1; i < scale.length - 1; i++) {
+                if (letterCounts[letter] <= 2) break;
+                const base = scale[i].replace(/['+,]/g, '');
+                if (base[0] !== letter) continue;
+                const pc = noteToPc[base];
+                if (pc === undefined) continue;
+                const alt = getFullSpellings(pc, true).filter(s => {
+                    if (s === base) return false;
+                    const newL = s[0];
+                    return (letterCounts[newL] || 0) < 2;
+                });
+                if (alt.length === 0) continue;
+                const octMod = scale[i].match(/['+,]*$/)[0];
+                const newL = alt[0][0];
+                const oldIdx = alphabet.indexOf(letter);
+                const newIdx = alphabet.indexOf(newL);
+                const octDiff = -Math.round((newIdx - oldIdx) / 7);
+                let adj = '';
+                if (octDiff > 0) { for (let n = 0; n < octDiff; n++) adj += "'"; }
+                else if (octDiff < 0) { for (let n = 0; n < -octDiff; n++) adj += ","; }
+                scale[i] = alt[0] + octMod + adj;
+                letterCounts[letter]--;
+                letterCounts[newL] = (letterCounts[newL] || 0) + 1;
+            }
+        }
+    }
     return scale;
 }
 
@@ -229,7 +285,7 @@ function generate(options = {}) {
         questionText: `Which of these is the correct ${ascending ? 'ascending' : 'descending'} chromatic scale?`,
         answerFormat: { type: 'multiple-choice' },
         choices: allOptions.map(o => o.scale.join(' ')),
-        correctAnswer: correctIndex,
+        correctAnswer: correctIndex + 1,
         displayData: {
             clef,
             ascending,
@@ -245,10 +301,10 @@ function generate(options = {}) {
 
 function check(questionData, userAnswer) {
     const selectedIdx = typeof userAnswer === 'string' ? parseInt(userAnswer) : userAnswer;
-    const correct = selectedIdx === questionData.correctIndex;
+    const correct = selectedIdx === questionData.correctAnswer;
     return {
         correct,
-        correctAnswer: questionData.correctIndex,
+        correctAnswer: questionData.correctAnswer,
         explanation: correct
             ? 'Correct! That is the properly spelled chromatic scale.'
             : 'That is incorrect. The correct scale has the correct enharmonic spelling throughout.'

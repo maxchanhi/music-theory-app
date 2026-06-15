@@ -150,7 +150,9 @@ async function callLLM(messages, options = {}) {
     tools: TOOL_DEFS,
     tool_choice: 'auto',
     temperature: 0.7,
-    max_tokens: 4096
+    max_tokens: 4096,
+    reasoning_effort: 'low',
+    thinking: { type: 'enabled' }
   };
 
   // Inject a system instruction to force tool calling when needed.
@@ -512,6 +514,7 @@ ${progressInfo}`;
   let currentMsgs = messages;
   let finalReply = null;
   let forceTool = false;
+  let forceGenQuest = false;
   let toolCallsThisTurn = [];
 
   try {
@@ -557,12 +560,26 @@ ${progressInfo}`;
         // Add messages and tool results to conversation for next iteration
         currentMsgs = [...currentMsgs, replyMsg, ...toolResults];
         forceTool = false;
+        forceGenQuest = false;
         continue;
 
       } else {
         // No tool calls — retry with forced tool choice if a question is pending
         if (looksLikeAnswer && !toolCallsThisTurn.includes('check_answer') && !forceTool) {
           forceTool = true;
+          continue;
+        }
+
+        // No tool calls — force generate_question if user requested a topic
+        if (isNewRequest && !toolCallsThisTurn.includes('generate_question') && !forceGenQuest) {
+          forceGenQuest = true;
+          const sysIdx = currentMsgs.findIndex(m => m.role === 'system');
+          const insertAt = sysIdx >= 0 ? sysIdx + 1 : 0;
+          currentMsgs = [
+            ...currentMsgs.slice(0, insertAt),
+            { role: 'system', content: 'You MUST immediately call generate_question with the appropriate topic. Do not write any text - call generate_question right now.' },
+            ...currentMsgs.slice(insertAt)
+          ];
           continue;
         }
 
