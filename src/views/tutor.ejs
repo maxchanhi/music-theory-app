@@ -321,8 +321,9 @@
         // ── Transpose note key for clef: VexFlow positions by absolute pitch ──
         // Bass: +5 letter steps (A→C), Tenor: +1, Alto: -1
         const noteLetters = ['c','d','e','f','g','a','b'];
-        const clefTranspose = { bass: 5, tenor: 1, alto: -1 };
+        const clefTranspose = { bass: 5, tenor: 1, alto: 1 };
         function transposeKey(key, clef) {
+          if (typeof key !== 'string') return 'c/4';
           const shift = clefTranspose[clef];
           if (!shift) return key;
           const m = key.match(/^([a-g])([#bn]*)\/(\d+)$/i);
@@ -352,7 +353,9 @@
 
           const notes = displayData.vexNotes.map((n, i) => {
             const note = new VF.StaveNote({ keys: [shiftedKeys[i]], duration: 'q' });
-            note.getStem().setVisibility(false);
+            if (note.getStem && note.getStem()) {
+              try { note.getStem().setVisibility(false); } catch(e) {}
+            }
             if (n.accidental && n.accidental !== 'n' && n.accidental !== '') {
               note.addModifier(new VF.Accidental(n.accidental));
             }
@@ -378,7 +381,9 @@
           stave.addClef(clef).setContext(ctx).draw();
 
           const note = new VF.StaveNote({ keys: [shiftedKey], duration: 'w' });
-          note.getStem().setVisibility(false);
+          if (note.getStem && note.getStem()) {
+            try { note.getStem().setVisibility(false); } catch(e) {}
+          }
           if (displayData.accidental && displayData.accidental !== 'n' && displayData.accidental !== '') {
             note.addModifier(new VF.Accidental(displayData.accidental));
           }
@@ -465,7 +470,7 @@
             containerDiv.appendChild(optionDiv);
           });
 
-        } else if (topic === 'clef_minor' && displayData.minorScale) {
+         } else if (topic === 'clef_minor' && displayData.minorScale) {
           const clef = displayData.clef || 'treble';
           const svgW = Math.min(window.innerWidth - 60, 480);
           const keys = displayData.minorScale.map(n => {
@@ -477,7 +482,6 @@
             else if (acc === 'ss') accidental = '##';
             else if (acc === 'f') accidental = 'b';
             else if (acc === 'ff') accidental = 'bb';
-            else if (acc === 'n') accidental = 'n';
             let oct = 4;
             for (let c of octMod) { if (c === "'") oct++; if (c === ',') oct--; }
             return { key: step + accidental + '/' + oct, acc: accidental };
@@ -487,9 +491,10 @@
           renderer.resize(svgW, layout.height);
           const ctx = renderer.getContext();
           const stave = new VF.Stave(5, layout.staveY, svgW - 10);
-          stave.addClef(clef).setContext(ctx).draw();
+          stave.setContext(ctx).draw();
           const notes = keys.map(k => {
             const note = new VF.StaveNote({ keys: [transposeKey(k.key, clef)], duration: 'q' });
+            if (note.getStem && note.getStem()) { try { note.getStem().setVisibility(false); } catch(e) {} }
             if (k.acc && k.acc !== '') note.addModifier(new VF.Accidental(k.acc), 0);
             return note;
           });
@@ -497,6 +502,19 @@
           voice.addTickables(notes);
           new VF.Formatter().joinVoices([voice]).format([voice], svgW - 50);
           voice.draw(ctx, stave);
+
+          // Clickable answer options
+          if (displayData.userOptions && displayData.userOptions.length) {
+            displayData.userOptions.forEach((opt, idx) => {
+              const optDiv = document.createElement('div');
+              optDiv.className = 'chromatic-option';
+              optDiv.style.padding = '8px 12px';
+              optDiv.style.cursor = 'pointer';
+              optDiv.textContent = opt;
+              optDiv.addEventListener('click', () => sendMessage(opt));
+              containerDiv.appendChild(optDiv);
+            });
+          }
 
         } else if (topic === 'melody_key' && displayData.vexNotes) {
           const clef = displayData.clef || 'treble';
@@ -580,7 +598,8 @@
             const voice = new VF.Voice({ numBeats: (opt.keys || []).length, beatValue: 4 });
             voice.addTickables(notes);
             new VF.Formatter().joinVoices([voice]).format([voice], svgW - 50);
-            voice.draw(ctx, stave);
+          voice.draw(ctx, stave);
+          ctx.setViewBox(0, 40, svgW, layout.height);
           });
         } else if (topic === 'instrument_knowledge' && displayData.imageUrl) {
           const img = document.createElement('img');

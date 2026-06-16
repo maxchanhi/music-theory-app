@@ -149,6 +149,7 @@
                             duration: "q",
                             auto_stem: true
                         });
+                        if (note.getStem && note.getStem()) { try { note.getStem().setVisibility(false); } catch(e) {} }
 
                         if (accidental) {
                             note.addModifier(new Accidental(accidental));

@@ -248,7 +248,9 @@
                 const noteLetters = ['c','d','e','f','g','a','b'];
                 function buildNote(noteData) {
                     const note = new VF.StaveNote({ keys: [noteData.key], duration: 'w' });
-                    note.getStem().setVisibility(false);
+                    if (note.getStem && note.getStem()) {
+                        try { note.getStem().setVisibility(false); } catch(e) {}
+                    }
                     const [letter] = noteData.key.split('/');
                     const noteIdx = noteLetters.indexOf(letter);
                     if (noteIdx >= 0) {

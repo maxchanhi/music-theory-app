@@ -18,6 +18,8 @@ router.get('/tools', (_req, res) => {
           accidentals:  { type: 'json', required: false, desc: 'Array: ["Sharp (♯)","Natural (♮)","Flat (♭)","Double-sharp(x)","Double-flat(♭♭)"]' },
           sameClef:     { type: 'boolean', required: false, desc: 'Both staves use same clef (interval)' },
           compound:     { type: 'boolean', required: false, desc: 'Allow compound intervals (different octaves)' },
+          clef:         { type: 'string', required: false, enum: ['treble','bass','alto','tenor'], desc: 'Pick a specific clef (clef_minor only)' },
+          sharps:       { type: 'string', required: false, desc: 'Key sharps/flats: 0-6 positive=sharps, negative=flats (clef_minor only)' },
         }
       },
       {
@@ -71,6 +73,8 @@ router.post('/execute', async (req, res) => {
         if (args.accidentals) options.accs = args.accidentals;
         if (args.sameClef !== undefined) options.sameClef = args.sameClef;
         if (args.compound !== undefined) options.compound = args.compound;
+        if (args.clef) options.clef = args.clef;
+        if (args.sharps !== undefined) options.sharps = args.sharps;
         const question = registry.generateQuestion(args.topic, options);
         return res.json({ result: question });
       }

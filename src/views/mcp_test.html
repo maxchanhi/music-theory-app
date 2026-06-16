@@ -266,18 +266,7 @@ function showResult(result) {
   if (result && result.displayData && typeof VexFlow !== 'undefined') {
     const VF = VexFlow;
     const dd = result.displayData;
-
-    // ── Transpose note key for clef: VexFlow positions by absolute pitch ──
     const nl = ['c','d','e','f','g','a','b'];
-    const clefShift = { bass: 5, tenor: 1, alto: -1 };
-    function transposeKey(key, clef) {
-      const s = clefShift[clef]; if (!s) return key;
-      const m = key.match(/^([a-g])([#bn]*)\/(\d+)$/i); if (!m) return key;
-      let l = m[1].toLowerCase(), a = m[2]||'', o = parseInt(m[3],10), i = nl.indexOf(l);
-      if (i < 0) return key; let ni = i + s;
-      while (ni < 0) { ni += 7; o--; } while (ni >= 7) { ni -= 7; o++; }
-      return nl[ni] + (a === 'n' ? '' : a) + '/' + o;
-    }
 
     try {
       if (dd.vexNotes && dd.clefs) {
@@ -293,8 +282,8 @@ function showResult(result) {
         stave2.addClef(dd.clefs[1] || clef).setContext(ctx).draw();
         const clef2 = dd.clefs[1] || clef;
         function buildNote(v, c) {
-          const n = new VF.StaveNote({ keys: [transposeKey(v.key, c)], duration: 'w' });
-          n.getStem().setVisibility(false);
+          const n = new VF.StaveNote({ keys: [v.key], duration: 'w' });
+          if (n.getStem && n.getStem()) { try { n.getStem().setVisibility(false); } catch(e) {} }
           if (v.accidental && v.accidental !== 'n' && v.accidental !== '') n.addModifier(new VF.Accidental(v.accidental));
           return n;
         }
@@ -309,8 +298,8 @@ function showResult(result) {
         const ctx = renderer.getContext();
         const stave = new VF.Stave(5, 50, 130);
         stave.addClef(clef).setContext(ctx).draw();
-        const note = new VF.StaveNote({ keys: [transposeKey(dd.vexKey, clef)], duration: 'w' });
-        note.getStem().setVisibility(false);
+        const note = new VF.StaveNote({ keys: [dd.vexKey], duration: 'w' });
+        if (note.getStem && note.getStem()) { try { note.getStem().setVisibility(false); } catch(e) {} }
         if (dd.accidental && dd.accidental !== 'n' && dd.accidental !== '') note.addModifier(new VF.Accidental(dd.accidental));
         VF.Formatter.FormatAndDraw(ctx, stave, [note]);
         scoreBox.style.display = 'flex';
@@ -355,7 +344,7 @@ function showResult(result) {
           const stave = new VF.Stave(5, staveY, svgW - 10);
           stave.addClef(clef).setContext(ctx).draw();
           const notes = opt.keys.map(k => {
-            const note = new VF.StaveNote({ keys: [transposeKey(k.key, clef)], duration: '8' });
+            const note = new VF.StaveNote({ keys: [k.key], duration: '8' });
             if (k.acc && k.acc !== '') note.addModifier(new VF.Accidental(k.acc));
             return note;
           });
@@ -363,6 +352,31 @@ function showResult(result) {
           VF.Formatter.FormatAndDraw(ctx, stave, notes);
           beams.forEach(b => b.setContext(ctx).draw());
         });
+        scoreBox.style.display = 'flex';
+      } else if (dd.minorScale && dd.vexNotes) {
+        // Clef Minor: render scale from vexNotes strings
+        const clef = dd.clef || 'treble';
+        const keys = dd.vexNotes.filter(k => typeof k === 'string' && k.includes('/'));
+        const w = Math.max(400, keys.length * 45 + 40);
+        const renderer = new VF.Renderer(scoreBox, VF.Renderer.Backends.SVG);
+        renderer.resize(w, 180);
+        const ctx = renderer.getContext();
+        const stave = new VF.Stave(5, 50, w - 20);
+        stave.setContext(ctx).draw();
+        const notes = keys.map(k => {
+          const m = k.match(/^([a-g])([#bn]*)\/(\d+)$/i);
+          const acc = (m?.[2] && m[2] !== 'n') ? m[2] : '';
+          const note = new VF.StaveNote({ keys: [k], duration: 'q' });
+          if (note.getStem && note.getStem()) { try { note.getStem().setVisibility(false); } catch(e) {} }
+          if (acc) note.addModifier(new VF.Accidental(acc), 0);
+          return note;
+        });
+        const voice = new VF.Voice({ numBeats: keys.length, beatValue: 4 });
+        voice.addTickables(notes);
+        const formatter = new VF.Formatter().joinVoices([voice]);
+        (formatter.formatToStave ? formatter.formatToStave([voice], stave) : formatter.format([voice], w - 50));
+        voice.draw(ctx, stave);
+        ctx.setViewBox(0, 40, w, 180);
         scoreBox.style.display = 'flex';
       } else if (dd.vexNotes && !dd.clefs) {
         // Inversion-style: multiple notes, one clef
@@ -374,7 +388,7 @@ function showResult(result) {
         const stave = new VF.Stave(5, 50, w - 20);
         stave.addClef(clef).setContext(ctx).draw();
         const notes = dd.vexNotes.map(n => {
-          const note = new VF.StaveNote({ keys: [transposeKey(n.key, clef)], duration: 'h' });
+          const note = new VF.StaveNote({ keys: [n.key], duration: 'h' });
           if (n.accidental && n.accidental !== 'n') note.addModifier(new VF.Accidental(n.accidental));
           return note;
         });

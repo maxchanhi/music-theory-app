@@ -35,13 +35,38 @@ for (const [key, scale] of Object.entries(harmonic_ascending)) {
 }
 
 const melodic_descending = {};
-for (const [key, scale] of Object.entries(melodic_ascending)) {
-    melodic_descending[key] = [scale[0], ...scale.slice(1).reverse()];
+for (const [key, scale] of Object.entries(harmonic_ascending)) {
+    // Naturalize 7th: remove accidental from leading tone
+    let seventh = scale[6];
+    if (seventh === 'fss') seventh = 'fs';
+    else if (seventh === 'css') seventh = 'cs';
+    else if (seventh.endsWith('s') && seventh.length > 1) seventh = seventh.slice(0, -1);
+    const naturalScale = scale.slice(0, 6).concat([seventh]);
+    melodic_descending[key] = [naturalScale[0], ...naturalScale.slice(1).reverse()];
 }
 
 const starting_pitch_easy = ['a', 'e', 'b', 'd', 'g'];
 const starting_pitch_intermediate = ['fs', 'cs', 'c', 'f'];
 const starting_pitch_hard = ['gs', 'ds', 'bf', 'ef'];
+
+// Map number of sharps (positive) or flats (negative) to starting pitches
+const sharpsToKeys = {
+    0:  ['a'],
+    1:  ['e'],
+    2:  ['b'],
+    3:  ['fs'],
+    4:  ['cs'],
+    5:  ['gs'],
+    6:  ['ds'],
+    '-1': ['d'],
+    '-2': ['g'],
+    '-3': ['c'],
+    '-4': ['f'],
+    '-5': ['bf'],
+    '-6': ['ef'],
+};
+
+const { generateQuestionData: generateVexFlowData } = require('./clef_minor_generation');
 
 const minor_types = [
     "harmonic ascending", "harmonic descending",
@@ -124,21 +149,29 @@ function addOctaveIndicators(tonic, clef) {
     octaveOffsets.push(currentOctave);
 
     // 3. Determine Base Octave for Clef
-    // Treble: Ascending starts Oct 4 (C4-B4), Descending starts Oct 5 (C5-B5)
-    // Bass: Ascending starts Oct 2 (C2-B2), Descending starts Oct 3 (C3-B3)
+    // Treble: Asc C4-C5 (c'), Desc C5-C6 (c'')
+    // Bass:   Asc C2-C3 (c,), Desc C3-C4 (c)
+    // Alto:   Asc C3-C4 (c),  Desc C4-C5 (c')
+    // Tenor:  Asc C3-C4 (c),  Desc C4-C5 (c')
     let baseOctaveShift = 0;
 
     if (clef === 'treble') {
         if (ascending) {
-            baseOctaveShift = 1; // Start in Octave 4 (c')
+            baseOctaveShift = 1;
         } else {
-            baseOctaveShift = 2; // Start in Octave 5 (c'')
+            baseOctaveShift = 2;
         }
     } else if (clef === 'bass') {
         if (ascending) {
-            baseOctaveShift = -1; // Start in Octave 2 (c,)
+            baseOctaveShift = -1;
         } else {
-            baseOctaveShift = 0; // Start in Octave 3 (c)
+            baseOctaveShift = 0;
+        }
+    } else if (clef === 'alto' || clef === 'tenor') {
+        if (ascending) {
+            baseOctaveShift = 0;
+        } else {
+            baseOctaveShift = 1;
         }
     }
 
@@ -154,9 +187,9 @@ function addOctaveIndicators(tonic, clef) {
     return { minorType, minorScale: finalScale };
 }
 
-function pickClefRange() {
-    const clefs = ['treble', 'bass'];
-    const clef = getRandomElement(clefs);
+function pickClefRange(clefHint) {
+    const clefs = ['treble', 'bass', 'alto', 'tenor'];
+    const clef = clefHint && clefs.includes(clefHint) ? clefHint : getRandomElement(clefs);
     let fixedPitch;
 
     // Fixed pitch for VexFlow stave connector if needed, or just visual reference
@@ -205,16 +238,25 @@ function displayNote(note) {
     return cleanNote.toUpperCase();
 }
 
-function generateQuestionData(level = "easy") {
+function generateQuestionData(level = "easy", clefHint = null, sharps = null) {
     let optionList;
     if (level === "easy") optionList = starting_pitch_easy;
     else if (level === "intermediate") optionList = [...starting_pitch_intermediate, ...starting_pitch_easy];
     else optionList = [...starting_pitch_hard, ...starting_pitch_intermediate];
 
+    // Filter by sharps/flats if specified
+    if (sharps !== null && sharps !== undefined && sharps !== '') {
+        const filter = sharpsToKeys[String(sharps)];
+        if (filter) {
+            optionList = optionList.filter(k => filter.includes(k));
+            if (optionList.length === 0) optionList = filter;
+        }
+    }
+
     const startingPitch = getRandomElement(optionList);
-    const { clef, fixedPitch } = pickClefRange();
+    const { clef, fixedPitch } = pickClefRange(clefHint);
     const { minorType, minorScale } = addOctaveIndicators(startingPitch, clef);
-    
+
     const userOptions = optionGeneration(startingPitch, minorType, optionList);
     const answer = `${displayNote(startingPitch)} ${minorType.split(' ')[0]} minor`;
 
@@ -231,7 +273,15 @@ function generateQuestionData(level = "easy") {
 
 function generate(options = {}) {
     const level = options.difficulty || 'easy';
-    const questionData = generateQuestionData(level);
+    const clef = options.clef || null;
+    const sharps = options.sharps !== undefined ? parseInt(options.sharps) : null;
+    const questionData = generateQuestionData(level, clef, sharps);
+
+    const vfData = generateVexFlowData(
+        questionData.clef,
+        questionData.fixedPitch,
+        questionData.minorScale
+    );
 
     return {
         questionText: `What key and type of minor scale is this?`,
@@ -242,7 +292,9 @@ function generate(options = {}) {
             clef: questionData.clef,
             startingPitch: questionData.startingPitch,
             minorScale: questionData.minorScale,
-            minorType: questionData.minorType
+            minorType: questionData.minorType,
+            vexNotes: vfData.notes,
+            userOptions: questionData.userOptions
         },
         rawData: questionData
     };

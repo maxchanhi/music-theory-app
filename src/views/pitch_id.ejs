@@ -167,7 +167,9 @@
         vf.Stave({ x: 10, y: 70, width: 100 }).addClef(clef);
 
         const note = vf.StaveNote({ keys: [key], duration: 'w' });
-        note.getStem().setVisibility(false);
+        if (note.getStem && note.getStem()) {
+            try { note.getStem().setVisibility(false); } catch(e) {}
+        }
         const [letter] = key.split('/');
         const noteLetters = ['c','d','e','f','g','a','b'];
         const idx = noteLetters.indexOf(letter);

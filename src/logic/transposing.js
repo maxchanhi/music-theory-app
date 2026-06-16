@@ -162,10 +162,14 @@ const addAccidental = (melody) => {
     while (picked.length < 3 && picked.length < newMelody.length) {
         const idx = Math.floor(Math.random() * newMelody.length);
         if (!picked.includes(idx)) {
-            if (newMelody[idx].includes('f') || newMelody[idx].includes('s')) {
-                newMelody[idx] = newMelody[idx][0]; // Remove accidental
+            const note = newMelody[idx];
+            if (note.includes('f') || note.includes('s')) {
+                newMelody[idx] = note[0];
             } else {
-                newMelody[idx] = newMelody[idx] + getRandomElement(['s', 'f']);
+                // Pick accidental that gives a valid standard note in NOTE_TO_SEMITONES
+                // 'bs' (B-sharp) is theoretical and breaks transposition, always use 'bf'
+                const acc = note === 'b' ? 'f' : getRandomElement(['s', 'f']);
+                newMelody[idx] = note + acc;
             }
             picked.push(idx);
         }
@@ -245,6 +249,17 @@ const wrongKeySign = (key) => {
 
 // Main Generation Function
 const generateQuestion = () => {
+    for (let attempt = 0; attempt < 10; attempt++) {
+        try {
+            return generateQuestionInner();
+        } catch (e) {
+            if (attempt === 9) throw e;
+        }
+    }
+    throw new Error("Could not generate transposition question after 10 attempts");
+};
+
+const generateQuestionInner = () => {
     const pickAKey = getRandomElement(MAJOR_KEYS);
     const scale = KEY_SCALES[pickAKey];
     
